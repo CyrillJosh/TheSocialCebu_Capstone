@@ -1,7 +1,19 @@
+using Microsoft.EntityFrameworkCore;
+using TheSocialCebu_Capstone.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+//Database
+builder.Services.AddDbContext<MyDBContext>(options =>
+    options
+        .UseSqlServer(builder.Configuration.GetSection("ConnectionStrings:Default").Value,
+            sql => sql.EnableRetryOnFailure())
+        .EnableSensitiveDataLogging(),
+    ServiceLifetime.Transient
+);
 
 var app = builder.Build();
 

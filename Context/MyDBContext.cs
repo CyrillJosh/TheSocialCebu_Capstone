@@ -30,7 +30,7 @@ public partial class MyDBContext : DbContext
     {
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D5B1EDCC9F3B75DC");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D5B1EDCCEBB72F16");
 
             entity.ToTable("Category");
 
@@ -44,14 +44,16 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProId).HasName("PK__Product__335D708E4E31F01B");
+            entity.HasKey(e => e.ProId).HasName("PK__Product__335D708E89EECC19");
 
             entity.ToTable("Product");
 
             entity.Property(e => e.ProId)
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("pro_Id");
-            entity.Property(e => e.Availability).HasColumnName("availability");
+            entity.Property(e => e.Availability)
+                .HasDefaultValue(true)
+                .HasColumnName("availability");
             entity.Property(e => e.CategoryId).HasColumnName("category_Id");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.Price)
@@ -66,17 +68,17 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__categor__4AB81AF0");
+                .HasConstraintName("FK__Product__categor__5DCAEF64");
 
             entity.HasOne(d => d.Subcategory).WithMany(p => p.Products)
                 .HasForeignKey(d => d.SubcategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__subcate__4BAC3F29");
+                .HasConstraintName("FK__Product__subcate__5EBF139D");
         });
 
         modelBuilder.Entity<SubCategory>(entity =>
         {
-            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A4C00E699CC8A7");
+            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A4C00E2B881276");
 
             entity.ToTable("SubCategory");
 
@@ -91,7 +93,7 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.SubCategories)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SubCatego__categ__46E78A0C");
+                .HasConstraintName("FK__SubCatego__categ__52593CB8");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,0 +1,47 @@
+﻿@using TheSocialCebu_Capstone.Models
+@model IEnumerable<Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h2>Product List</h2>
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Availability</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (item.ProdImage != null)
+                    {
+                        <img src="@("data:image;base64," + Convert.ToBase64String(item.ProdImage))" width="60" />
+                    }
+                </td>
+                <td>@item.ProdName</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@(item.Availability ? "Yes" : "No")</td>
+                <td>@item.Category.CategoryName</td>
+                <td>@item.Subcategory.SubcategoryName</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ProId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
