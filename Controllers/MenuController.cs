@@ -27,20 +27,6 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(products);
         }
 
-        //Product Details
-        public IActionResult Details(Guid id)
-        {
-            //Get Products with its category and subcategory
-            var product = _context.Products
-                .Include(p => p.Category)   
-                .Include(p => p.Subcategory)
-                .FirstOrDefault(p => p.ProId == id);
-
-            if (product == null) return NotFound();
-
-            return View(product);
-        }
-
         //Create 
         public IActionResult Create()
         {
@@ -56,13 +42,15 @@ namespace TheSocialCebu_Capstone.Controllers
                 //Repopulate Categories
                 vm.Categories = GetCategories();
                 vm.Subcategories = GetSubCategories();
+
+                //foreach(var invalid in ModelState)
                 return View(vm);
             }
 
             //Set Product
             var product = new Product
             {
-                ProId = Guid.NewGuid(),
+                ProdId = Guid.NewGuid().ToString(),
                 ProdName = vm.ProdName,
                 Description = vm.Description,
                 Price = vm.Price,
@@ -88,7 +76,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //Edit
-        public IActionResult Edit(Guid id)
+        public IActionResult Edit(string id)
         {
             //Get the product
             var product = _context.Products.Find(id);
@@ -96,7 +84,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             var vm = new ProductVM
             {
-                ProId = product.ProId,
+                ProId = product.ProdId,
                 ProdName = product.ProdName,
                 Description = product.Description,
                 Price = product.Price,
@@ -151,17 +139,8 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //Delete
-        public IActionResult Delete(Guid id)
-        {
-            //Get Product
-            var product = _context.Products.Find(id);
-            if (product == null) return NotFound();
-
-            return View(product);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
         {
             //Get product
             var product = _context.Products.Find(id);

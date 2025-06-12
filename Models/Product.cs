@@ -5,7 +5,7 @@ namespace TheSocialCebu_Capstone.Models;
 
 public partial class Product
 {
-    public Guid ProId { get; set; }
+    public string ProdId { get; set; } = null!;
 
     public string ProdName { get; set; } = null!;
 
@@ -13,9 +13,9 @@ public partial class Product
 
     public decimal Price { get; set; }
 
-    public Guid CategoryId { get; set; }
+    public string CategoryId { get; set; } = null!;
 
-    public Guid SubcategoryId { get; set; }
+    public string SubcategoryId { get; set; } = null!;
 
     public bool Availability { get; set; }
 

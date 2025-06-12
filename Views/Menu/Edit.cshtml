@@ -38,12 +38,29 @@
     </div>
     <div class="form-group">
         <label asp-for="UploadImage">Change Image</label>
-        <input asp-for="UploadImage" type="file" class="form-control" />
+        <input asp-for="UploadImage" type="file" onchange="previewImage(this)" class="form-control" />
         @if (Model.ExistingImage != null)
         {
             <p>Current Image:</p>
-            <img src="@("data:image;base64," + Convert.ToBase64String(Model.ExistingImage))" width="100" />
+            <img id="imagePreview" src="@("data:image;base64," + Convert.ToBase64String(Model.ExistingImage))" width="100" />
         }
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+
+@section Scripts {
+@* Display selected Image *@
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById("imagePreview");
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

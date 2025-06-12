@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TheSocialCebu_Capstone.ViewModels
 {
     public class ProductVM
     {
-        public Guid? ProId { get; set; }
+        public string? ProId { get; set; }
 
         [Required(ErrorMessage = "Please enter a name")]
         public string ProdName { get; set; } = null!;
@@ -13,13 +14,14 @@ namespace TheSocialCebu_Capstone.ViewModels
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Please enter a price")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero")]
         public decimal Price { get; set; }
 
         [Required(ErrorMessage = "Please select a category")]
-        public Guid CategoryId { get; set; }
+        public string CategoryId { get; set; }
 
         [Required(ErrorMessage = "Please select a subcategory")]
-        public Guid SubcategoryId { get; set; }
+        public string SubcategoryId { get; set; }
 
         public bool Availability { get; set; } = true;
 
@@ -30,5 +32,4 @@ namespace TheSocialCebu_Capstone.ViewModels
 
         public byte[]? ExistingImage { get; set; }
     }
-
 }

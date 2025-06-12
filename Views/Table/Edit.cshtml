@@ -1,0 +1,69 @@
+﻿@using TheSocialCebu_Capstone.ViewModels
+@model TableVM
+
+@{
+    ViewData["Title"] = "Edit Table";
+}
+
+<h2>Edit Table</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="TableNumber"></label>
+        <input asp-for="TableNumber" class="form-control" id="TableNumberInput" />
+        <span asp-validation-for="TableNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="LocationId">Location</label>
+        <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
+            <option value="">-- Select Location --</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Generated QR Code Preview</label><br />
+        <img id="qrPreview" src="" alt="QR Code Preview" style="max-width: 200px;" />
+    </div>
+
+    <input type="file" name="QRCodeImageFile" id="QRCodeImageFileInput" style="display:none;" />
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        const input = document.getElementById('TableNumberInput');
+        const preview = document.getElementById('qrPreview');
+        const fileInput = document.getElementById('QRCodeImageFileInput');
+
+        let originalValue = input.value;
+
+        async function updateQR() {
+            const newValue = input.value;
+            if (!newValue || newValue === originalValue) return;
+
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Table-${newValue}`;
+            const response = await fetch(qrUrl);
+            const blob = await response.blob();
+
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(blob);
+
+            const file = new File([blob], "qr.png", { type: "image/png" });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+        }
+
+        input.addEventListener('blur', updateQR);
+    </script>
+}
