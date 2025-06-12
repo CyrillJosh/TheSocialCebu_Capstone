@@ -84,7 +84,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             var vm = new ProductVM
             {
-                ProId = product.ProdId,
+                ProdId = product.ProdId,
                 ProdName = product.ProdName,
                 Description = product.Description,
                 Price = product.Price,
@@ -111,7 +111,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 return View(vm);
             }
             //Get product
-            var product = _context.Products.Find(vm.ProId);
+            var product = _context.Products.Find(vm.ProdId);
             if (product == null) return NotFound();
 
             //Set product's new data

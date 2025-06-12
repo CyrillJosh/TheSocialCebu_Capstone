@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
@@ -28,7 +29,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var vm = new TableVM
             {
-                LocationList = new SelectList(_context.Locations.ToList(), "Location_Id", "Location_Name")
+                LocationList = _context.Locations.Select(l => new SelectListItem{Value = l.LocationId, Text = l.LocationName}).ToList()
             };
             return View(vm);
         }
@@ -45,21 +46,19 @@ namespace TheSocialCebu_Capstone.Controllers
                     LocationId = vm.LocationId
                 };
 
-                if (vm.QRCodeImageFile != null && vm.QRCodeImageFile.Length > 0)
+                if (!string.IsNullOrEmpty(vm.QRCodeBase64))
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        await vm.QRCodeImageFile.CopyToAsync(ms);
-                        table.QrcodeImage = ms.ToArray();
-                    }
+                    var base64Data = vm.QRCodeBase64.Split(',')[1];
+                    table.QrcodeImage = Convert.FromBase64String(base64Data);
                 }
+
 
                 _context.Tables.Add(table);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            vm.LocationList = new SelectList(_context.Locations.ToList(), "Location_Id", "Location_Name", vm.LocationId);
+            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
             return View(vm);
         }
 
@@ -76,8 +75,10 @@ namespace TheSocialCebu_Capstone.Controllers
                 Id = table.Id,
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
-                LocationList = new SelectList(_context.Locations.ToList(), "Location_Id", "Location_Name", table.LocationId)
+                ExistingQRCodeImage = table.QrcodeImage,
+                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
             };
+
 
             return View(vm);
         }
@@ -95,13 +96,10 @@ namespace TheSocialCebu_Capstone.Controllers
                 table.TableNumber = vm.TableNumber;
                 table.LocationId = vm.LocationId;
 
-                if (vm.QRCodeImageFile != null && vm.QRCodeImageFile.Length > 0)
+                if (!string.IsNullOrEmpty(vm.QRCodeBase64))
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        await vm.QRCodeImageFile.CopyToAsync(ms);
-                        table.QrcodeImage = ms.ToArray();
-                    }
+                    var base64Data = vm.QRCodeBase64.Split(',')[1];
+                    table.QrcodeImage = Convert.FromBase64String(base64Data);
                 }
 
                 _context.Update(table);
@@ -109,7 +107,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            vm.LocationList = new SelectList(_context.Locations.ToList(), "Location_Id", "Location_Name", vm.LocationId);
+            vm.LocationList = new SelectList(_context.Locations.Select(c => new SelectListItem { Value = c.LocationId.ToString(), Text = c.LocationName }).ToList()); 
             return View(vm);
         }
 

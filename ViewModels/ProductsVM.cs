@@ -6,7 +6,7 @@ namespace TheSocialCebu_Capstone.ViewModels
 {
     public class ProductVM
     {
-        public string? ProId { get; set; }
+        public string? ProdId { get; set; }
 
         [Required(ErrorMessage = "Please enter a name")]
         public string ProdName { get; set; } = null!;

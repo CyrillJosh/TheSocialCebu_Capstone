@@ -2,13 +2,12 @@
 @model TableVM
 
 @{
-    ViewData["Title"] = "Edit Table";
+    ViewData["Title"] = "Edit";
 }
 
-<h2>Edit Table</h2>
-
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
+<form id="editForm" asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="QRCodeBase64" id="QRCodeBase64" />
 
     <div class="form-group">
         <label asp-for="TableNumber"></label>
@@ -19,51 +18,43 @@
     <div class="form-group">
         <label asp-for="LocationId">Location</label>
         <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
-            <option value="">-- Select Location --</option>
         </select>
         <span asp-validation-for="LocationId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Generated QR Code Preview</label><br />
-        <img id="qrPreview" src="" alt="QR Code Preview" style="max-width: 200px;" />
+        <label>QR Code Preview</label><br />
+        <img id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />
     </div>
 
-    <input type="file" name="QRCodeImageFile" id="QRCodeImageFileInput" style="display:none;" />
-
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="button" class="btn btn-primary" onclick="submitWithQRCode()">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
     <script>
-        const input = document.getElementById('TableNumberInput');
-        const preview = document.getElementById('qrPreview');
-        const fileInput = document.getElementById('QRCodeImageFileInput');
+        document.getElementById('TableNumberInput')?.addEventListener('blur', async function () {
+            const number = this.value;
+            if (!number) return;
 
-        let originalValue = input.value;
-
-        async function updateQR() {
-            const newValue = input.value;
-            if (!newValue || newValue === originalValue) return;
-
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Table-${newValue}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Table-${number}`;
             const response = await fetch(qrUrl);
             const blob = await response.blob();
 
             const reader = new FileReader();
             reader.onloadend = function () {
-                preview.src = reader.result;
+                const base64 = reader.result;
+                document.getElementById('QRCodeBase64').value = base64;
+
+                const preview = document.getElementById('qrPreview');
+                preview.src = base64;
                 preview.style.display = 'block';
             };
             reader.readAsDataURL(blob);
+        });
 
-            const file = new File([blob], "qr.png", { type: "image/png" });
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInput.files = dt.files;
+        function submitWithQRCode() {
+            document.getElementById('editForm').submit();
         }
-
-        input.addEventListener('blur', updateQR);
     </script>
 }

@@ -26,7 +26,8 @@
         <img id="qrPreview" src="" alt="QR Code Preview" style="max-width: 200px; display:none;" />
     </div>
 
-    <input type="hidden" name="QRCodeImageFile" id="QRCodeImageFileHidden" />
+    <input type="hidden" name="QRCodeBase64" id="QRCodeBase64" />
+
 
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
@@ -47,8 +48,11 @@
                 const preview = document.getElementById('qrPreview');
                 preview.src = reader.result;
                 preview.style.display = 'block';
+
+                document.getElementById('QRCodeBase64').value = reader.result;
             };
             reader.readAsDataURL(blob);
+
 
             const file = new File([blob], "qr.png", { type: "image/png" });
             const dataTransfer = new DataTransfer();
