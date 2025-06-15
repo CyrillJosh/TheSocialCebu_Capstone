@@ -1,0 +1,56 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    <style>
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printCard, #printCard * {
+                visibility: visible;
+            }
+
+            #printCard {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .d-print-none {
+                display: none !important;
+            }
+        }
+    </style>
+}
+<div class="container py-4 text-center">
+
+    <!-- Print Button (Hidden when printing) -->
+    <div class="mb-4 d-print-none">
+        <a href="javascript:window.print()" class="btn btn-success px-4">Print</a>
+        <a asp-action="Index" class="btn btn-secondary px-4">Back</a>
+    </div>
+
+    <!-- QR Code Card -->
+    <div id="printCard" class="card bg-dark text-white border-secondary mx-auto shadow" style="max-width: 400px;">
+        <div class="card-body">
+            <h4 class="card-title fw-bold mb-3">Table QR Code</h4>
+
+            <p class="mb-2"><strong>Table Number:</strong> @Model.TableNumber</p>
+            <p class="mb-3"><strong>Location:</strong> @Model.Location?.LocationName</p>
+
+            @if (Model.QrcodeImage != null)
+            {
+                var base64 = Convert.ToBase64String(Model.QrcodeImage);
+                <img src="data:image/png;base64,@base64" class="img-thumbnail bg-white rounded" alt="QR Code" style="max-height: 200px;" />
+            }
+            else
+            {
+                <p class="text-warning fst-italic">No QR Code available</p>
+            }
+        </div>
+    </div>
+
+</div>

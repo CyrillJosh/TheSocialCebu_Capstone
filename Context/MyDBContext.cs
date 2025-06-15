@@ -121,7 +121,7 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Table>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Table__3214EC072675F88F");
+            entity.HasKey(e => e.Id).HasName("PK__Table__3214EC0746A59926");
 
             entity.ToTable("Table");
 
@@ -132,12 +132,13 @@ public partial class MyDBContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("Location_Id");
             entity.Property(e => e.QrcodeImage).HasColumnName("QRCodeImage");
+            entity.Property(e => e.Status).HasDefaultValue(true);
             entity.Property(e => e.TableNumber).HasMaxLength(50);
 
             entity.HasOne(d => d.Location).WithMany(p => p.Tables)
                 .HasForeignKey(d => d.LocationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Table__Location___4E88ABD4");
+                .HasConstraintName("FK__Table__Location___5EBF139D");
         });
 
         OnModelCreatingPartial(modelBuilder);

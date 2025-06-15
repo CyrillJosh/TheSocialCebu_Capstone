@@ -13,6 +13,8 @@ namespace TheSocialCebu_Capstone.ViewModels
         [Required(ErrorMessage = "Please select a location")]
         public string LocationId { get; set; }
 
+        public bool Status { get; set; }
+
         public IFormFile? QRCodeImageFile { get; set; }
 
         public string? QRCodeBase64 { get; set; }

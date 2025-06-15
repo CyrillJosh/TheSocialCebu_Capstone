@@ -93,7 +93,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 Availability = product.Availability,
                 ExistingImage = product.ProdImage,
                 Categories = GetCategories(),
-                Subcategories = GetSubCategories()
+                Subcategories = _context.SubCategories.Where(x => x.CategoryId == product.CategoryId).Select(c => new SelectListItem { Value = c.SubcategoryId.ToString(), Text = c.SubcategoryName }).ToList()
             };
 
             return View(vm);
@@ -154,6 +154,17 @@ namespace TheSocialCebu_Capstone.Controllers
 
             //Return to Index
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public JsonResult GetSubcategories(string categoryId)
+        {
+            var subcategories = _context.SubCategories
+                .Where(sc => sc.CategoryId == categoryId)
+                .Select(sc => new { sc.SubcategoryId, sc.SubcategoryName })
+                .ToList();
+
+            return Json(subcategories);
         }
 
         //

@@ -7,9 +7,11 @@ public partial class Table
 {
     public string Id { get; set; } = null!;
 
+    public string TableNumber { get; set; } = null!;
+
     public byte[]? QrcodeImage { get; set; }
 
-    public string TableNumber { get; set; } = null!;
+    public bool Status { get; set; }
 
     public string LocationId { get; set; } = null!;
 

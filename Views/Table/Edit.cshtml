@@ -22,6 +22,18 @@
         <span asp-validation-for="LocationId" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label class="d-block mb-2">Status</label>
+
+        <div class="btn-group" role="group" aria-label="Status">
+            <input type="radio" class="btn-check" name="Status" id="availabilityTrue" value="true" autocomplete="off" @(Model.Status ? "Checked" : "")>
+            <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
+
+            <input type="radio" class="btn-check" name="Status" id="availabilityFalse" value="false" autocomplete="off" @(Model.Status ? "Checked" : "")>
+            <label class="btn btn-outline-warning" for="availabilityFalse">Not Available</label>
+        </div>
+    </div>
+
     <div class="form-group">
         <label>QR Code Preview</label><br />
         <img id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />

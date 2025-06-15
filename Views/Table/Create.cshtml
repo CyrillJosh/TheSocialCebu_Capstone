@@ -1,72 +1,76 @@
-﻿@using TheSocialCebu_Capstone.ViewModels
-@model TableVM
+﻿@model TheSocialCebu_Capstone.ViewModels.TableVM
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Table";
 }
 
+<div class="container py-4">
+    <div class="bg-dark text-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Add New Table</h3>
+            <div>
+                <button type="submit" form="tableForm" class="btn btn-success fw-bold me-2 px-4">Save</button>
+                <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+            </div>
+        </div>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label asp-for="TableNumber"></label>
-        <input asp-for="TableNumber" class="form-control" id="TableNumberInput" />
-        <span asp-validation-for="TableNumber" class="text-danger"></span>
+        <form asp-action="Create" enctype="multipart/form-data" id="tableForm">
+            <div class="mb-3">
+                <input asp-for="TableNumber" placeholder="Table Number" class="form-control bg-dark text-white border-secondary" />
+                <span asp-validation-for="TableNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <select asp-for="LocationId" asp-items="Model.LocationList" class="form-select bg-dark text-white border-secondary">
+                    <option value="">-- Select a Location --</option>
+                </select>
+                <span asp-validation-for="LocationId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="d-block mb-2">Status</label>
+
+                <div class="btn-group" role="group" aria-label="Status">
+                    <input type="radio" class="btn-check" name="Status" id="availabilityTrue" value="true" autocomplete="off" checked>
+                    <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
+
+                    <input type="radio" class="btn-check" name="Status" id="availabilityFalse" value="false" autocomplete="off">
+                    <label class="btn btn-outline-warning" for="availabilityFalse">Not Available</label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">QR Code Preview</label><br />
+                <img id="qrPreview" src="" alt="QR Code Preview" class="img-thumbnail rounded shadow border border-secondary" style="max-width: 200px; display: none;" />
+            </div>
+
+            <input type="hidden" name="QRCodeBase64" id="QRCodeBase64" />
+
+        </form>
     </div>
-
-    <div class="form-group">
-        <label asp-for="LocationId">Location</label>
-        <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
-            <option value="">-- Select Location --</option>
-        </select>
-        <span asp-validation-for="LocationId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Generated QR Code Preview</label><br />
-        <img id="qrPreview" src="" alt="QR Code Preview" style="max-width: 200px; display:none;" />
-    </div>
-
-    <input type="hidden" name="QRCodeBase64" id="QRCodeBase64" />
-
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <script>
-        document.getElementById('TableNumberInput')?.addEventListener('blur', async function () {
-            const number = this.value;
+        document.getElementById('TableNumber')?.addEventListener('blur', async function () {
+            const number = this.value.trim();
             if (!number) return;
-            //QR
+
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Table-${number}`;
             const response = await fetch(qrUrl);
             const blob = await response.blob();
 
             const reader = new FileReader();
             reader.onloadend = function () {
+                const base64 = reader.result;
                 const preview = document.getElementById('qrPreview');
-                preview.src = reader.result;
+
+                preview.src = base64;
                 preview.style.display = 'block';
 
-                document.getElementById('QRCodeBase64').value = reader.result;
+                document.getElementById('QRCodeBase64').value = base64;
             };
             reader.readAsDataURL(blob);
-
-
-            const file = new File([blob], "qr.png", { type: "image/png" });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-
-            let existing = document.querySelector("input[name='QRCodeImageFile']");
-            if (!existing) {
-                existing = document.createElement("input");
-                existing.type = "file";
-                existing.name = "QRCodeImageFile";
-                existing.style.display = "none";
-                document.forms[0].appendChild(existing);
-            }
-            existing.files = dataTransfer.files;
         });
     </script>
 }

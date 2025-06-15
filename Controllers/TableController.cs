@@ -39,27 +39,36 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (ModelState.IsValid)
             {
-                var table = new Table
+                var newTable = new Table
                 {
                     Id = Guid.NewGuid().ToString(),
                     TableNumber = vm.TableNumber,
-                    LocationId = vm.LocationId
+                    Status = vm.Status,
+                    LocationId = vm.LocationId,
+                    QrcodeImage = Convert.FromBase64String(vm.QRCodeBase64.Split(',')[1]),
                 };
 
-                if (!string.IsNullOrEmpty(vm.QRCodeBase64))
-                {
-                    var base64Data = vm.QRCodeBase64.Split(',')[1];
-                    table.QrcodeImage = Convert.FromBase64String(base64Data);
-                }
-
-
-                _context.Tables.Add(table);
+                _context.Add(newTable);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Print", new { id = newTable.Id });
             }
 
-            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
+            vm.LocationList = new SelectList(_context.Locations, "Location_Id", "Location_Name");
             return View(vm);
+        }
+
+        //Print
+        public IActionResult Print(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var table = _context.Tables
+                .Include(t => t.Location)
+                .FirstOrDefault(t => t.Id == id);
+
+            if (table == null) return NotFound();
+
+            return View(table);
         }
 
         //Edit
@@ -75,6 +84,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 Id = table.Id,
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
+                Status = table.Status,
                 ExistingQRCodeImage = table.QrcodeImage,
                 LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
             };
@@ -95,6 +105,8 @@ namespace TheSocialCebu_Capstone.Controllers
 
                 table.TableNumber = vm.TableNumber;
                 table.LocationId = vm.LocationId;
+                table.Status = vm.Status;
+
 
                 if (!string.IsNullOrEmpty(vm.QRCodeBase64))
                 {
@@ -115,8 +127,10 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            //Get table
             var table = await _context.Tables.FindAsync(id);
-            _context.Tables.Remove(table);
+            //Make table unavailable
+            table.Status = false;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
