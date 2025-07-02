@@ -114,17 +114,21 @@
             }
         });
     </script>
-    @* Price format *@
     <script>
         const priceInput = document.getElementById("priceInput");
         priceInput?.addEventListener("input", function (e) {
             const value = this.value;
-
             if (value.includes(".")) {
                 const [whole, decimal] = value.split(".");
                 if (decimal.length > 2) {
                     this.value = `${whole}.${decimal.substring(0, 2)}`;
                 }
+            }
+        });
+        priceInput?.addEventListener("blur", function (e) {
+            const value = this.value;
+            if (!value.includes(".")) {
+                this.value = `${this.value}.00`;
             }
         });
     </script>

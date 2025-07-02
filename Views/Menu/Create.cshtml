@@ -87,16 +87,16 @@
     <script>
         $('#categoryDropdown').on('change', function () {
             const categoryId = $(this).val();
-            const $subcategoryDropdown = $('#subcategoryDropdown');
-            $subcategoryDropdown.html('<option value="">-- Loading --</option>');
+            const subcategoryDropdown = $('#subcategoryDropdown');
+            subcategoryDropdown.html('<option value="">-- Loading --</option>');
 
             if (categoryId) {
                 fetch(`/Menu/GetSubcategories?categoryId=${categoryId}`)
                     .then(response => response.json())
                     .then(data => {
-                        $subcategoryDropdown.html('<option value="">-- Select Subcategory --</option>');
+                        subcategoryDropdown.html('<option value="">-- Select Subcategory --</option>');
                         data.forEach(sub => {
-                            $subcategoryDropdown.append(
+                            subcategoryDropdown.append(
                                 $('<option>', {
                                     value: sub.subcategoryId,
                                     text: sub.subcategoryName
@@ -106,10 +106,10 @@
                     })
                     .catch(error => {
                         console.error('Error loading subcategories:', error);
-                        $subcategoryDropdown.html('<option value="">-- Failed to load --</option>');
+                        subcategoryDropdown.html('<option value="">-- Failed to load --</option>');
                     });
             } else {
-                $subcategoryDropdown.html('<option value="">-- Select Subcategory --</option>');
+                subcategoryDropdown.html('<option value="">-- Select Subcategory --</option>');
             }
         });
     </script>
@@ -118,12 +118,17 @@
         const priceInput = document.getElementById("priceInput");
         priceInput?.addEventListener("input", function (e) {
             const value = this.value;
-
             if (value.includes(".")) {
                 const [whole, decimal] = value.split(".");
                 if (decimal.length > 2) {
                     this.value = `${whole}.${decimal.substring(0, 2)}`;
                 }
+            }
+        });
+        priceInput?.addEventListener("blur", function (e) {
+            const value = this.value;
+            if (!value.includes(".")) {
+                this.value = `${this.value}.00`;
             }
         });
     </script>
