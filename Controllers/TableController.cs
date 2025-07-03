@@ -5,6 +5,7 @@ using System.Diagnostics;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
+using QRCoder;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
@@ -53,7 +54,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 return RedirectToAction("Print", new { id = newTable.Id });
             }
 
-            vm.LocationList = new SelectList(_context.Locations, "Location_Id", "Location_Name");
+            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
             return View(vm);
         }
 
@@ -133,6 +134,16 @@ namespace TheSocialCebu_Capstone.Controllers
             table.Status = false;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        //Generate QRCode
+        public JsonResult GenerateQRCode(string value)
+        {
+            var qrcode = new QRCodeGenerator();
+            var qr = qrcode.CreateQrCode("table-" + value, QRCodeGenerator.ECCLevel.H);
+            Base64QRCode qrimage = new Base64QRCode(qr);
+            string qrstring = "data:image/png;base64," + qrimage.GetGraphic(20);
+            return Json(new { qrstring = qrstring } );
         }
     }
 }

@@ -41,36 +41,35 @@
 
             <div class="mb-4">
                 <label class="form-label">QR Code Preview</label><br />
-                <img id="qrPreview" src="" alt="QR Code Preview" class="img-thumbnail rounded shadow border border-secondary" style="max-width: 200px; display: none;" />
+                <img id="qrPreview" src="" alt="QR Code Preview" class="img-thumbnail rounded shadow border border-secondary" style="max-width: 400px; display: none;" />
             </div>
 
             <input type="hidden" name="QRCodeBase64" id="QRCodeBase64" />
-
         </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.getElementById('TableNumber')?.addEventListener('blur', async function () {
+        $('#TableNumber').on('input', function () {
             const number = this.value.trim();
             if (!number) return;
+            console.log(number);
+            // Use the number value from the input field for the API request
+            fetch(`/Table/GenerateQRCode?value=${number}`)
+                .then(response => response.json())
+                .then(data => {
+                    const preview = document.getElementById('qrPreview');
+                    console.log(data);
 
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Table-${number}`;
-            const response = await fetch(qrUrl);
-            const blob = await response.blob();
+                    preview.src = data.qrstring;
+                    preview.style.display = 'block';
 
-            const reader = new FileReader();
-            reader.onloadend = function () {
-                const base64 = reader.result;
-                const preview = document.getElementById('qrPreview');
-
-                preview.src = base64;
-                preview.style.display = 'block';
-
-                document.getElementById('QRCodeBase64').value = base64;
-            };
-            reader.readAsDataURL(blob);
+                    document.getElementById('QRCodeBase64').value = data.qrstring;
+                })
+                .catch(error => {
+                    console.error('Error generating QR code:', error);
+                });
         });
     </script>
 }
