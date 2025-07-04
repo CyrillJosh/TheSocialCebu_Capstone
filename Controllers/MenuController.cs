@@ -30,7 +30,13 @@ namespace TheSocialCebu_Capstone.Controllers
         //Create 
         public IActionResult Create()
         {
-            return View(GetViewModel());
+            //populate VM categories and subcategories
+            ProductVM vm = new ProductVM()
+            {
+                Categories = GetCategories(),
+                Subcategories = GetSubCategories()
+            };
+            return View(vm);
         }
 
         [HttpPost]
@@ -43,7 +49,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 vm.Categories = GetCategories();
                 vm.Subcategories = GetSubCategories();
 
-                //foreach(var invalid in ModelState)
                 return View(vm);
             }
 
@@ -93,8 +98,9 @@ namespace TheSocialCebu_Capstone.Controllers
                 Availability = product.Availability,
                 ExistingImage = product.ProdImage,
                 Categories = GetCategories(),
-                Subcategories = _context.SubCategories.Where(x => x.CategoryId == product.CategoryId).Select(c => new SelectListItem { Value = c.SubcategoryId.ToString(), Text = c.SubcategoryName }).ToList()
-            };
+                Subcategories = _context.SubCategories.Where(x => x.CategoryId == product.CategoryId)
+                                                      .Select(c => new SelectListItem { Value = c.SubcategoryId.ToString(), Text = c.SubcategoryName }).ToList()
+            };                  
 
             return View(vm);
         }
@@ -172,18 +178,13 @@ namespace TheSocialCebu_Capstone.Controllers
         //
 
         //Get Categories
-        private IEnumerable<SelectListItem> GetCategories() =>
-            _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
+        private IEnumerable<SelectListItem> GetCategories(){
+            return _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
+        }
 
         //Get SubCategories
-        private IEnumerable<SelectListItem> GetSubCategories() =>
-            _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
-
-        //Repopulate VM categories and subcategories
-        private ProductVM GetViewModel() => new ProductVM
-        {
-            Categories = GetCategories(),
-            Subcategories = GetSubCategories()
-        };
+        private IEnumerable<SelectListItem> GetSubCategories(){
+            return _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
+        }
     }
 }
