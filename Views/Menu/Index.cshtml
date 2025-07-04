@@ -6,29 +6,38 @@
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white fw-semibold">Product List</h2>
-        <a asp-action="Create" class="btn btn-success px-4 rounded-pill">+ Create New</a>
+    <div class="d-flex justify-content-evenly align-items-center mb-4 h-100">
+        <h2 class="text-dark fw-semibold">Products</h2>
+        <div class="d-flex h-50 justify-content-end input-group gap-2 m-2">
+            @* search and filter not working *@
+            <div class="border border-2 rounded-pill border-dark px-2 py-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                </svg>
+                <input id="custom-search-input" type="text" placeholder="Search Products" class="border-0 focus-none bg-transparent" />
+            </div>
+        </div>
+        <a asp-action="Create" style="min-width:12rem" class="btn background-yellow px-4 rounded-pill py-1">+ New Product</a>
     </div>
 
-    <div class="table-responsive shadow">
-        <table class="table table-dark table-hover table-borderless align-middle rounded shadow-sm overflow-hidden">
-            <thead class="table-secondary text-dark">
+    <div class="table-responsive">
+        <table id="Table" class="table table-hover align-middle rounded table-separate border-spacing-y-5">
+            <thead class="mb-5">
                 <tr>
-                    <th scope="col">Image</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Availability</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Subcategory</th>
-                    <th scope="col">Actions</th>
+                    <th class="no-sort" scope="col">Image</th>
+                    <th class="col">Name</th>
+                    <th class="col">Price</th>
+                    <th class="col">Availability</th>
+                    <th class="col">Category</th>
+                    <th class="col">Subcategory</th>
+                    <th class="no-sort" scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>
+                    <tr class="bg-light">
+                        <td class="border-2 border-end-0 border-secondary p-4" style="border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem;">
                             @if (item.ProdImage != null)
                             {
                                 <img src="data:image;base64,@Convert.ToBase64String(item.ProdImage)" class="img-thumbnail border-0 rounded" style="width: 60px;" />
@@ -38,9 +47,9 @@
                                 <span class="text-muted fst-italic">No image</span>
                             }
                         </td>
-                        <td>@item.ProdName</td>
-                        <td>@item.Price.ToString("C")</td>
-                        <td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.ProdName</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Price.ToString("C")</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">
                             @if (item.Availability)
                             {
                                 <span class="badge bg-success px-3 py-2">Available</span>
@@ -50,9 +59,9 @@
                                 <span class="badge bg-danger px-3 py-2">Unavailable</span>
                             }
                         </td>
-                        <td>@item.Category.CategoryName</td>
-                        <td>@item.Subcategory.SubcategoryName</td>
-                        <td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Category.CategoryName</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.SubcategoryName</td>
+                        <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
                             <div>
                                 <a asp-action="Edit" asp-route-id="@item.ProdId" class="btn btn-sm btn-outline-primary border-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -99,17 +108,41 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $(document).on('click', '.DeleteProduct', onDeleteProductClick);
+            $('#Table').DataTable({
+                pageLength: 10,
+                lengthChange: false,
+                ordering: true,
+                info: true,
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search Products",
+                },
+                 dom: 'lrtip',
+                columnDefs: [
+                    { targets: 'no-sort', orderable: false }
+                ]
+            });
 
-            function onDeleteProductClick() {
+            $(document).on('click', '.DeleteProduct', function () {
                 const productId = $(this).data("id");
                 const productName = $(this).data("name");
 
                 $('#Item').text(productName);
                 $('#DeleteIdInput').val(productId);
+            });
 
-                console.log("Deleting product with ID:", productId, "and Name:", productName);
-            }
+            $('#custom-search-input').on("input", function () {
+                $('#Table').DataTable().search($(this).val()).draw();
+            });
+                
+            $(".custom-filter").on("change", function () {
+                $('#Table').DataTable().column(4).search(this.value).draw();
+            });
+
+            $('#Table').on('draw.dt', function () {
+                console.log("test")
+                $('th:eq(0)').removeClass('sorting sorting_asc sorting_desc').off();
+            });
         });
     </script>
 }

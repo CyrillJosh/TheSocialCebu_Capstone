@@ -42,4 +42,4 @@ CREATE TABLE Product (
 );
 
 
-Scaffold-DbContext "Data Source=LAB4-PC26\LAB2PC26;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir Context -Context MyDBContext -f
+Scaffold-DbContext "Data Source=LAPTOP-K56S2BSD\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir Context -Context MyDBContext -f

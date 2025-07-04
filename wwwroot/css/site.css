@@ -20,3 +20,19 @@ html {
 body {
     margin-bottom: 60px;
 }
+
+.background-yellow {
+    background-color:#D6CB00 !important
+}
+
+.table-separate{
+    border-collapse: separate !important
+}
+
+.border-spacing-y-5{
+    border-spacing: 0 1rem !important;
+}
+
+.focus-none:focus {
+    outline: none !important;
+}

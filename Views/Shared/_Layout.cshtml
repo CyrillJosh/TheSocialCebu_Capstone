@@ -1,19 +1,20 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlPage" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TheSocialCebu_Capstone</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TheSocialCebu_Capstone.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/datatable.css">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow">
             <div class="container-fluid">
                 <a class="navbar-brand font-monospace fw-bold hstack align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/images/The Social Logo.png" height="45" />
+                    <img class="logo" src="/images/The Social Logo.png" height="45" />
                     THE SOCIAL
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -34,6 +35,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Table" asp-action="Index">Table</a>
                         </li>
+                        <li>
+                            <input type="checkbox" id="checkbox" />
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -53,6 +57,22 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/datatable.js"></script>
+    <script>
+        $(document).ready(function(){
+            const html = document.getElementById("htmlPage");
+            const chkbox = document.getElementById("checkbox");
+            chkbox.addEventListener("change", () => {
+                console.log(chkbox.checked);
+                if(chkbox.checked){
+                    html.setAttribute("data-bs-theme", "dark");
+                }
+                else {
+                    html.setAttribute("data-bs-theme", "light");
+                }
+            })
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
