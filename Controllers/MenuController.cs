@@ -173,6 +173,7 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(subcategories);
         }
 
+        //Testing
         public JsonResult Filter(string val)
         {
             return Json(val);
