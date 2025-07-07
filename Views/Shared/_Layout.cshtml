@@ -8,6 +8,17 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TheSocialCebu_Capstone.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/datatable.css">
+    <script>
+        const html = document.getElementById("htmlPage");
+
+        const theme = localStorage.getItem("Theme");
+
+        if(theme != null)
+        {
+            html.setAttribute("data-bs-theme", theme);
+        }
+
+    </script>
 </head>
 <body>
     <header>
@@ -62,13 +73,16 @@
         $(document).ready(function(){
             const html = document.getElementById("htmlPage");
             const chkbox = document.getElementById("checkbox");
+            chkbox.checked = theme == "dark" ?  true : false;
             chkbox.addEventListener("change", () => {
                 console.log(chkbox.checked);
                 if(chkbox.checked){
                     html.setAttribute("data-bs-theme", "dark");
+                    localStorage.setItem("Theme", "dark");
                 }
                 else {
                     html.setAttribute("data-bs-theme", "light");
+                    localStorage.setItem("Theme", "light");
                 }
             })
         });
