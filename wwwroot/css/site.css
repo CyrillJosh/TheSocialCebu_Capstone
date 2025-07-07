@@ -25,11 +25,8 @@ body {
     background-color:#D6CB00 !important
 }
 
-.table-separate{
-    border-collapse: separate !important
-}
-
-.border-spacing-y-5{
+.table-separate {
+    border-collapse: separate !important;
     border-spacing: 0 1rem !important;
 }
 
