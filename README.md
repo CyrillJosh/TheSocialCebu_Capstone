@@ -1,1 +1,0 @@
-Scaffold-DbContext "Data Source=LAPTOP-K56S2BSD\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir Context -Context MyDBContext -f
