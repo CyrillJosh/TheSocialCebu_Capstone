@@ -16,22 +16,58 @@ public partial class MyDBContext : DbContext
     {
     }
 
+    public virtual DbSet<Account> Accounts { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<SubCategory> SubCategories { get; set; }
 
     public virtual DbSet<Table> Tables { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-K56S2BSD\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=LAB4-PC27\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Account>(entity =>
+        {
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__349DA58638735D5F");
+
+            entity.ToTable("Account");
+
+            entity.HasIndex(e => e.UserId, "UQ__Account__1788CCAD07F703EB").IsUnique();
+
+            entity.HasIndex(e => e.Username, "UQ__Account__536C85E487934877").IsUnique();
+
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(50)
+                .HasColumnName("AccountID");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.Status).HasDefaultValue(true);
+            entity.Property(e => e.UserId)
+                .HasMaxLength(50)
+                .HasColumnName("UserID");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithOne(p => p.Account)
+                .HasForeignKey<Account>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Account__UserID__02FC7413");
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("PK__Category__6DB38D6EA29E2F2B");
@@ -96,6 +132,22 @@ public partial class MyDBContext : DbContext
                 .HasConstraintName("FK__Product__Subcate__5441852A");
         });
 
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3AAF93C491");
+
+            entity.ToTable("Role");
+
+            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B6160BF857635").IsUnique();
+
+            entity.Property(e => e.RoleId)
+                .HasMaxLength(50)
+                .HasColumnName("RoleID");
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<SubCategory>(entity =>
         {
             entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__B599509CFD304A5B");
@@ -139,6 +191,31 @@ public partial class MyDBContext : DbContext
                 .HasForeignKey(d => d.LocationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Table__Location___5EBF139D");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CCACC3E68867");
+
+            entity.ToTable("User");
+
+            entity.Property(e => e.UserId)
+                .HasMaxLength(50)
+                .HasColumnName("UserID");
+            entity.Property(e => e.Gender)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.RoleId)
+                .HasMaxLength(50)
+                .HasColumnName("RoleID");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.Users)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__User__RoleID__7C4F7684");
         });
 
         OnModelCreatingPartial(modelBuilder);
