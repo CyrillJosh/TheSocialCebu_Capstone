@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
@@ -13,6 +14,8 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Database
         private readonly MyDBContext _context;
+        private IEnumerable<SelectListItem> Categories;
+        private IEnumerable<SelectListItem> Subcategories;
 
         //Constructor
         public MenuController(MyDBContext context)
@@ -23,8 +26,24 @@ namespace TheSocialCebu_Capstone.Controllers
         //List of products
         public IActionResult Index()
         {
-            var products = _context.Products.Include(p => p.Category).Include(p => p.Subcategory).ToList();
-            return View(products);
+            var products = _context.Products.Include(p => p.Subcategory).ToList();
+            GetCategories();
+            GetSubCategories();
+            var productsVM = products.Select(p => new ProductVM
+            {
+                ProdId = p.ProdId.ToString(),
+                ProdName = p.ProdName,
+                Description = p.Description,
+                Price = p.Price,
+                CategoryId = _context.SubCategories.FirstOrDefault(s => s.SubcategoryId == p.SubcategoryId).CategoryId,
+                SubcategoryId = p.SubcategoryId.ToString(),
+                Availability = p.Availability,
+                ExistingImage = p.ProdImage,
+                Categories = Categories,
+                Subcategories = Subcategories
+            }).ToList();
+
+            return View(productsVM);
         }
 
         //Create 
@@ -33,8 +52,8 @@ namespace TheSocialCebu_Capstone.Controllers
             //populate VM categories and subcategories
             ProductVM vm = new ProductVM()
             {
-                Categories = GetCategories(),
-                Subcategories = GetSubCategories()
+                Categories = Categories,
+                Subcategories = Subcategories
             };
             return View(vm);
         }
@@ -45,9 +64,11 @@ namespace TheSocialCebu_Capstone.Controllers
             //Invalid
             if (!ModelState.IsValid)
             {
+                GetCategories();
+                GetSubCategories(); 
                 //Repopulate Categories
-                vm.Categories = GetCategories();
-                vm.Subcategories = GetSubCategories();
+                vm.Categories = Categories;
+                vm.Subcategories = Subcategories;
 
                 return View(vm);
             }
@@ -59,7 +80,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 ProdName = vm.ProdName,
                 Description = vm.Description,
                 Price = vm.Price,
-                CategoryId = vm.CategoryId,
                 SubcategoryId = vm.SubcategoryId,
                 Availability = vm.Availability
             };
@@ -86,20 +106,20 @@ namespace TheSocialCebu_Capstone.Controllers
             //Get the product
             var product = _context.Products.Find(id);
             if (product == null) return NotFound();
-
+            GetCategories();
+            GetSubCategories();
             var vm = new ProductVM
             {
                 ProdId = product.ProdId,
                 ProdName = product.ProdName,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryId = product.CategoryId,
+                CategoryId = _context.SubCategories.FirstOrDefault(s => s.SubcategoryId == product.SubcategoryId).CategoryId,
                 SubcategoryId = product.SubcategoryId,
                 Availability = product.Availability,
                 ExistingImage = product.ProdImage,
-                Categories = GetCategories(),
-                Subcategories = _context.SubCategories.Where(x => x.CategoryId == product.CategoryId)
-                                                      .Select(c => new SelectListItem { Value = c.SubcategoryId.ToString(), Text = c.SubcategoryName }).ToList()
+                Categories = Categories,
+                Subcategories = Subcategories
             };                  
 
             return View(vm);
@@ -108,12 +128,14 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(ProductVM vm)
         {
-            //Invalid
             if (!ModelState.IsValid)
             {
-                //Repopulate
-                vm.Categories = GetCategories();
-                vm.Subcategories = GetSubCategories();
+                GetCategories();
+                GetSubCategories();
+                //Repopulate Categories
+                vm.Categories = Categories;
+                vm.Subcategories = Subcategories;
+
                 return View(vm);
             }
             //Get product
@@ -124,7 +146,6 @@ namespace TheSocialCebu_Capstone.Controllers
             product.ProdName = vm.ProdName;
             product.Description = vm.Description;
             product.Price = vm.Price;
-            product.CategoryId = vm.CategoryId;
             product.SubcategoryId = vm.SubcategoryId;
             product.Availability = vm.Availability;
 
@@ -184,13 +205,13 @@ namespace TheSocialCebu_Capstone.Controllers
         //
 
         //Get Categories
-        private IEnumerable<SelectListItem> GetCategories(){
-            return _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
+        private void GetCategories(){
+            Categories = _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
         }
 
         //Get SubCategories
-        private IEnumerable<SelectListItem> GetSubCategories(){
-            return _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
+        private void GetSubCategories(){
+            Subcategories = _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
         }
     }
 }

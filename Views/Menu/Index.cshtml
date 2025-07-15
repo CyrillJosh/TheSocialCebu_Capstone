@@ -1,23 +1,22 @@
-﻿@using TheSocialCebu_Capstone.Models
-@model List<Product>
+﻿@using TheSocialCebu_Capstone.ViewModels
+@model List<ProductVM>
 
 @{
     ViewData["Title"] = "Product List";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4 px-5">
     <div class="d-flex justify-content-evenly align-items-center mb-4 h-100">
         <h2 class="text-dark fw-semibold">Products</h2>
         <div class="d-flex h-50 justify-content-end input-group gap-2 m-2">
-            @* search and filter not working *@
-            <div class="border border-2 rounded-pill border-dark px-2 py-1">
+            <div class="border border-2 rounded-pill border-dark px-2 py-1" style="min-width:300px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                 </svg>
                 <input id="custom-search-input" type="text" placeholder="Search Products" class="border-0 focus-none bg-transparent" />
             </div>
         </div>
-        <a asp-action="Create" style="min-width:12rem" class="btn background-yellow px-4 rounded-pill py-1">+ New Product</a>
+        <a asp-action="Create" style="min-width:12rem" class="btn btn-yellow px-4 rounded-pill py-1">+ New Product</a>
     </div>
 
     <div class="table-responsive">
@@ -38,9 +37,9 @@
                 {
                     <tr class="bg-light">
                         <td class="border-2 border-end-0 border-secondary p-4" style="border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem;">
-                            @if (item.ProdImage != null)
+                            @if (item.ExistingImage != null)
                             {
-                                <img src="data:image;base64,@Convert.ToBase64String(item.ProdImage)" class="img-thumbnail border-0 rounded" style="width: 60px;" />
+                                <img src="data:image;base64,@Convert.ToBase64String(item.ExistingImage)" class="img-thumbnail border-0 rounded" style="width: 60px;" />
                             }
                             else
                             {
@@ -59,8 +58,8 @@
                                 <span class="badge bg-danger px-3 py-2">Unavailable</span>
                             }
                         </td>
-                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Category.CategoryName</td>
-                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.SubcategoryName</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Categories.FirstOrDefault(c => c.Value == item.CategoryId).Text</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategories.FirstOrDefault(s => s.Value == item.SubcategoryId).Text</td>
                         <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
                             <div>
                                 <a asp-action="Edit" asp-route-id="@item.ProdId" class="btn btn-sm btn-outline-primary border-0">
@@ -143,6 +142,13 @@
                 console.log("test")
                 $('th:eq(0)').removeClass('sorting sorting_asc sorting_desc').off();
             });
+
+            let test = $('.dt-column-title').filter(function () {
+                return $(this).text().trim() === "Image";
+            }).parent(); // get the parent element
+
+            test.children().last().remove();
+            console.log(test);
         });
     </script>
 }

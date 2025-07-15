@@ -15,6 +15,14 @@ builder.Services.AddDbContext<MyDBContext>(options =>
     ServiceLifetime.Transient
 );
 
+//Session service
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,7 +36,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+//Session
+app.UseSession();
 app.UseRouting();
+
 
 app.UseAuthorization();
 

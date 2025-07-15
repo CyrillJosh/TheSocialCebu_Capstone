@@ -16,11 +16,11 @@ public partial class MyDBContext : DbContext
     {
     }
 
-    public virtual DbSet<Account> Accounts { get; set; }
-
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
+
+    public virtual DbSet<Person> People { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
@@ -38,36 +38,6 @@ public partial class MyDBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Account>(entity =>
-        {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__349DA58638735D5F");
-
-            entity.ToTable("Account");
-
-            entity.HasIndex(e => e.UserId, "UQ__Account__1788CCAD07F703EB").IsUnique();
-
-            entity.HasIndex(e => e.Username, "UQ__Account__536C85E487934877").IsUnique();
-
-            entity.Property(e => e.AccountId)
-                .HasMaxLength(50)
-                .HasColumnName("AccountID");
-            entity.Property(e => e.PasswordHash)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Status).HasDefaultValue(true);
-            entity.Property(e => e.UserId)
-                .HasMaxLength(50)
-                .HasColumnName("UserID");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.User).WithOne(p => p.Account)
-                .HasForeignKey<Account>(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__UserID__02FC7413");
-        });
-
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("PK__Category__6DB38D6EA29E2F2B");
@@ -98,9 +68,25 @@ public partial class MyDBContext : DbContext
                 .HasColumnName("Location_Name");
         });
 
+        modelBuilder.Entity<Person>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CCAC03118505");
+
+            entity.ToTable("Person");
+
+            entity.Property(e => e.UserId)
+                .HasMaxLength(50)
+                .HasColumnName("UserID");
+            entity.Property(e => e.Gender).HasMaxLength(50);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Status).HasDefaultValue(true);
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProdId).HasName("PK__Product__C55BDF13781104AE");
+            entity.HasKey(e => e.ProdId).HasName("PK__Product__C55BDF13B19F2A3B");
 
             entity.ToTable("Product");
 
@@ -109,9 +95,6 @@ public partial class MyDBContext : DbContext
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("Prod_Id");
             entity.Property(e => e.Availability).HasDefaultValue(true);
-            entity.Property(e => e.CategoryId)
-                .HasMaxLength(50)
-                .HasColumnName("Category_Id");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ProdImage).HasColumnName("Prod_Image");
             entity.Property(e => e.ProdName)
@@ -121,28 +104,24 @@ public partial class MyDBContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("Subcategory_Id");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Products)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__Categor__534D60F1");
-
             entity.HasOne(d => d.Subcategory).WithMany(p => p.Products)
                 .HasForeignKey(d => d.SubcategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__Subcate__5441852A");
+                .HasConstraintName("FK__Product__Subcate__7E37BEF6");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3AAF93C491");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A726E8A15");
 
             entity.ToTable("Role");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B6160BF857635").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B616020045A9B").IsUnique();
 
             entity.Property(e => e.RoleId)
                 .HasMaxLength(50)
                 .HasColumnName("RoleID");
+            entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -195,27 +174,37 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CCACC3E68867");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__349DA586A8F57A4C");
 
             entity.ToTable("User");
 
-            entity.Property(e => e.UserId)
+            entity.HasIndex(e => e.Username, "UQ__Account__536C85E434A7EB9F").IsUnique();
+
+            entity.Property(e => e.AccountId)
                 .HasMaxLength(50)
-                .HasColumnName("UserID");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
+                .HasColumnName("AccountID");
+            entity.Property(e => e.Password)
+                .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.RoleId)
                 .HasMaxLength(50)
                 .HasColumnName("RoleID");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(50)
+                .HasColumnName("UserID");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__User__RoleID__7C4F7684");
+                .HasConstraintName("FK__Account__RoleID__787EE5A0");
+
+            entity.HasOne(d => d.Person).WithMany(p => p.Users)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Account__UserID__797309D9");
         });
 
         OnModelCreatingPartial(modelBuilder);

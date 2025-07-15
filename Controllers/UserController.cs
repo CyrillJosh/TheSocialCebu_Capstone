@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.ViewModels;
 
 namespace Menu.Controllers
 {
@@ -29,23 +30,23 @@ namespace Menu.Controllers
 
         //Login
         [HttpPost]
-        public IActionResult Login(Account account)
+        public IActionResult Login(LoginVM user)
         {
             if(!ModelState.IsValid) return View();
 
-            var exist = _context.Accounts.FirstOrDefault(a => a.Username == account.Username);
+            var exist = _context.Users.Include(u => u.Role).Include(u => u.Person).FirstOrDefault(a => a.Username == user.Username);
 
-            if (!BCrypt.Net.BCrypt.Verify(account.PasswordHash, exist.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(user.Password, exist.Password))
             {
                 //Invalid
                 return View();
             }
 
-            var userRole = _context.Users.FirstOrDefault(u => u.Account == exist).Role.RoleId;
+            //var userRole = _context.Users.FirstOrDefault(u => u == exist).Role.RoleId;
 
             //Set Session String
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
-            HttpContext.Session.SetString("_Role", userRole);
+            //HttpContext.Session.SetString("_Role", userRole);
 
             return RedirectToAction("Menu","Index");
         }

@@ -13,15 +13,11 @@ public partial class Product
 
     public decimal Price { get; set; }
 
-    public string CategoryId { get; set; } = null!;
-
     public string SubcategoryId { get; set; } = null!;
 
     public bool Availability { get; set; }
 
     public byte[]? ProdImage { get; set; }
-
-    public virtual Category Category { get; set; } = null!;
 
     public virtual SubCategory Subcategory { get; set; } = null!;
 }
