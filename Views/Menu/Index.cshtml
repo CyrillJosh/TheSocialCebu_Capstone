@@ -26,16 +26,16 @@
                     <th class="no-sort" scope="col">Image</th>
                     <th class="col">Name</th>
                     <th class="col">Price</th>
-                    <th class="col">Availability</th>
                     <th class="col">Category</th>
                     <th class="col">Subcategory</th>
+                    <th class="col">Availability</th>
                     <th class="no-sort" scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr class="bg-light">
+                    <tr class="bg-gray">
                         <td class="border-2 border-end-0 border-secondary p-4" style="border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem;">
                             @if (item.ExistingImage != null)
                             {
@@ -47,19 +47,19 @@
                             }
                         </td>
                         <td class="border-2 border-end-0 border-start-0 border-secondary">@item.ProdName</td>
-                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Price.ToString("C")</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary text-start">@item.Price.ToString("P 0.00")</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Categories.FirstOrDefault(c => c.Value == item.CategoryId).Text</td>
+                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategories.FirstOrDefault(s => s.Value == item.SubcategoryId).Text</td>
                         <td class="border-2 border-end-0 border-start-0 border-secondary">
                             @if (item.Availability)
                             {
-                                <span class="badge bg-success px-3 py-2">Available</span>
+                                <span class="badge bg-success px-3 py-2 w-100">Available</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger px-3 py-2">Unavailable</span>
+                                <span class="badge bg-danger px-3 py-2 w-100">Unavailable</span>
                             }
                         </td>
-                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Categories.FirstOrDefault(c => c.Value == item.CategoryId).Text</td>
-                        <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategories.FirstOrDefault(s => s.Value == item.SubcategoryId).Text</td>
                         <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
                             <div>
                                 <a asp-action="Edit" asp-route-id="@item.ProdId" class="btn btn-sm btn-outline-primary border-0">
@@ -117,8 +117,17 @@
                     searchPlaceholder: "Search Products",
                 },
                  dom: 'lrtip',
-                columnDefs: [
-                    { targets: 'no-sort', orderable: false }
+                    columnDefs: [
+                    { targets: 'no-sort', orderable: false },
+                    {
+                        targets:  2,
+                        render: function (data, type, row) {
+                            if(type === 'sort' || type === 'type') {
+                                return parseFloat(data.replace(/[^0-9.\-]+/g,"")) || 0;
+                            }
+                            return data;
+                        }
+                    }
                 ]
             });
 
@@ -143,12 +152,20 @@
                 $('th:eq(0)').removeClass('sorting sorting_asc sorting_desc').off();
             });
 
-            let test = $('.dt-column-title').filter(function () {
+            let img = $('.dt-column-title').filter(function () {
                 return $(this).text().trim() === "Image";
-            }).parent(); // get the parent element
+            }).parent();
 
-            test.children().last().remove();
-            console.log(test);
+            img.children().last().remove();
+
+            let price = $('.dt-column-title').filter(function () {
+                return $(this).text().trim() === "Price";
+            }).parent();
+
+            let sort = price.children().first();
+            sort.children().first().remove();
+            price.append(sort);
+            price.children().last().addClass("text-start");
         });
     </script>
 }

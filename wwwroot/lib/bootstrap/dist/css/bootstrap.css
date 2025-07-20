@@ -39,6 +39,7 @@
     --bs-dark: #212529;
     --bs-primary-rgb: 13,110,253;
     --bs-yellow-rgb: 214, 203, 0;
+    --bs-gray-rgb: 112, 112, 112;
     --bs-secondary-rgb: 108,117,125;
     --bs-success-rgb: 25,135,84;
     --bs-info-rgb: 13,202,240;
@@ -9327,10 +9328,13 @@ textarea.form-control-lg {
 .link-underline-opacity-100-hover:hover {
     --bs-link-underline-opacity: 1
 }
+
+.bg-gray {
+    background-color: rgba(var(--bs-gray-rgb),var(--bs-bg-opacity)) !important;
+}
 .bg-yellow {
     --bs-bg-opacity: 1;
     background-color: rgba(var(--bs-yellow-rgb),var(--bs-bg-opacity)) !important;
-    /*background-color: #D6CB00 !important*/
 }
 .bg-primary {
     --bs-bg-opacity: 1;
