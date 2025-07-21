@@ -29,3 +29,8 @@ body {
 .focus-none:focus {
     outline: none !important;
 }
+
+.nav-pills > li:hover {
+    filter: invert(1);
+}
+

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TheSocialCebu_Capstone</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css"/>
     <link rel="stylesheet" href="~/TheSocialCebu_Capstone.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/datatable.css">
     <script>
@@ -21,28 +21,35 @@
     </script>
 </head>
 <body>
-    <div class="row w-100">
-        <div class="bg-light border-end d-flex flex-column p-3 position-fixed vh-100 z-1" style="width: 250px;">
-            <a href="/" class="navbar-brand font-monospace fw-bold mb-4 d-flex align-items-center gap-2 text-decoration-none text-dark">
+    <div class="row w-100 text-light">
+        <div class="bg-gray border-end d-flex flex-column p-3 position-fixed vh-100 z-1" style="width: 250px;">
+            <a href="/" class="navbar-brand font-monospace fw-bold mb-4 d-flex align-items-center gap-2 text-decoration-none text-decoration-none text-white">
                 <img class="logo" src="/images/The Social Logo.png" height="45" />
                 <span>THE SOCIAL</span>
             </a>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+            <ul class="nav nav-pills flex-column mb-auto gap-2">
+                <li class="w-100 btn btn-dark">
+                    <a class="text-decoration-none text-light" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                <li>
-                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <li class="w-100 btn btn-dark">
+                    <a class="text-decoration-none text-light" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 </li>
-                <li>
-                    <a class="nav-link text-dark" asp-controller="Menu" asp-action="Index">Menu</a>
+                <li class="w-100 btn btn-dark">
+                    <a class="text-decoration-none text-light" asp-controller="Menu" asp-action="Index">Menu</a>
                 </li>
-                <li>
-                    <a class="nav-link text-dark" asp-controller="Table" asp-action="Index">Table</a>
+                <li class="w-100 btn btn-dark">
+                    <a class="text-decoration-none text-light" asp-controller="Table" asp-action="Index">Table</a>
                 </li>
-                <li class="mt-3">
-                    <input type="checkbox" id="checkbox" />
-                    <label for="checkbox" class="ms-2">Toggle</label>
+                <li class="w-100 btn btn-dark text-light d-flex flex-nowrap p-0">
+                    <label for="checkbox" class="d-flex w-100 h-100 p-2">
+                        <input type="checkbox" id="checkbox"/>
+                        <div class="w-100 h-100">
+                            Theme
+                        </div>
+                    </label>
+                </li>
+                <li class="w-100 btn btn-dark align-self-end mt-auto">
+                    <a class="text-decoration-none text-light">Logout</a>
                 </li>
             </ul>
         </div>
