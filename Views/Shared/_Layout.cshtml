@@ -21,36 +21,53 @@
     </script>
 </head>
 <body>
+    @{
+        var userId = Context.Session.GetString("_Id");
+        var userRole = Context.Session.GetString("_Role");
+    }
     <div class="row w-100 text-light">
-        <div class="bg-gray border-end d-flex flex-column p-3 position-fixed vh-100 z-1" style="width: 250px;">
+        <div class="bg-gray border-end d-flex flex-column py-3 ps-4 position-fixed h-100 z-1 overflow-y-scroll" style="width: 250px; scrollbar-width: none">
             <a href="/" class="navbar-brand font-monospace fw-bold mb-4 d-flex align-items-center gap-2 text-decoration-none text-decoration-none text-white">
-                <img class="logo" src="/images/The Social Logo.png" height="45" />
-                <span>THE SOCIAL</span>
+                <img class="logo" src="/images/The Social Logo.png" height="50" />
+                <h4 class="m-0">THE SOCIAL</h4>
             </a>
-            <ul class="nav nav-pills flex-column mb-auto gap-2">
-                <li class="w-100 btn btn-dark">
-                    <a class="text-decoration-none text-light" asp-controller="Home" asp-action="Index">Home</a>
+            <ul class="nav nav-pills flex-column gap-2 h-100">
+                <li class="w-100 btn btn-dark d-flex align-items-center gap-2 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill m-0 p-0" viewBox="0 0 16 16">
+                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z" />
+                        <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z" />
+                    </svg>
+                    <a class="text-decoration-none text-white" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                <li class="w-100 btn btn-dark">
-                    <a class="text-decoration-none text-light" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <li class="w-100 btn btn-dark d-flex align-items-center gap-2 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-lock-fill m-0 p-0" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.8 11.8 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.54 1.54 0 0 0-1.044-1.263 63 63 0 0 0-2.887-.87C9.843.266 8.69 0 8 0m0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5" />
+                    </svg>
+                    <a class="text-decoration-none text-white" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 </li>
-                <li class="w-100 btn btn-dark">
-                    <a class="text-decoration-none text-light" asp-controller="Menu" asp-action="Index">Menu</a>
+                <li class="w-100 btn btn-dark d-flex align-items-center gap-2 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fork-knife m-0 p-0" viewBox="0 0 16 16">
+                        <path d="M13 .5c0-.276-.226-.506-.498-.465-1.703.257-2.94 2.012-3 8.462a.5.5 0 0 0 .498.5c.56.01 1 .13 1 1.003v5.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5zM4.25 0a.25.25 0 0 1 .25.25v5.122a.128.128 0 0 0 .256.006l.233-5.14A.25.25 0 0 1 5.24 0h.522a.25.25 0 0 1 .25.238l.233 5.14a.128.128 0 0 0 .256-.006V.25A.25.25 0 0 1 6.75 0h.29a.5.5 0 0 1 .498.458l.423 5.07a1.69 1.69 0 0 1-1.059 1.711l-.053.022a.92.92 0 0 0-.58.884L6.47 15a.971.971 0 1 1-1.942 0l.202-6.855a.92.92 0 0 0-.58-.884l-.053-.022a1.69 1.69 0 0 1-1.059-1.712L3.462.458A.5.5 0 0 1 3.96 0z" />
+                    </svg>
+                    <a class="text-decoration-none text-white" asp-controller="Menu" asp-action="Index">Menu Management</a>
                 </li>
-                <li class="w-100 btn btn-dark">
-                    <a class="text-decoration-none text-light" asp-controller="Table" asp-action="Index">Table</a>
+                <li class="w-100 btn btn-dark d-flex align-items-center gap-2 p-2">
+                    <a class="text-decoration-none text-white" asp-controller="Table" asp-action="Index">Table Management</a>
                 </li>
-                <li class="w-100 btn btn-dark text-light d-flex flex-nowrap p-0">
+                <li class="w-100 btn btn-dark text-white d-flex flex-nowrap p-0 mt-auto">
                     <label for="checkbox" class="d-flex w-100 h-100 p-2">
-                        <input type="checkbox" id="checkbox"/>
+                        <input type="checkbox" id="checkbox" hidden/>
                         <div class="w-100 h-100">
                             Theme
                         </div>
                     </label>
                 </li>
-                <li class="w-100 btn btn-dark align-self-end mt-auto">
-                    <a class="text-decoration-none text-light">Logout</a>
-                </li>
+                @if (userId != null || userRole != null)
+                {
+                    <li class="w-100 btn btn-dark align-self-end">
+                        <a class="text-decoration-none text-white">Logout</a>
+                    </li>
+                }
             </ul>
         </div>
         <main class="flex-grow-1 w-100 py-5" style="padding-left: 250px;">
