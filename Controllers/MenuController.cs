@@ -26,29 +26,14 @@ namespace TheSocialCebu_Capstone.Controllers
         //List of products
         public IActionResult Index()
         {
-            var products = _context.Products.Include(p => p.Subcategory).ToList();
-            GetCategories();
-            GetSubCategories();
-            var productsVM = products.Select(p => new ProductVM
-            {
-                ProdId = p.ProdId.ToString(),
-                ProdName = p.ProdName,
-                Description = p.Description,
-                Price = p.Price,
-                CategoryId = _context.SubCategories.FirstOrDefault(s => s.SubcategoryId == p.SubcategoryId).CategoryId,
-                SubcategoryId = p.SubcategoryId.ToString(),
-                Availability = p.Availability,
-                ExistingImage = p.ProdImage,
-                Categories = Categories,
-                Subcategories = Subcategories
-            }).ToList();
-
-            return View(productsVM);
+            var products = _context.Products.Include(p => p.Subcategory).ThenInclude(s => s.Category).OrderByDescending(o => o.Availability).ThenBy(o => o.ProdName).ToList();
+            return View(products);
         }
 
         //Create 
         public IActionResult Create()
         {
+            PopulateCategories(); 
             //populate VM categories and subcategories
             ProductVM vm = new ProductVM()
             {
@@ -64,8 +49,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Invalid
             if (!ModelState.IsValid)
             {
-                GetCategories();
-                GetSubCategories(); 
+                PopulateCategories();
                 //Repopulate Categories
                 vm.Categories = Categories;
                 vm.Subcategories = Subcategories;
@@ -104,17 +88,17 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Edit(string id)
         {
             //Get the product
-            var product = _context.Products.Find(id);
+            var product = _context.Products.Include(s => s.Subcategory).FirstOrDefault(p => p.ProdId == id);
             if (product == null) return NotFound();
-            GetCategories();
-            GetSubCategories();
+            PopulateCategories();
+
             var vm = new ProductVM
             {
                 ProdId = product.ProdId,
                 ProdName = product.ProdName,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryId = _context.SubCategories.FirstOrDefault(s => s.SubcategoryId == product.SubcategoryId).CategoryId,
+                CategoryId = product.Subcategory.CategoryId,
                 SubcategoryId = product.SubcategoryId,
                 Availability = product.Availability,
                 ExistingImage = product.ProdImage,
@@ -130,8 +114,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (!ModelState.IsValid)
             {
-                GetCategories();
-                GetSubCategories();
+                PopulateCategories();
                 //Repopulate Categories
                 vm.Categories = Categories;
                 vm.Subcategories = Subcategories;
@@ -204,13 +187,10 @@ namespace TheSocialCebu_Capstone.Controllers
         //Custom Methods
         //
 
-        //Get Categories
-        private void GetCategories(){
+        //Populate Categories
+        private void PopulateCategories()
+        {
             Categories = _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
-        }
-
-        //Get SubCategories
-        private void GetSubCategories(){
             Subcategories = _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
         }
     }

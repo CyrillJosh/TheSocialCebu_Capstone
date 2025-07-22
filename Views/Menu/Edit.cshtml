@@ -6,7 +6,7 @@
 }
 
 <div class="container py-4">
-    <div class="bg-dark text-white p-4">
+    <div class="p-4">
         <form asp-action="Edit" enctype="multipart/form-data" id="productForm">
             <input asp-for="ProdId" hidden />
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,35 +18,35 @@
             </div>
 
             <div class="mb-3">
-                <input asp-for="ProdName" placeholder="Product Name" class="form-control bg-dark text-white border-secondary" />
+                <input asp-for="ProdName" placeholder="Product Name" class="form-control border-secondary" />
                 <span asp-validation-for="ProdName" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control bg-dark text-white border-secondary"></textarea>
+                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control border-secondary"></textarea>
             </div>
 
             <div class="mb-3">
-                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control bg-dark text-white border-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
+                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control border-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
                 <span asp-validation-for="Price" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select bg-dark text-white border-secondary" asp-items="Model.Categories">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories">
                     <option value="">-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select bg-dark text-white border-secondary" asp-items="Model.Subcategories">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>
             </div>
 
-            <div class="mb-3 border border-1 border-dark">
-                <label class="d-block mb-2">Status</label>
+            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
+                <label class="d-block text-dark">Status</label>
                 <div class="btn-group" role="group" aria-label="Stock status">
                     <input type="radio" class="btn-check" name="Availability" id="availabilityTrue" value="true" autocomplete="off" @(Model.Availability ? "checked" : "")>
                     <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
@@ -56,11 +56,11 @@
                 </div>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
                 <label class="form-label">Change Image</label>
                 <div class="input-group">
                     <label class="input-group-text bg-info text-white border-0" for="UploadImage" style="cursor:pointer">Upload</label>
-                    <input asp-for="UploadImage" type="file" class="form-control bg-dark text-white border-secondary" id="UploadImage" onchange="previewImage(this)">
+                    <input asp-for="UploadImage" type="file" class="form-control border-secondary" id="UploadImage" onchange="previewImage(this)">
                 </div>
                 <img id="imagePreview" class="img-thumbnail mt-2" alt="Image Preview" style="max-height: 150px; display:none" />
             </div>
