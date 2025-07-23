@@ -215,6 +215,25 @@ hr {
     opacity: .25
 }
 
+.modal-bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    max-height: 80vh;
+    display: flex;
+    align-items: flex-end;
+    z-index: 1055;
+}
+
+    .modal-bottom-sheet .modal-content {
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        width: 100%;
+        margin: 0;
+    }
+
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
     margin-bottom: .5rem;
@@ -5892,7 +5911,7 @@ textarea.form-control-lg {
 .modal-dialog {
     position: relative;
     width: auto;
-    margin: var(--bs-modal-margin);
+    margin: 0;
     pointer-events: none
 }
 
@@ -9327,10 +9346,12 @@ textarea.form-control-lg {
     --bs-bg-opacity: 1;
     background-color: rgba(var(--bs-gray-rgb),var(--bs-bg-opacity)) !important;
 }
+
 .bg-yellow {
     --bs-bg-opacity: 1;
     background-color: rgba(var(--bs-yellow-rgb),var(--bs-bg-opacity)) !important;
 }
+
 .bg-primary {
     --bs-bg-opacity: 1;
     background-color: rgba(var(--bs-primary-rgb),var(--bs-bg-opacity)) !important

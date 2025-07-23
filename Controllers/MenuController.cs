@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
-using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.MenuClasses;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -177,10 +177,27 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(subcategories);
         }
 
-        //Testing
-        public JsonResult Filter(string val)
+        //Digital Menu
+        public IActionResult Menu(string id)
         {
-            return Json(val);
+            if (string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
+            var products = _context.Products.Where(x => x.Availability == true).ToList();
+            return View(products);
+        }
+
+        //Preview Product
+        public IActionResult Preview(string id)
+        {
+            var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
+            if (product == null)
+                return NotFound();
+            return Json(new
+            {
+                prodId = product.ProdId,
+                prodName = product.ProdName,
+                price = product.Price,
+                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
+            });
         }
 
         //

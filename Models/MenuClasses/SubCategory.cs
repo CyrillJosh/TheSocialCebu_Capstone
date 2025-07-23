@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TheSocialCebu_Capstone.Models;
+namespace TheSocialCebu_Capstone.Models.MenuClasses;
 
 public partial class SubCategory
 {

@@ -1,0 +1,102 @@
+﻿@using TheSocialCebu_Capstone.Models.MenuClasses
+@model List<Product>
+@{
+    ViewData["Title"] = "Digital Menu";
+}
+<div class="vw-100 vh-100 position-fixed z-n1" style="background-image: linear-gradient(315deg, #000000, #585757); top:0; left:0">
+</div>
+<h1 class="text-center nav-button">Menu</h1>
+<div class="row row-cols-1 row-cols-md-3 g-4 ps-3">
+    @foreach (var item in Model)
+    {
+        <div class="col" style="min-height:200px">
+            <div class="card shadow rounded-4 border-0 h-100">
+                <div class="card-body">
+                    @if (item.ProdImage != null)
+                    {
+                        <img src="data:image;base64,@Convert.ToBase64String(item.ProdImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">No image</span>
+                    }
+                    <button class="position-absolute add-product p-0 border-0 rounded-pill bg-yellow" style="right: 2px; bottom: 15px;" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="card-footer">
+                    <h5>@item.ProdName</h5>
+                    <br class="m-0" />
+                    <label>@item.Price.ToString("₱0.00")</label>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ProductModal" tabindex="-1" aria-labelledby="ProductModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-bottom-sheet m-0">
+        <div class="modal-content rounded-top-4 shadow-lg border-0 h-75 position-fixed" style="bottom:0">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ProductModallabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer row">
+                <div class="d-flex justify-content-evenly align-items-center col-6 m-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                    </svg>
+                    <span id="qty">1</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+                <div class="col-6 m-0 d-flex justify-content-center">
+                    <button class="btn btn-primary col-6 m-0 add-to-order w-75">Add to order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const buttons = $(".add-product")
+            $.each(buttons, (index, value) => {
+                let button = value;
+                button.addEventListener("click", (e) =>{
+                    let id =  e.currentTarget.dataset.id;
+                    console.log(e)
+                    fetch(`/Menu/Preview?id=${id}`)
+                    .then(response => response.json())
+                    .then(prod => {
+                        // console.log(prod)
+                        $(".modal-body").empty()
+                        $(".add-to-order").data("id",prod.prodId);
+
+                        if (!prod.prodImage || prod.prodImage.length === 0) {
+                            $(".modal-body").append(`<span class="text-muted fst-italic">No image</span>`);
+                        } else {
+                            $(".modal-body").append(`<img src="data:image/png;base64,${prod.prodImage}" id="image" class="img-thumbnail border-0 rounded h-100 w-100 object-contain"/>`);
+                        }
+
+                         $(".modal-body").append(`<h4>${prod.prodName}</h4>`)
+                         $(".modal-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)
+                    })
+                })
+            })
+            // $(".nav-button").on("click", function () {
+            //     $(".left-navbar").toggleClass("nav-show");
+            // });
+        })
+    </script>
+}
