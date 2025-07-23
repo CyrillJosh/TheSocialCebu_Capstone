@@ -118,7 +118,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
                 _context.Update(table);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
             vm.LocationList = new SelectList(_context.Locations.Select(c => new SelectListItem { Value = c.LocationId.ToString(), Text = c.LocationName }).ToList()); 
@@ -134,7 +134,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Make table unavailable
             table.Status = false;
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         //Generate QRCode

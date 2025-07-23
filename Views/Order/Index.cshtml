@@ -1,0 +1,36 @@
+﻿@using TheSocialCebu_Capstone.Models.OrderClasses
+@model List<OrderItem>
+
+<h2>Your Cart</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Prod.ProdName</td>
+                <td>@item.Qty</td>
+                <td>@item.Prod.Price.ToString("₱0.00")</td>
+                <td>@((item.Prod.Price * item.Qty).ToString("₱0.00"))</td>
+                <td>
+                    <a asp-action="RemoveFromCart" asp-route-id="@item.ProdId" class="btn btn-sm btn-danger">Remove</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a href="/Checkout" class="btn btn-primary">Proceed to Checkout</a>
+
+@section Scripts {
+    <script>
+
+    </script>
+}

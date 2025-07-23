@@ -79,7 +79,6 @@
                     fetch(`/Menu/Preview?id=${id}`)
                     .then(response => response.json())
                     .then(prod => {
-                        // console.log(prod)
                         $(".modal-body").empty()
                         $(".add-to-order").data("id",prod.prodId);
 
