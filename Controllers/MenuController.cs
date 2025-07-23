@@ -177,29 +177,12 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(subcategories);
         }
 
-
-        //Digital Menu
-        public IActionResult Menu(string id)
+        //Testing
+        public JsonResult Filter(string val)
         {
-           if(string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
-           var products = _context.Products.Where(x => x.Availability == true).ToList();
-           return View(products);
+            return Json(val);
         }
 
-        //Preview Product
-        public IActionResult Preview(string id)
-        {
-            var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
-            if (product == null)
-                return NotFound();
-            return Json(new
-            {
-                prodId = product.ProdId,
-                prodName = product.ProdName,
-                price = product.Price,
-                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
-            });
-        }
         //
         //Custom Methods
         //
