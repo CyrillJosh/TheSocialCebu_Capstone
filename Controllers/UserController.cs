@@ -48,7 +48,7 @@ namespace Menu.Controllers
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
             //HttpContext.Session.SetString("_Role", userRole);
 
-            return RedirectToAction("Menu","Index");
+            return RedirectToAction("Index","Menu");
         }
 
         ////HomePage

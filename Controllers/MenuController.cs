@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Menu.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -182,6 +183,11 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
             var products = _context.Products.Where(x => x.Availability == true).ToList();
+            if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
+            {
+                HttpContext.Session.SetString("Table", id);
+                HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
+            }
             return View(products);
         }
 
