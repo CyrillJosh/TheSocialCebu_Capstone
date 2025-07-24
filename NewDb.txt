@@ -1,6 +1,9 @@
  DROP TABLE Product;
  DROP TABLE SubCategory;
  DROP TABLE Category;
+ DROP TABLE Role;
+ DROP TABLE Person;
+ DROP TABLE Account;
 
 -- Create Category Table
 CREATE TABLE Category(
@@ -17,7 +20,7 @@ CREATE TABLE SubCategory(
 );
 
 -- Create Products Table
-CREATE TABLE Product(
+CREATE TABLE [Product](
     ProdId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
     ProdName NVARCHAR(150) NOT NULL,
     Description TEXT,
@@ -260,3 +263,33 @@ VALUES
 ('Mango Sticky Rice', 300, @Dessert, 1),
 ('Moist Chocolate Cake', 319, @Dessert, 1),
 ('Vanilla Ice Cream', 250, @Dessert, 1);
+
+--User MGMT
+--Role
+Create Table [Role](
+RoleId NVARCHAR(50) PRIMARY KEY,
+RoleName NVARCHAR(150) NOT NULL,
+[Description] NVARCHAR(150)
+)
+
+-- Person
+Create Table Person(
+PersonId NVARCHAR(50) PRIMARY KEY,
+RoleId NVARCHAR(50) NOT NULL,
+[Name] NVARCHAR(50) NOT NULL,
+BirthDate Date NOT NULL,
+HiredDate Date NOT NULL,
+[Status] BIT DEFAULT 1 Not NULL,
+Gender NVARCHAR(50) NOT NULL,
+FOREIGN KEY (RoleId) REFERENCES [Role](RoleId)
+)
+
+--Account
+Create Table Account(
+AccountId NVARCHAR(50) PRIMARY KEY,
+PersonId NVARCHAR(50) NOT NULL,
+Username NVARCHAR(50) NOT NULL,
+[Password] NVARCHAR(50) NOT NULL,
+FOREIGN KEY (PersonId) REFERENCES Person(PersonId)
+)
+
