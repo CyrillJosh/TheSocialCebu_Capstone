@@ -177,18 +177,34 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return Json(subcategories);
         }
+        [HttpGet]
 
         //Digital Menu
         public IActionResult Menu(string id)
         {
             if (string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
-            var products = _context.Products.Where(x => x.Availability == true).ToList();
+            var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
             if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
             {
                 HttpContext.Session.SetString("Table", id);
                 HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
             }
-            return View(products);
+            PopulateCategories();
+            var vm = products.Select(p => new ProductVM
+            {
+                ProdId = p.ProdId,
+                ProdName = p.ProdName,
+                Description = p.Description,
+                Price = p.Price,
+                CategoryId = p.Subcategory.Category.CategoryId,
+                SubcategoryId = p.SubcategoryId,
+                Availability = p.Availability,
+                ExistingImage = p.ProdImage,
+                Categories = Categories,
+                Subcategories = Subcategories
+            }).ToList();
+
+            return View(vm);
         }
 
         //Preview Product

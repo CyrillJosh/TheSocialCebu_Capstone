@@ -1,40 +1,46 @@
-﻿@using TheSocialCebu_Capstone.Models.MenuClasses
-@model List<Product>
+﻿@using TheSocialCebu_Capstone.ViewModels
+@model List<ProductVM>
 @{
     ViewData["Title"] = "Digital Menu";
 }
-<div class="vw-100 vh-100 position-fixed z-n1" style="background-image: linear-gradient(315deg, #000000, #585757); top:0; left:0">
+<div class="vw-100 vh-100 position-fixed z-n1" style=" top:0; left:0">
 </div>
 <a class="text-decoration-none text-white position-fixed bg-yellow text-light p-2 z-3" style="right:20px; top:20px" asp-controller="Order" asp-action="Index">Cart</a>
 
-<h1 class="text-center nav-button text-light">Menu</h1>
-<div class="row row-cols-1 row-cols-md-3 g-4 ps-3">
-    @foreach (var item in Model)
+<h1 class="text-center nav-button text-dark">Menu</h1>
+<div class="p-3">
+    @foreach(var cat in Model[0].Categories)
+    {
+        <h1>@cat.Text</h1>
+        <div class="w-100 m-3 row row-cols-1 row-cols-md-3 g-4 ps-3">
+
+    @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
     {
         <div class="col" style="min-height:200px">
             <div class="card shadow rounded-4 border-0 h-100">
                 <div class="card-body">
-                    @if (item.ProdImage != null)
+                    @if (item.ExistingImage != null)
                     {
-                        <img src="data:image;base64,@Convert.ToBase64String(item.ProdImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
+                        <img src="data:image;base64,@Convert.ToBase64String(item.ExistingImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
                     }
                     else
                     {
                         <span class="text-muted fst-italic">No image</span>
                     }
-                    <button class="position-absolute add-product p-0 border-0 rounded-pill bg-yellow" style="right: 2px; bottom: 15px;" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                    <button class="position-absolute add-product p-0 border-0 rounded-pill bg-yellow" style="right: 5px; bottom: 15px;" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                         </svg>
                     </button>
                 </div>
                 <div class="card-footer">
-                    <h5>@item.ProdName</h5>
-                    <br class="m-0" />
+                    <h5 class="mb-2">@item.ProdName</h5>
                     <label>@item.Price.ToString("₱0.00")</label>
                 </div>
             </div>
         </div>
+        }
+    </div>
     }
 </div>
 
