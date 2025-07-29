@@ -45,7 +45,7 @@ public partial class MyDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-K56S2BSD\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=LAB4-PC25\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -142,16 +142,15 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A11E0BCE45");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A10BD61174");
 
             entity.ToTable("OrderItem");
 
             entity.Property(e => e.OrderItemId)
                 .HasMaxLength(50)
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("OrderItemID");
-            entity.Property(e => e.Instructions)
-                .HasMaxLength(1)
-                .IsUnicode(false);
+            entity.Property(e => e.Instructions).HasMaxLength(255);
             entity.Property(e => e.OrderId)
                 .HasMaxLength(50)
                 .HasColumnName("OrderID");
@@ -162,12 +161,12 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__0E6E26BF");
+                .HasConstraintName("FK__OrderItem__Order__17036CC0");
 
             entity.HasOne(d => d.Prod).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProdId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Prod___0D7A0286");
+                .HasConstraintName("FK__OrderItem__Prod___17F790F9");
         });
 
         modelBuilder.Entity<Person>(entity =>

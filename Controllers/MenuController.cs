@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models.MenuClasses;
+using TheSocialCebu_Capstone.Models.OrderClasses;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -187,7 +188,17 @@ namespace TheSocialCebu_Capstone.Controllers
             if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
             {
                 HttpContext.Session.SetString("Table", id);
-                HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
+                //Check for table this table orders
+                var orders = _context.OrderItems.Include(x => x.Order).Where(x => x.Order.TableId == id/* && x.Paid == false*/).ToList();
+                if (orders.Any())
+                {
+                    HttpContext.Session.SetString("Order", orders.First().OrderId);
+                }
+                else
+                {
+
+                    HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
+                }
             }
             PopulateCategories();
             var vm = products.Select(p => new ProductVM

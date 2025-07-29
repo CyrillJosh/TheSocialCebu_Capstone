@@ -9,33 +9,33 @@
 
 <h1 class="text-center nav-button text-dark">Menu</h1>
 <div class="p-3">
-    @foreach(var cat in Model[0].Categories)
+    @foreach(var cat in Model.First().Categories)
     {
-        <h1>@cat.Text</h1>
-        <div class="w-100 m-3 row row-cols-1 row-cols-md-3 g-4 ps-3">
+        <button class="w-100 border-0 py-2 h2" data-bs-toggle="collapse" data-bs-target="#@cat.Text" aria-expanded="false" aria-controls="collapseExample">@cat.Text</button>
+        <div class="w-100 m-3 row row-cols-1 row-cols-md-2 g-4 ps-3 collapse" id="@cat.Text">
 
     @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
     {
-        <div class="col" style="min-height:200px">
+        <div class="col" style="min-height:75px">
             <div class="card shadow rounded-4 border-0 h-100">
-                <div class="card-body">
-                    @if (item.ExistingImage != null)
+                <div class="card-body hstack d-flex align-items-center gap-3">
+                  @*   @if (item.ExistingImage != null)
                     {
                         <img src="data:image;base64,@Convert.ToBase64String(item.ExistingImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
                     }
                     else
                     {
                         <span class="text-muted fst-italic">No image</span>
-                    }
-                    <button class="position-absolute add-product p-0 border-0 rounded-pill bg-yellow" style="right: 5px; bottom: 15px;" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
+                    } *@
+                    <div class="d-flex justify-content-between flex-grow-1 align-items-center">
+                        <h5 class="mb-2">@item.ProdName</h5>
+                        <span>@item.Price.ToString("₱0.00")</span>
+                    </div>
+                    <button class="add-product p-0 border-0 rounded-5 bg-yellow" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                         </svg>
                     </button>
-                </div>
-                <div class="card-footer">
-                    <h5 class="mb-2">@item.ProdName</h5>
-                    <label>@item.Price.ToString("₱0.00")</label>
                 </div>
             </div>
         </div>
@@ -120,6 +120,10 @@
             // $(".nav-button").on("click", function () {
             //     $(".left-navbar").toggleClass("nav-show");
             // });
+
+            //Debug
+            const dropdowns = $(".collapsed")
+            console.log(dropdowns)
         })
     </script>
 }
