@@ -5,6 +5,7 @@ namespace TheSocialCebu_Capstone.Models;
 
 public partial class SubCategory
 {
+
     public string SubcategoryId { get; set; } = null!;
 
     public string SubcategoryName { get; set; } = null!;

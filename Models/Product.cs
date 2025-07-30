@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TheSocialCebu_Capstone.Models;
 
 public partial class Product
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public string ProdId { get; set; } = null!;
 
     public string ProdName { get; set; } = null!;

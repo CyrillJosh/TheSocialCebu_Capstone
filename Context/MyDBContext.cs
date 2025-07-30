@@ -92,7 +92,7 @@ public partial class MyDBContext : DbContext
 
             entity.Property(e => e.ProdId)
                 .HasMaxLength(50)
-                .HasDefaultValueSql("(newid())")
+                .HasDefaultValueSql("CONVERT(NVARCHAR(50), NEWID())")
                 .HasColumnName("Prod_Id");
             entity.Property(e => e.Availability).HasDefaultValue(true);
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
