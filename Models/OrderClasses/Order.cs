@@ -14,6 +14,8 @@ public partial class Order
 
     public string TableId { get; set; } = null!;
 
+    public bool Paid { get; set; } 
+
     public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

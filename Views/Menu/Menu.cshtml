@@ -3,16 +3,27 @@
 @{
     ViewData["Title"] = "Digital Menu";
 }
-<div class="vw-100 vh-100 position-fixed z-n1" style=" top:0; left:0">
+<div id="Nav-categories" class="position-sticky z-1 bg-dark w-100" style="top:0">
+    <div class="d-flex justify-content-center">
+        <button class="bg-yellow text-black p-2 rounded-1"><</button>
+        <h1 class="text-center nav-button text-white">Menu</h1>
+        <a class="text-decoration-none bg-yellow text-black p-2 rounded-1" asp-controller="Order" asp-action="Index">Cart</a>
+    </div>
+    <div>
+        Search
+    </div>
+    <div class="w-100 ">
+        @foreach(var navcat in Model.First().Categories)
+        {
+            <a href="#@navcat.Text" class="w-100 border-0 py-2 h2 text-light">@navcat.Text</a>
+        }
+    </div>
 </div>
-<a class="text-decoration-none text-white position-fixed bg-yellow text-light p-2 z-3" style="right:20px; top:20px" asp-controller="Order" asp-action="Index">Cart</a>
-
-<h1 class="text-center nav-button text-dark">Menu</h1>
-<div class="p-3">
+<div class="p-3" scroll-spy="scroll" data-target="#Nav-categories" data-offset="00">
     @foreach(var cat in Model.First().Categories)
     {
-        <button class="w-100 border-0 py-2 h2" data-bs-toggle="collapse" data-bs-target="#@cat.Text" aria-expanded="false" aria-controls="collapseExample">@cat.Text</button>
-        <div class="w-100 m-3 row row-cols-1 row-cols-md-2 g-4 ps-3 collapse" id="@cat.Text">
+        <span class="w-100 border-0 py-2 h2" id="@cat.Text">@cat.Text</span>
+        <div class="w-100 m-3 row row-cols-1 row-cols-md-2 g-4 ps-3" id="@cat.Text">
 
     @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
     {
