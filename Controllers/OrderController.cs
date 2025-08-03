@@ -18,13 +18,21 @@ namespace TheSocialCebu_Capstone.Controllers
             _context = context;
         }
 
+        public IActionResult Orders()
+        {
+            var orders = _context.Orders.Include(x=> x.OrderItems)
+                .ThenInclude(x=> x.Prod)
+                .Where(x => x.TableId == HttpContext.Session.GetString("Table") &&
+                x.CreatedAt == DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")));
+            return View(orders);
+        }
 
         public IActionResult Index()
         {
             var orders = GetOrders();
             return View(orders);
         }
-        public IActionResult AddToCart(string id/*, string instructions*/)
+        public IActionResult AddToCart(string id, int qty)
         {
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
             if (product == null || !product.Availability) return NotFound();
@@ -33,14 +41,14 @@ namespace TheSocialCebu_Capstone.Controllers
             var existingItem = orders.FirstOrDefault(o => o.ProdId == id);
             if (existingItem != null)
             {
-                existingItem.Qty++;
+                existingItem.Qty+= qty;
             }
             else
             {
                 orders.Add(new OrderItem
                 {
                     OrderItemId = Guid.NewGuid().ToString(),
-                    Qty = 1,
+                    Qty = qty,
                     Instructions = "DEBUG",
                     ProdId = id,
                     OrderId = HttpContext.Session.GetString("Order"),
@@ -65,7 +73,7 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(orders);
         }
 
-        public JsonResult Checkout(string id)
+        public JsonResult ConfirmOrder(string id)
             {
             var orderItems = HttpContext.Session.GetString("Orders");
             if(orderItems == null)
@@ -88,7 +96,7 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Orders.Add(order);
             _context.SaveChanges();
 
-            return Json(new {message = "Success!"});
+            return Json(new {message = "Confirming"});
         }
 
         private List<OrderItem> GetOrders()

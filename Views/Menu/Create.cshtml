@@ -5,7 +5,7 @@
     ViewData["Title"] = "Create Product";
 }
 
-<div class="container py-4">
+<div class="container-fluid px-5 py-3 vh-100 overflow-y-scroll render-body">
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0 text-dark">Add New Product</h3>
@@ -57,7 +57,9 @@
 
             <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
                 <label class="form-label text-nowrap text-dark mb-0">Change Image</label>
-                <label class="input-group-text bg-info text-white border-0 rounded-pill py-0 px-3" for="UploadImage" style="cursor:pointer">Upload</label>
+                <label class="input-group-text bg-info text-white border-0 rounded-pill py-0 px-3" 
+                        for="UploadImage" 
+                        style="cursor:pointer">Upload</label>
                 <input asp-for="UploadImage" type="file" class="form-control border-secondary" id="UploadImage" onchange="previewImage(this)">
                 <img id="imagePreview" class="img-thumbnail mt-2 d-none" alt="Image Preview" style="max-height: 150px; display:none"/>
             </div>

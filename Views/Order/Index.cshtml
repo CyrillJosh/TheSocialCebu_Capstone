@@ -4,34 +4,92 @@
     ViewData["Title"] = "Cart";
     string table = Context.Session.GetString("Table");
 }
-<div class="px-5">
-    <h2>Your Cart</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<div class="vh-100 w-100 render-body">
+    <div class="pt-4">
+        <div class="text-center">
+            <h2>Your Cart</h2>
+        </div>
+        <div class="row row-cols-1 gap-2 px-4">
+            @foreach(var item in Model)
             {
-                <tr>
-                    <td>@item.Prod.ProdName</td>
-                    <td>@item.Qty</td>
-                    <td>@item.Prod.Price.ToString("₱0.00")</td>
-                    <td>@((item.Prod.Price * item.Qty).ToString("₱0.00"))</td>
-                    <td>
-                        <a asp-action="RemoveFromCart" asp-route-id="@item.ProdId" class="btn btn-sm btn-danger">Remove</a>
-                    </td>
-                </tr>
+                <div class="card d-flex flex-row align-items-center p-2 gap-3">
+                    <!-- Image -->
+                    <div class="flex-shrink-0" style="width:70px; height:70px;">
+                        @if (item.Prod.ProdImage != null)
+                        {
+                            <img src="data:image;base64,@Convert.ToBase64String(item.Prod.ProdImage)"
+                                 class="img-thumbnail border-0 rounded w-100 h-100 object-fit-cover" />
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic small">No image</span>
+                        }
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">@item.Prod.ProdName</h5>
+                        <p class="mb-0">@item.Prod.Price.ToString("₱0.00")</p>
+                    </div>
+
+                    <!-- Quantity Controls -->
+                    <div class="d-flex align-items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle minus" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                        </svg>
+                        <span id="qty">1</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle add" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                        </svg>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-    <a class="btn btn-primary checkout">Proceed to Checkout</a>
+        </div>
+        @*  <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Prod.ProdName</td>
+                        <td>@item.Qty</td>
+                        <td>@item.Prod.Price.ToString("₱0.00")</td>
+                        <td>@((item.Prod.Price * item.Qty).ToString("₱0.00"))</td>
+                        <td>
+                            <a asp-action="RemoveFromCart" asp-route-id="@item.ProdId" class="btn btn-sm btn-danger">Remove</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table> *@
+        <div class="w-100 bg-dark d-flex justify-content-center flex-column pt-4 px-4 ">
+            <div class="d-flex justify-content-between">
+                <h5 class="text-light fw-light">Subtotal</h5>
+                <span class="text-light fw-bold">₱0.00</span>
+            </div>
+            <hr class="text-light"/>
+            <div class="d-flex justify-content-between">
+                <h5 class="text-light fw-light">Discount</h5>
+                <span class="text-light fw-bold">00%</span>
+            </div>
+            <hr class="text-light" />
+            <div class="d-flex justify-content-between">
+                <h5 class="text-light fw-bold">Total</h5>
+                <span class="text-light fw-bold">₱@Model.Sum(x => x.Prod.Price * x.Qty)</span>
+            </div>
+            <a class="btn btn-primary checkout">Confirm Order</a>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -39,7 +97,7 @@
         $(document).ready(function (){
             $(".checkout").on("click", ()=> {
                 const tableId = "@table";
-                fetch("/Order/Checkout?id=" + encodeURIComponent(tableId))
+                fetch(`/Order/ConfirmOrder?id=${tableId}`)
                 .then(rawData => rawData.json())
                 .then(data => {
                     alert(data.message)
