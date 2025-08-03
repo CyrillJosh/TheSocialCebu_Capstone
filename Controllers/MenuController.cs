@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.MenuClasses;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -177,10 +178,94 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(subcategories);
         }
 
-        //Testing
-        public JsonResult Filter(string val)
+        //Digital Menu
+        public IActionResult Menu(string id = null, bool reset = false)
         {
-            return Json(val);
+            // Clear table if reset is triggered
+            if (reset)
+            {
+                HttpContext.Session.Remove("Table");
+                HttpContext.Session.Remove("Order");
+                HttpContext.Session.Remove("SuppressModalOnce");
+            }
+
+            // Table just selected
+            if (!string.IsNullOrEmpty(id))
+            {
+                var previousTable = HttpContext.Session.GetString("Table");
+
+                // If user selects a DIFFERENT table, clear the cart
+                if (previousTable != null && previousTable != id)
+                {
+                    HttpContext.Session.Remove("Orders");
+                }
+                HttpContext.Session.SetString("Table", id);
+                HttpContext.Session.SetString("SuppressModalOnce", "true");
+
+                var existingOrder = _context.OrderItems
+                    .Include(o => o.Order)
+                    .FirstOrDefault(x => x.Order.TableId == id);
+
+                HttpContext.Session.SetString("Order", existingOrder != null
+                    ? existingOrder.OrderId
+                    : Guid.NewGuid().ToString());
+
+                return RedirectToAction("Menu"); // avoid resubmission
+            }
+
+            // Read session data
+            var sessionTable = HttpContext.Session.GetString("Table");
+            var suppressModal = HttpContext.Session.GetString("SuppressModalOnce");
+
+            // Show modal if:
+            // (1) Table is not selected yet
+            // (2) Or table is selected but user refreshed the page (suppress flag expired)
+            ViewBag.ShowTableModal = string.IsNullOrEmpty(suppressModal);
+            ViewBag.CurrentTable = sessionTable;
+            ViewBag.ActiveTables = _context.Tables.Where(t => t.Status == true).ToList();
+
+            // Remove suppress flag so it only works once
+            HttpContext.Session.Remove("SuppressModalOnce");
+
+            // Load products (same as before)
+            var products = _context.Products
+                .Where(x => x.Availability == true)
+                .Include(s => s.Subcategory)
+                .ThenInclude(c => c.Category)
+                .ToList();
+
+            PopulateCategories();
+
+            var vm = products.Select(p => new ProductVM
+            {
+                ProdId = p.ProdId,
+                ProdName = p.ProdName,
+                Description = p.Description,
+                Price = p.Price,
+                CategoryId = p.Subcategory.Category.CategoryId,
+                SubcategoryId = p.SubcategoryId,
+                Availability = p.Availability,
+                ExistingImage = p.ProdImage,
+                Categories = Categories,
+                Subcategories = Subcategories
+            }).ToList();
+
+            return View(vm);
+        }
+
+        //Preview Product
+        public IActionResult Preview(string id)
+        {
+            var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
+            if (product == null)
+                return NotFound();
+            return Json(new
+            {
+                prodId = product.ProdId,
+                prodName = product.ProdName,
+                price = product.Price,
+                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
+            });
         }
 
         //

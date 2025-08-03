@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.MenuClasses;
+using TheSocialCebu_Capstone.Models.OrderClasses;
+using TheSocialCebu_Capstone.Models.TableClasses;
+using TheSocialCebu_Capstone.Models.UserClasses;
+
 
 namespace TheSocialCebu_Capstone.Context;
 
@@ -16,9 +21,17 @@ public partial class MyDBContext : DbContext
     {
     }
 
+    public virtual DbSet<Billing> Billings { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<Discount> Discounts { get; set; }
+
     public virtual DbSet<Location> Locations { get; set; }
+
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
 
     public virtual DbSet<Person> People { get; set; }
 
@@ -34,10 +47,37 @@ public partial class MyDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-K56S2BSD\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-TVI6OFS\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Billing>(entity =>
+        {
+            entity.HasKey(e => e.BillingId).HasName("PK__Billing__F1656D1389AC151B");
+
+            entity.ToTable("Billing");
+
+            entity.Property(e => e.BillingId)
+                .HasMaxLength(50)
+                .HasColumnName("BillingID");
+            entity.Property(e => e.DiscountId)
+                .HasMaxLength(50)
+                .HasColumnName("DiscountID");
+            entity.Property(e => e.OrderId)
+                .HasMaxLength(50)
+                .HasColumnName("OrderID");
+
+            entity.HasOne(d => d.Discount).WithMany(p => p.Billings)
+                .HasForeignKey(d => d.DiscountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Billing__Discoun__114A936A");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Billings)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Billing__OrderID__123EB7A3");
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("PK__Category__6DB38D6EA29E2F2B");
@@ -53,6 +93,20 @@ public partial class MyDBContext : DbContext
                 .HasColumnName("Category_Name");
         });
 
+        modelBuilder.Entity<Discount>(entity =>
+        {
+            entity.HasKey(e => e.DiscountId).HasName("PK__Discount__E43F6DF629FAE5F5");
+
+            entity.ToTable("Discount");
+
+            entity.Property(e => e.DiscountId)
+                .HasMaxLength(50)
+                .HasColumnName("DiscountID");
+            entity.Property(e => e.Name)
+                .HasMaxLength(1)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Location>(entity =>
         {
             entity.HasKey(e => e.LocationId).HasName("PK__Location__D2BA00E21F33D960");
@@ -66,6 +120,55 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.LocationName)
                 .HasMaxLength(100)
                 .HasColumnName("Location_Name");
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFC2428C34");
+
+            entity.Property(e => e.OrderId)
+                .HasMaxLength(50)
+                .HasColumnName("OrderID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(1)
+                .IsUnicode(false);
+            entity.Property(e => e.TableId)
+                .HasMaxLength(50)
+                .HasColumnName("TableID");
+
+            entity.HasOne(d => d.Table).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.TableId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Orders__TableID__04E4BC85");
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A10BD61174");
+
+            entity.ToTable("OrderItem");
+
+            entity.Property(e => e.OrderItemId)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("OrderItemID");
+            entity.Property(e => e.Instructions).HasMaxLength(255);
+            entity.Property(e => e.OrderId)
+                .HasMaxLength(50)
+                .HasColumnName("OrderID");
+            entity.Property(e => e.ProdId)
+                .HasMaxLength(50)
+                .HasColumnName("Prod_Id");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__Order__17036CC0");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__Prod___17F790F9");
         });
 
         modelBuilder.Entity<Person>(entity =>
@@ -92,7 +195,7 @@ public partial class MyDBContext : DbContext
 
             entity.Property(e => e.ProdId)
                 .HasMaxLength(50)
-                .HasDefaultValueSql("CONVERT(NVARCHAR(50), NEWID())")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("Prod_Id");
             entity.Property(e => e.Availability).HasDefaultValue(true);
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");

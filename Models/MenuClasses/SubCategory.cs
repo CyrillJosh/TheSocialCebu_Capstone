@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TheSocialCebu_Capstone.Models;
+namespace TheSocialCebu_Capstone.Models.MenuClasses;
 
 public partial class SubCategory
 {
-
     public string SubcategoryId { get; set; } = null!;
 
     public string SubcategoryName { get; set; } = null!;

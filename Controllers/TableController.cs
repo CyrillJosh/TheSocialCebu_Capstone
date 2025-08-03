@@ -6,6 +6,7 @@ using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 using QRCoder;
+using TheSocialCebu_Capstone.Models.TableClasses;
 
 namespace TheSocialCebu_Capstone.Controllers
 {

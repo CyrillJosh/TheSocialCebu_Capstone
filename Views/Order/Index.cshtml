@@ -1,0 +1,50 @@
+﻿@using TheSocialCebu_Capstone.Models.OrderClasses
+@model List<OrderItem>
+@{
+    ViewData["Title"] = "Cart";
+    string table = Context.Session.GetString("Table");
+}
+<div class="px-5">
+    <h2>Your Cart</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Prod.ProdName</td>
+                    <td>@item.Qty</td>
+                    <td>@item.Prod.Price.ToString("₱0.00")</td>
+                    <td>@((item.Prod.Price * item.Qty).ToString("₱0.00"))</td>
+                    <td>
+                        <a asp-action="RemoveFromCart" asp-route-id="@item.ProdId" class="btn btn-sm btn-danger">Remove</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a class="btn btn-primary checkout">Proceed to Checkout</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function (){
+            $(".checkout").on("click", ()=> {
+                const tableId = "@table";
+                fetch("/Order/Checkout?id=" + encodeURIComponent(tableId))
+                .then(rawData => rawData.json())
+                .then(data => {
+                    alert(data.message)
+                })
+            })
+        })
+    </script>
+}

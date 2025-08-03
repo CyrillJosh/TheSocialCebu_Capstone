@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheSocialCebu_Capstone.Models.OrderClasses;
 
-namespace TheSocialCebu_Capstone.Models;
+namespace TheSocialCebu_Capstone.Models.TableClasses;
 
 public partial class Table
 {
@@ -16,4 +17,6 @@ public partial class Table
     public string LocationId { get; set; } = null!;
 
     public virtual Location Location { get; set; } = null!;
+
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

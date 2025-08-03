@@ -1,0 +1,169 @@
+﻿@using TheSocialCebu_Capstone.Models
+@using TheSocialCebu_Capstone.ViewModels
+@model List<ProductVM>
+@{
+    ViewData["Title"] = "Digital Menu";
+}
+@if (ViewBag.ShowTableModal == true)
+{
+    <div class="modal fade show" id="selectTableModal" tabindex="-1" style="display:block;" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content bg-white rounded-3 shadow-lg border border-secondary">
+                <form method="get" action="/Menu/Menu">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select a Table</h5>
+                    </div>
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(ViewBag.CurrentTable))
+                        {
+                            <p>You are currently using table: <strong>@ViewBag.CurrentTable</strong></p>
+                            <a href="/Menu/Menu?id=@ViewBag.CurrentTable" class="btn btn-primary w-100 mb-2">Use Same Table</a>
+                            <hr />
+                            <p>Or select another table below:</p>
+                        }
+
+                        <select name="id" class="form-select mb-3" required>
+                            <option value="">-- Select Table --</option>
+                            @foreach (var table in ViewBag.ActiveTables)
+                            {
+                                <option value="@table.Id">@table.TableNumber</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success w-100">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-backdrop" class="position-fixed top-0 start-0 w-100 h-100"
+         style="z-index: 1040; backdrop-filter: blur(6px); background-color: rgba(0,0,0,0.4);">
+    </div>
+}
+<div class="vw-100 vh-100 position-fixed z-n1" style=" top:0; left:0">
+</div>
+<a class="text-decoration-none text-white position-fixed bg-yellow text-light p-2 z-3" style="right:20px; top:20px" asp-controller="Order" asp-action="Index">Cart</a>
+
+<h1 class="text-center nav-button text-dark">Menu</h1>
+<div class="p-3">
+    @foreach(var cat in Model.First().Categories)
+    {
+        <button class="w-100 border-0 py-2 h2" data-bs-toggle="collapse" data-bs-target="#@cat.Text" aria-expanded="false" aria-controls="collapseExample">@cat.Text</button>
+        <div class="w-100 m-3 row row-cols-1 row-cols-md-2 g-4 ps-3 collapse" id="@cat.Text">
+
+    @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
+    {
+        <div class="col" style="min-height:75px">
+            <div class="card shadow rounded-4 border-0 h-100">
+                <div class="card-body hstack d-flex align-items-center gap-3">
+                  @*   @if (item.ExistingImage != null)
+                    {
+                        <img src="data:image;base64,@Convert.ToBase64String(item.ExistingImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">No image</span>
+                    } *@
+                    <div class="d-flex justify-content-between flex-grow-1 align-items-center">
+                        <h5 class="mb-2">@item.ProdName</h5>
+                        <span>@item.Price.ToString("₱0.00")</span>
+                    </div>
+                    <button class="add-product p-0 border-0 rounded-5 bg-yellow" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ProductModal" tabindex="-1" aria-labelledby="ProductModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-bottom-sheet m-0">
+        <div class="modal-content rounded-top-4 shadow-lg border-0 h-75 position-fixed" style="bottom:0">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ProductModallabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer row">
+                <div class="d-flex justify-content-evenly align-items-center col-6 m-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                    </svg>
+                    <span id="qty">1</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+                <div class="col-6 m-0 d-flex justify-content-center">
+                    <button class="btn btn-primary col-6 m-0 add-to-order w-75" data-bs-dismiss="modal">Add to order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            const buttons = $(".add-product")
+            $.each(buttons, (index, value) => {
+                let button = value;
+                button.addEventListener("click", (e) =>{
+                    let id =  e.currentTarget.dataset.id;
+                    // console.log(e)
+                    fetch(`/Menu/Preview?id=${id}`)
+                    .then(response => response.json())
+                    .then(prod => {
+                        $(".modal-body").empty()
+                        $(".add-to-order").data("id",prod.prodId);
+
+                        if (!prod.prodImage || prod.prodImage.length === 0) {
+                            $(".modal-body").append(`<span class="text-muted fst-italic">No image</span>`);
+                        } else {
+                            $(".modal-body").append(`<img src="data:image/png;base64,${prod.prodImage}" id="image" class="img-thumbnail border-0 rounded h-100 w-100 object-contain"/>`);
+                        }
+
+                         $(".modal-body").append(`<h4>${prod.prodName}</h4>`)
+                         $(".modal-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)
+
+                         $(".add-to-order").data("id", prod.prodId);
+                    })
+                })
+            })
+
+            const addtoorder = $(".add-to-order")
+            addtoorder.on("click", () => {
+                id = addtoorder.data("id");
+                console.log(id)
+                fetch("/Order/AddToCart?" + new URLSearchParams({
+                    id: id,
+                    // instructions: "Test"
+                    }))
+                .then(rawData => rawData.json())
+                .then(data => {
+                    console.log(data)
+                })
+            })
+            // $(".nav-button").on("click", function () {
+            //     $(".left-navbar").toggleClass("nav-show");
+            // });
+
+            //Debug
+            const dropdowns = $(".collapsed")
+            console.log(dropdowns)
+        })
+    </script>
+}
