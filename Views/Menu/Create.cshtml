@@ -31,14 +31,14 @@
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories.Select(x => new SelectListItem {Text = x.CategoryName, Value = x.CategoryId})">
                     <option value="">-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger small"></span>
             </div>
 
              <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories.Select(x => new SelectListItem {Value = x.SubcategoryId, Text = x.SubcategoryName})">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>

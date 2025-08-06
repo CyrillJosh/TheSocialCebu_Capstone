@@ -1,8 +1,8 @@
 ﻿@using TheSocialCebu_Capstone.Models.OrderClasses
-@model List<Order>
 @{
 	ViewData["Title"] = "Orders";
 }
+@model List<Order>
 <div class="render-body">
 	<div class="p-4">
 		<div class="d-flex justify-content-between">
@@ -28,6 +28,42 @@
 			</div>
 		</div>
 		<div class="row row-cols-2">
+			@foreach(var item in Model)
+			{
+				<div class="card col">
+					<div class="card-header">
+						<p>@item.Table.TableNumber</p>
+						<p>@item.OrderId</p>
+					</div>
+					<div class="card-body">
+						<div>
+						@foreach(var order in item.OrderItems)
+						{
+							<p>@order.Prod.ProdName</p>
+							<p>@order.Qty</p>
+							<p>@order.Prod.Price</p>
+						}
+						</div>
+						<div>
+							<p>Total</p>
+							<p>@item.OrderItems.Sum(x => x.Prod.Price * x.Qty)</p>
+						</div>
+					</div>
+					<div class="card-footer">
+						<div>
+							<button class="btn btn-primary confirm" data-id="@item.TableId">Confirm</button>
+							<button class="btn btn-yellow confirm" data-id="@item.TableId">Pay Bills</button>
+						</div>
+					</div>
+				</div>
+			}
 		</div>
 	</div>
 </div>
+@section Scripts{
+	<script>
+		$(document).ready( function () {
+			const
+		})
+	</script>
+}

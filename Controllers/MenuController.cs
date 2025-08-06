@@ -16,8 +16,8 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Database
         private readonly MyDBContext _context;
-        private IEnumerable<SelectListItem> Categories;
-        private IEnumerable<SelectListItem> Subcategories;
+        private List<Category> Categories;
+        private List<SubCategory> Subcategories;
 
         //Constructor
         public MenuController(MyDBContext context)
@@ -185,18 +185,17 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
             var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
+            HttpContext.Session.SetString("Table", id);
             if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
             {
-                HttpContext.Session.SetString("Table", id);
                 //Check for table this table orders
-                var orders = _context.OrderItems.Include(x => x.Order).Where(x => x.Order.TableId == id/* && x.Paid == false*/).ToList();
+                var orders = _context.OrderItems.Where(x => x.Order.TableId == id /* && x.Paid == false*/).ToList();
                 if (orders.Any())
                 {
                     HttpContext.Session.SetString("Order", orders.First().OrderId);
                 }
                 else
                 {
-
                     HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
                 }
             }
@@ -213,7 +212,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 ExistingImage = p.ProdImage,
                 Categories = Categories,
                 Subcategories = Subcategories
-            }).ToList();
+            }).OrderBy(x => x.ProdName).ToList();
 
             return View(vm);
         }
@@ -240,8 +239,8 @@ namespace TheSocialCebu_Capstone.Controllers
         //Populate Categories
         private void PopulateCategories()
         {
-            Categories = _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
-            Subcategories = _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
+            Categories = _context.Categories.ToList();
+            Subcategories = _context.SubCategories.Include(x => x.Category).ToList();
         }
     }
 }

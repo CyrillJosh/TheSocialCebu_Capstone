@@ -5,46 +5,49 @@
 }
 <div class="vh-100 w-100 render-body">
     <div id="productScroll"
-         class="flex-grow-1 overflow-auto position-relative h-100"
-         data-bs-spy="scroll"
-         data-bs-target="#categoryNav"
-         data-bs-offset="0"
-         tabindex="0">
+    class="flex-grow-1 overflow-auto position-relative h-100"
+    data-bs-spy="scroll"
+    data-bs-target="#categoryNav"
+    data-bs-offset="0"
+    tabindex="0">
         <nav id="categoryNav"
-             class="nav flex-row bg-dark w-100 p-2 sticky-top"
-             style="height: 30vh; top: 0; z-index: 1020;">
+        class="nav flex-row bg-dark w-100 p-2 sticky-top"
+        style="height: 30vh; top: 0; z-index: 1020;">
             <div class="w-100 mb-2" style="min-height: 45px">
-                <button class="btn bg-transparent text-yellow m-2 position-absolute start-0 top-0"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#sidebarMenu"
-                        aria-controls="sidebarMenu">
+                <button class="btn bg-transparent text-yellow m-2 position-absolute start-0 top-0 d-sm-none"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#sidebarMenu"
+                aria-controls="sidebarMenu">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
                     </svg>
                 </button>
                 <h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Menu</h1>
                 <a class="text-decoration-none text-yellow m-2 py-2 px-3 rounded-1 position-absolute end-0 top-0 gotocart"
-                   href="/Order/">
+                href="/Order/">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-cart-fill" viewBox="0 0 16 16">
                         <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                     </svg>
                 </a>
-             </div>
+            </div>
 
             <div class="d-flex flex-wrap mt-2 w-100 justify-content-center">
                 @foreach (var navcat in Model.First().Categories)
                 {
-                    <a href="#@navcat.Text.Replace(" ", "").Replace("&","")" class="nav-link text-white">@navcat.Text</a>
+                    <a href="#@navcat.CategoryName.Replace(" ", "").Replace("&","")" class="nav-link text-white">@navcat.CategoryName</a>
                 }
             </div>
         </nav>
 
         @foreach (var cat in Model.First().Categories)
         {
-            <h2 id="@cat.Text.Replace(" ", "").Replace("&","")" class="mt-3 px-2">@cat.Text</h2>
-            <div class="row row-cols-1 row-cols-md-2 g-4 mx-0 px-2">
-                @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
+            <h1 id="@cat.CategoryName.Replace(" ", "").Replace("&","")" class="mt-3 px-2 text-center">@cat.CategoryName</h1>
+            @foreach(var subcat in Model.First().Subcategories.Where(x=> x.CategoryId == cat.CategoryId))
+            {
+                <h4 class="mt-3 px-3">@subcat.SubcategoryName</h4>
+                <div class="row row-cols-1 row-cols-md-2 g-4 mx-0 px-4">
+                @foreach (var item in Model.Where(c => c.CategoryId == cat.CategoryId && c.SubcategoryId == subcat.SubcategoryId))
                 {
                     <div class="col px-2">
                         <div class="card shadow rounded-4 border-0 h-100">
@@ -67,6 +70,7 @@
                     </div>
                 }
             </div>
+            }
         }
     </div>
 </div>
@@ -140,12 +144,6 @@
                         $(".set-body").empty()
                         $(".set-header").empty()
                         $(".add-to-order").data("id",prod.prodId);
-
-                        if (!prod.prodImage || prod.prodImage.length === 0) {
-                            $(".set-header").append(`<span class="text-muted fst-italic">No image</span>`);
-                        } else {
-                            $(".set-header").append(`<img src="data:image/png;base64,${prod.prodImage}" id="image" class="img-thumbnail border-0 rounded h-100 w-100 object-contain"/>`);
-                        }
 
                          $(".set-body").append(`<h4>${prod.prodName}</h4>`)
                          $(".set-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)

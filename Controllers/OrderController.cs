@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Text.Json;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models.MenuClasses;
 using TheSocialCebu_Capstone.Models.OrderClasses;
+using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
@@ -20,11 +22,42 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public IActionResult Orders()
         {
-            var orders = _context.Orders.Include(x=> x.OrderItems)
-                .ThenInclude(x=> x.Prod)
+            var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")); 
+            var orders = _context.Orders.Include(x => x.OrderItems)
+                .ThenInclude(x => x.Prod).ThenInclude(x => x.Subcategory).Include(x => x.Table)
                 .Where(x => x.TableId == HttpContext.Session.GetString("Table") &&
-                x.CreatedAt == DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")));
-            return View(orders);
+                x.Paid == false); 
+            return View(orders.ToList());
+        }
+
+        public IActionResult MyOrders()
+        {
+            var id = HttpContext.Session.GetString("Table");
+
+            var table = _context.Tables
+                .Include(x => x.Orders)
+                .ThenInclude(x => x.OrderItems)
+                .FirstOrDefault(x => x.Id == id);
+
+            if (table == null)
+                return NotFound();
+
+            var orderItems = _context.OrderItems
+                .Where(oi => oi.Order.Table.Id == id)
+                .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
+                .Select(g => new OrderitemSummary
+                {
+                    ProdId = g.Key.ProdId,
+                    ProdName = g.Key.ProdName,
+                    TotalQty = g.Sum(x => x.Qty),
+                    Price = g.Key.Price,
+                    TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
+                    CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
+                })
+                .OrderByDescending(x => x.TotalQty)
+                .ToList();
+
+            return View(orderItems);
         }
 
         public IActionResult Index()
@@ -78,6 +111,7 @@ namespace TheSocialCebu_Capstone.Controllers
             var orderItems = HttpContext.Session.GetString("Orders");
             if(orderItems == null)
                 return Json(new {message = "Invalid!"});
+
             var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItems);
             foreach (var item in items)
             {
@@ -87,13 +121,14 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 OrderId = Guid.NewGuid().ToString(),
                 CreatedAt = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")),
-                Status = "0",
+                Status = true,
                 TableId = id,
                 Billings = null,
                 OrderItems = items,
-                Table = null
+                Table = _context.Tables.FirstOrDefault(x => x.Id == id)
             };
             _context.Orders.Add(order);
+            HttpContext.Session.Remove("Orders"); 
             _context.SaveChanges();
 
             return Json(new {message = "Confirming"});

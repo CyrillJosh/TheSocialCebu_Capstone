@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using TheSocialCebu_Capstone.Models.MenuClasses;
 
 namespace TheSocialCebu_Capstone.ViewModels
 {
@@ -27,8 +28,8 @@ namespace TheSocialCebu_Capstone.ViewModels
 
         public IFormFile? UploadImage { get; set; }
 
-        public IEnumerable<SelectListItem>? Categories { get; set; }
-        public IEnumerable<SelectListItem>? Subcategories { get; set; }
+        public List<Category>? Categories { get; set; }
+        public List<SubCategory>? Subcategories { get; set; }
 
         public byte[]? ExistingImage { get; set; }
     }

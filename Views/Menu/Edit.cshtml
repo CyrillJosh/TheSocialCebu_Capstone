@@ -13,7 +13,7 @@
                 <h3 class="mb-0">Edit Product</h3>
                 <div>
                     <button type="submit" class="btn btn-success btn-yellow fw-bold me-2 px-4">Save Changes</button>
-                    <a asp-action="Index" class="btn btn-secondary btn-danger px-4">Cancel</a>
+                    <a asp-action="Index" class="btn btn-danger px-4">Cancel</a>
                 </div>
             </div>
 
@@ -32,14 +32,14 @@
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories.Select(s => new SelectListItem { Value = s.CategoryId.ToString(), Text = s.CategoryName, })">
                     <option value="">-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName})">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>

@@ -1,0 +1,53 @@
+﻿@using TheSocialCebu_Capstone.ViewModels
+@{
+	ViewData["Title"] = "My Orders";
+}
+@model List<OrderitemSummary>
+<div class="render-body">
+<nav id="categoryNav"
+	 class="nav flex-row bg-dark w-100 p-2 sticky-top"
+	 style="height: 10vh; top: 0; z-index: 1020;">
+	<div class="w-100 mb-2" style="min-height: 20px">
+		<button class="btn bg-transparent text-yellow m-2 position-absolute start-0 top-0 d-sm-none"
+				type="button"
+				data-bs-toggle="offcanvas"
+				data-bs-target="#sidebarMenu"
+				aria-controls="sidebarMenu">
+			<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+				<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+			</svg>
+		</button>
+		<h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Orders</h1>
+		<a class="text-decoration-none text-yellow m-2 py-2 px-3 rounded-1 position-absolute end-0 top-0"
+		   href="/Order/">Return
+		</a>
+	</div>
+</nav>
+	<div class="p-3">
+		<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Quantity</th>
+				<th>Price</th>
+				<th>Subtotal</th>
+			</tr>
+		</thead>
+		<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>@item.ProdName</td>
+				<td>@item.TotalQty</td>
+				<td>@item.Price</td>
+				<td>@item.TotalAmount.ToString("0.00")</td>
+			</tr>
+		}
+		</tbody>
+		</table>
+		<h2>Total: @Model.Sum(x=> x.TotalAmount).ToString("0.00")</h2>
+
+
+		<button class="btn btn-yellow">Request Bill</button>
+	</div>
+</div>
