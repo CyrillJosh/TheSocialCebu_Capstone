@@ -5,7 +5,7 @@
     ViewData["Title"] = "Edit Product";
 }
 
-<div class="container py-4">
+<div class="container-fluid px-5 py-3 vh-100 overflow-y-scroll render-body">
     <div class="p-4">
         <form asp-action="Edit" enctype="multipart/form-data" id="productForm">
             <input asp-for="ProdId" hidden />
@@ -13,7 +13,7 @@
                 <h3 class="mb-0">Edit Product</h3>
                 <div>
                     <button type="submit" class="btn btn-success btn-yellow fw-bold me-2 px-4">Save Changes</button>
-                    <a asp-action="Index" class="btn btn-secondary btn-danger px-4">Cancel</a>
+                    <a asp-action="Index" class="btn btn-danger px-4">Cancel</a>
                 </div>
             </div>
 
@@ -32,14 +32,14 @@
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories.Select(s => new SelectListItem { Value = s.CategoryId.ToString(), Text = s.CategoryName, })">
                     <option value="">-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName})">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>
@@ -48,10 +48,17 @@
             <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
                 <label class="d-block text-dark">Status</label>
                 <div class="btn-group" role="group" aria-label="Stock status">
-                    <input type="radio" class="btn-check" name="Availability" id="availabilityTrue" value="true" autocomplete="off" @(Model.Availability ? "checked" : "")>
+                    <input type="radio" 
+                            class="btn-check" 
+                            name="Availability" 
+                            id="availabilityTrue" 
+                            value="true" 
+                            autocomplete="off" @(Model.Availability ? "checked" : "")>
                     <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
 
-                    <input type="radio" class="btn-check" name="Availability" id="availabilityFalse" value="false" autocomplete="off" @(Model.Availability == false ? "checked" : "")>
+                    <input type="radio" class="btn-check" 
+                            name="Availability" id="availabilityFalse" 
+                            value="false" autocomplete="off" @(Model.Availability == false ? "checked" : "")>
                     <label class="btn btn-outline-warning" for="availabilityFalse">unvailable</label>
                 </div>
             </div>
@@ -60,7 +67,11 @@
                 <label class="form-label">Change Image</label>
                 <div class="input-group">
                     <label class="input-group-text bg-info text-white border-0" for="UploadImage" style="cursor:pointer">Upload</label>
-                    <input asp-for="UploadImage" type="file" class="form-control border-secondary" id="UploadImage" onchange="previewImage(this)">
+                    <input asp-for="UploadImage" 
+                            type="file" 
+                            class="form-control border-secondary" 
+                            id="UploadImage" 
+                            onchange="previewImage(this)">
                 </div>
                 <img id="imagePreview" class="img-thumbnail mt-2" alt="Image Preview" style="max-height: 150px; display:none" />
             </div>

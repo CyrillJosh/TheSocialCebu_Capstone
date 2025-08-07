@@ -1,5 +1,4 @@
-﻿@using TheSocialCebu_Capstone.Models
-@using TheSocialCebu_Capstone.ViewModels
+﻿@using TheSocialCebu_Capstone.ViewModels
 @model List<ProductVM>
 @{
     ViewData["Title"] = "Digital Menu";
@@ -42,128 +41,184 @@
          style="z-index: 1040; backdrop-filter: blur(6px); background-color: rgba(0,0,0,0.4);">
     </div>
 }
-<div class="vw-100 vh-100 position-fixed z-n1" style=" top:0; left:0">
-</div>
-<a class="text-decoration-none text-white position-fixed bg-yellow text-light p-2 z-3" style="right:20px; top:20px" asp-controller="Order" asp-action="Index">Cart</a>
-
-<h1 class="text-center nav-button text-dark">Menu</h1>
-<div class="p-3">
-    @foreach(var cat in Model.First().Categories)
-    {
-        <button class="w-100 border-0 py-2 h2" data-bs-toggle="collapse" data-bs-target="#@cat.Text" aria-expanded="false" aria-controls="collapseExample">@cat.Text</button>
-        <div class="w-100 m-3 row row-cols-1 row-cols-md-2 g-4 ps-3 collapse" id="@cat.Text">
-
-    @foreach (var item in Model.Where(c => c.CategoryId == cat.Value))
-    {
-        <div class="col" style="min-height:75px">
-            <div class="card shadow rounded-4 border-0 h-100">
-                <div class="card-body hstack d-flex align-items-center gap-3">
-                  @*   @if (item.ExistingImage != null)
-                    {
-                        <img src="data:image;base64,@Convert.ToBase64String(item.ExistingImage)" class="img-thumbnail border-0 rounded h-100 w-100 object-contain" />
-                    }
-                    else
-                    {
-                        <span class="text-muted fst-italic">No image</span>
-                    } *@
-                    <div class="d-flex justify-content-between flex-grow-1 align-items-center">
-                        <h5 class="mb-2">@item.ProdName</h5>
-                        <span>@item.Price.ToString("₱0.00")</span>
-                    </div>
-                    <button class="add-product p-0 border-0 rounded-5 bg-yellow" data-id="@item.ProdId" data-bs-toggle="modal" data-bs-target="#ProductModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                        </svg>
-                    </button>
-                </div>
+<div class="vh-100 w-100 render-body">
+    <div id="productScroll"
+         class="flex-grow-1 overflow-auto position-relative h-100"
+         data-bs-spy="scroll"
+         data-bs-target="#categoryNav"
+         data-bs-offset="0"
+         tabindex="0">
+        <nav id="categoryNav"
+             class="nav flex-row bg-dark w-100 p-2 sticky-top"
+             style="height: 30vh; top: 0; z-index: 1020;">
+            <div class="w-100 mb-2" style="min-height: 45px">
+                <button class="btn bg-transparent text-yellow m-2 position-absolute start-0 top-0 d-sm-none"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#sidebarMenu"
+                        aria-controls="sidebarMenu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                    </svg>
+                </button>
+                <h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Menu</h1>
+                <a class="text-decoration-none text-yellow m-2 py-2 px-3 rounded-1 position-absolute end-0 top-0 gotocart"
+                   href="/Order/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-cart-fill" viewBox="0 0 16 16">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                    </svg>
+                </a>
             </div>
-        </div>
+
+            <div class="d-flex flex-wrap mt-2 w-100 justify-content-center">
+                @foreach (var navcat in Model.First().Categories)
+                {
+                    <a href="#@navcat.CategoryName.Replace(" ", "").Replace("&", "")" class="nav-link text-white">@navcat.CategoryName</a>
+                }
+            </div>
+        </nav>
+
+        @foreach (var cat in Model.First().Categories)
+        {
+            <h1 id="@cat.CategoryName.Replace(" ", "").Replace("&", "")" class="mt-3 px-2 text-center">@cat.CategoryName</h1>
+            @foreach (var subcat in Model.First().Subcategories.Where(x => x.CategoryId == cat.CategoryId))
+            {
+                <h4 class="mt-3 px-3">@subcat.SubcategoryName</h4>
+                <div class="row row-cols-1 row-cols-md-2 g-4 mx-0 px-4">
+                    @foreach (var item in Model.Where(c => c.CategoryId == cat.CategoryId && c.SubcategoryId == subcat.SubcategoryId))
+                    {
+                        <div class="col px-2">
+                            <div class="card shadow rounded-4 border-0 h-100">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div class="w-100">
+                                        <h5 class="mb-0">@item.ProdName</h5>
+                                        <span>@item.Price.ToString("₱0.00")</span>
+                                    </div>
+                                    <button data-id="@item.ProdId"
+                                            class="add-product p-0 border-0 rounded-5 bg-yellow"
+                                            data-bs-toggle="offcanvas"
+                                            data-bs-target="#offcanvasBottom"
+                                            aria-controls="offcanvasBottom">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         }
     </div>
-    }
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="ProductModal" tabindex="-1" aria-labelledby="ProductModallabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen-sm-down modal-bottom-sheet m-0">
-        <div class="modal-content rounded-top-4 shadow-lg border-0 h-75 position-fixed" style="bottom:0">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ProductModallabel">Modal title</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-            </div>
-            <div class="modal-footer row">
-                <div class="d-flex justify-content-evenly align-items-center col-6 m-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
-                    </svg>
-                    <span id="qty">1</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                    </svg>
-                </div>
-                <div class="col-6 m-0 d-flex justify-content-center">
-                    <button class="btn btn-primary col-6 m-0 add-to-order w-75" data-bs-dismiss="modal">Add to order</button>
-                </div>
-            </div>
+<!-- off canvas -->
+<div class="offcanvas offcanvas-bottom h-50 pb-3" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+    <div class="offcanvas-header set-header">
+    </div>
+    <div class="offcanvas-body small set-body">
+    </div>
+    <div class="w-100">
+        <div class="d-flex justify-content-center align-items-center col-6 m-0 w-100 py-3 gap-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle minus" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+            </svg>
+            <span id="qty">1</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle add" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg>
+        </div>
+        <div class="col-6 m-0 d-flex justify-content-center w-100">
+            <button class="btn btn-yellow col-6 m-0 add-to-order w-75 rounded-pill" style="max-width:50%" data-bs-dismiss="offcanvas">Add to my order</button>
         </div>
     </div>
 </div>
 
 
 @section Scripts {
-
     <script>
         $(document).ready(function () {
+            $(".gotocart").on("click", () => {
+                windows.location.href = $(this).attr('href')
+            })
+
+            $(function () {
+                const productScroll = document.getElementById('productScroll');
+                const nav = document.getElementById('categoryNav');
+
+                const offset = nav.offsetHeight;
+
+                // Initialize ScrollSpy
+                new bootstrap.ScrollSpy(productScroll, {
+                    target: '#categoryNav',
+                    offset: offset
+                });
+
+                // Smooth scrolling
+                $('#categoryNav a').on('click', function (e) {
+                    e.preventDefault();
+                    const targetId = $(this).attr('href');
+                    const navHeight = $('#categoryNav').outerHeight();
+
+                    $('#productScroll').animate({
+                        scrollTop: $('#productScroll').scrollTop() + $(targetId).position().top - navHeight
+                    }, 300);
+                });
+            });
+
             const buttons = $(".add-product")
             $.each(buttons, (index, value) => {
                 let button = value;
                 button.addEventListener("click", (e) =>{
                     let id =  e.currentTarget.dataset.id;
-                    // console.log(e)
                     fetch(`/Menu/Preview?id=${id}`)
                     .then(response => response.json())
                     .then(prod => {
-                        $(".modal-body").empty()
+                        $("#qty").text("1")
+                        $(".set-body").empty()
+                        $(".set-header").empty()
                         $(".add-to-order").data("id",prod.prodId);
 
-                        if (!prod.prodImage || prod.prodImage.length === 0) {
-                            $(".modal-body").append(`<span class="text-muted fst-italic">No image</span>`);
-                        } else {
-                            $(".modal-body").append(`<img src="data:image/png;base64,${prod.prodImage}" id="image" class="img-thumbnail border-0 rounded h-100 w-100 object-contain"/>`);
-                        }
-
-                         $(".modal-body").append(`<h4>${prod.prodName}</h4>`)
-                         $(".modal-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)
+                         $(".set-body").append(`<h4>${prod.prodName}</h4>`)
+                         $(".set-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)
 
                          $(".add-to-order").data("id", prod.prodId);
                     })
                 })
             })
-
+            //Add
+            $(".add").on("click", ()=> {
+                const qty = $("#qty")
+                let num = parseInt(qty.text())
+                num++
+                qty.text(num);
+            })
+            //Minus
+             $(".minus").on("click", ()=> {
+                const qty = $("#qty")
+                let num = parseInt(qty.text())
+                if((num-1) == 0){
+                    num = 1
+                }
+                else{
+                    num--
+                }
+                qty.text(num);
+            })
             const addtoorder = $(".add-to-order")
             addtoorder.on("click", () => {
-                id = addtoorder.data("id");
-                console.log(id)
-                fetch("/Order/AddToCart?" + new URLSearchParams({
-                    id: id,
-                    // instructions: "Test"
-                    }))
+                let id = addtoorder.data("id");
+                let qty = $("#qty").text();
+
+                fetch(`/Order/AddToCart?id=${id}&qty=${qty}`)
                 .then(rawData => rawData.json())
                 .then(data => {
                     console.log(data)
                 })
             })
-            // $(".nav-button").on("click", function () {
-            //     $(".left-navbar").toggleClass("nav-show");
-            // });
-
-            //Debug
-            const dropdowns = $(".collapsed")
-            console.log(dropdowns)
         })
     </script>
 }

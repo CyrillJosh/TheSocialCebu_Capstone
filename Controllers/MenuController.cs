@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Menu.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
-using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.Models.MenuClasses;
+using TheSocialCebu_Capstone.Models.OrderClasses;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -15,8 +16,8 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Database
         private readonly MyDBContext _context;
-        private IEnumerable<SelectListItem> Categories;
-        private IEnumerable<SelectListItem> Subcategories;
+        private List<Category> Categories;
+        private List<SubCategory> Subcategories;
 
         //Constructor
         public MenuController(MyDBContext context)
@@ -275,8 +276,8 @@ namespace TheSocialCebu_Capstone.Controllers
         //Populate Categories
         private void PopulateCategories()
         {
-            Categories = _context.Categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
-            Subcategories = _context.SubCategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName }).ToList();
+            Categories = _context.Categories.ToList();
+            Subcategories = _context.SubCategories.Include(x => x.Category).ToList();
         }
     }
 }
