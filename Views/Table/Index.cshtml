@@ -1,60 +1,63 @@
-﻿<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white fw-semibold">Tables</h2>
-        <a asp-action="Create" class="btn btn-success px-4 rounded-pill">+ Create New Table</a>
-    </div>
+﻿<div class="render-body">
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white fw-semibold">Tables</h2>
+            <a asp-action="Create" class="btn btn-success px-4 rounded-pill">+ Create New Table</a>
+        </div>
 
-    <div class="table-responsive shadow">
-        <table class="table table-dark table-hover table-borderless align-middle rounded overflow-hidden">
-            <thead class="table-secondary text-dark">
-                <tr>
-                    <th scope="col">Table Number</th>
-                    <th scope="col">Location</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">QR Code</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <div class="table-responsive shadow">
+            <table class="table table-dark table-hover table-borderless align-middle rounded overflow-hidden">
+                <thead class="table-secondary text-dark">
                     <tr>
-                        <td>@item.TableNumber</td>
-                        <td>@item.Location?.LocationName</td>
-                        <td>@item.Status</td>
-                        <td>
-                            @if (item.QrcodeImage != null)
-                            {
-                                var base64 = Convert.ToBase64String(item.QrcodeImage);
-                                <img src="data:image/png;base64,@base64" class="img-thumbnail border-0 rounded" style="width: 80px;" />
-                            }
-                            else
-                            {
-                                <span class="text-muted fst-italic">No QR</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                                    </svg>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger DeleteTable border-0" data-id="@item.Id" data-name="@item.TableNumber" data-bs-toggle="modal" data-bs-target="#DeleteModal">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
+                        <th scope="col">Table Number</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">QR Code</th>
+                        <th scope="col">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TableNumber</td>
+                            <td>@item.Location?.LocationName</td>
+                            <td>@item.Status</td>
+                            <td>
+                                @if (item.QrcodeImage != null)
+                                {
+                                    var base64 = Convert.ToBase64String(item.QrcodeImage);
+                                    <img src="data:image/png;base64,@base64" class="img-thumbnail border-0 rounded" style="width: 80px;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">No QR</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger DeleteTable border-0" data-id="@item.Id" data-name="@item.TableNumber" data-bs-toggle="modal" data-bs-target="#DeleteModal">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 <!-- Delete Confirmation Modal -->
 <form asp-action="Delete" method="post">
     <div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="DeleteModalLabel" aria-hidden="true">
@@ -76,6 +79,7 @@
         </div>
     </div>
 </form>
+
 @section Scripts {
     <script>
         $(document).ready(function () {

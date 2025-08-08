@@ -1,8 +1,8 @@
-﻿@using TheSocialCebu_Capstone.Models.OrderClasses
+﻿@using TheSocialCebu_Capstone.Models.TableClasses
 @{
 	ViewData["Title"] = "Orders";
 }
-@model List<Order>
+@model List<Table>
 <div class="render-body">
 	<div class="p-4">
 		<div class="d-flex justify-content-between">
@@ -30,29 +30,49 @@
 		<div class="row row-cols-2">
 			@foreach(var item in Model)
 			{
-				<div class="card col">
-					<div class="card-header">
-						<p>@item.Table.TableNumber</p>
-						<p>@item.OrderId</p>
-					</div>
-					<div class="card-body">
-						<div>
-						@foreach(var order in item.OrderItems)
-						{
-							<p>@order.Prod.ProdName</p>
-							<p>@order.Qty</p>
-							<p>@order.Prod.Price</p>
-						}
+				<div class="col border border-1 shadow rounded-3 p-3">
+					<div>
+						<div class="bg-primary d-flex justify-content-center align-items-center">
+							<p>@item.TableNumber</p>
 						</div>
+						@* <p>@item.OrderId</p> *@
+					</div>
+					<hr />
+					<div>
 						<div>
-							<p>Total</p>
-							<p>@item.OrderItems.Sum(x => x.Prod.Price * x.Qty)</p>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Product</th>
+										<th>Quantity</th>
+										<th>Price</th>
+									</tr>
+								</thead>
+								<tbody>
+								@foreach(var order in item.Orders)
+								{
+									@foreach(var orderitem in order.OrderItems)
+									{
+										<tr>
+											<td>@orderitem.Prod.ProdName</td>
+											<td>@orderitem.Qty</td>
+											<td>@orderitem.Prod.Price</td>
+										</tr>
+									}
+								}
+								</tbody>
+							</table>
+						</div>
+						<div class="d-flex justify-content-between">
+							<p>Total:</p>
+							<p>@item.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Qty))</p>
 						</div>
 					</div>
-					<div class="card-footer">
+					<hr />
+					<div>
 						<div>
-							<button class="btn btn-primary confirm" data-id="@item.TableId">Confirm</button>
-							<button class="btn btn-yellow confirm" data-id="@item.TableId">Pay Bills</button>
+							<button class="btn btn-primary confirm" data-id="@item.Id">Confirm</button>
+							@* <button class="btn btn-yellow confirm" data-id="@item.Id">Pay Bills</button> *@
 						</div>
 					</div>
 				</div>
@@ -63,7 +83,7 @@
 @section Scripts{
 	<script>
 		$(document).ready( function () {
-			const
+			// const
 		})
 	</script>
 }

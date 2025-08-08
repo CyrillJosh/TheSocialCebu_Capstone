@@ -4,58 +4,57 @@
 @{
     ViewData["Title"] = "Edit";
 }
+<div class="render-body">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="p-4">
+        <input type="hidden" asp-for="Id" id="TableID"/>
+        <input type="hidden" asp-for="QRCodeBase64" id="QRCodeBase64" />
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="QRCodeBase64" id="QRCodeBase64" />
-
-    <div class="form-group">
-        <label asp-for="TableNumber"></label>
-        <input asp-for="TableNumber" class="form-control" id="TableNumber" />
-        <span asp-validation-for="TableNumber" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="LocationId">Location</label>
-        <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
-        </select>
-        <span asp-validation-for="LocationId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="d-block mb-2">Status</label>
-
-        <div class="btn-group" role="group" aria-label="Status">
-            <input type="radio" class="btn-check" name="Status" id="availabilityTrue" value="true" autocomplete="off" @(Model.Status ? "checked" : "")>
-            <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
-
-            <input type="radio" class="btn-check" name="Status" id="availabilityFalse" value="false" autocomplete="off" @(Model.Status == false ? "checked" : "")>
-            <label class="btn btn-outline-warning" for="availabilityFalse">Not Available</label>
+        <div class="form-group">
+            <label asp-for="TableNumber"></label>
+            <input asp-for="TableNumber" class="form-control" id="TableNumber" />
+            <span asp-validation-for="TableNumber" class="text-danger"></span>
         </div>
 
-    </div>
+        <div class="form-group">
+            <label asp-for="LocationId">Location</label>
+            <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
+            </select>
+            <span asp-validation-for="LocationId" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label>QR Code Preview</label><br />
-        <img id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />
-    </div>
+        <div class="mb-3">
+            <label class="d-block mb-2">Status</label>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+            <div class="btn-group" role="group" aria-label="Status">
+                <input type="radio" class="btn-check" name="Status" id="availabilityTrue" value="true" autocomplete="off" @(Model.Status ? "checked" : "")>
+                <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
+
+                <input type="radio" class="btn-check" name="Status" id="availabilityFalse" value="false" autocomplete="off" @(Model.Status == false ? "checked" : "")>
+                <label class="btn btn-outline-warning" for="availabilityFalse">Not Available</label>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label>QR Code Preview</label><br />
+            <img id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
 
 @section Scripts {
     <script>
-        $('#TableNumber').on('input', function () {
-            const number = this.value.trim();
-            if (!number) return;
-            console.log(number);
+        $(document).ready(function () {
+        const tableid = $("#TableID").val()
             // Use the number value from the input field for the API request
-            fetch(`/Table/GenerateQRCode?value=${number}`)
+            fetch(`/Table/GenerateQRCode?value=${tableid}`)
                 .then(response => response.json())
                 .then(data => {
                     const preview = document.getElementById('qrPreview');
-                    console.log(data);
+                    // console.log(data);
 
                     preview.src = data.qrstring;
                     preview.style.display = 'block';

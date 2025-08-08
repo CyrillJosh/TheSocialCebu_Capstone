@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create Table";
 }
 
-<div class="container py-4">
+<div class="render-body">
     <div class="bg-dark text-white p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0">Add New Table</h3>
@@ -15,6 +15,7 @@
         </div>
 
         <form asp-action="Create" enctype="multipart/form-data" id="tableForm">
+            <input hidden asp-for="Id" value="@Guid.NewGuid().ToString()" id="TableID"/>
             <div class="mb-3">
                 <input asp-for="TableNumber" placeholder="Table Number" class="form-control bg-dark text-white border-secondary" />
                 <span asp-validation-for="TableNumber" class="text-danger small"></span>
@@ -51,25 +52,23 @@
 
 @section Scripts {
     <script>
-        $('#TableNumber').on('input', function () {
-            const number = this.value.trim();
-            if (!number) return;
-            console.log(number);
-            // Use the number value from the input field for the API request
-            fetch(`/Table/GenerateQRCode?value=${number}`)
-                .then(response => response.json())
-                .then(data => {
-                    const preview = document.getElementById('qrPreview');
-                    console.log(data);
+        $(document).ready(function () {
+        const tableid = $("#TableID").val()
+        // console.log(tableid)
+        fetch(`/Table/GenerateQRCode?value=${tableid}`)
+            .then(response => response.json())
+            .then(data => {
+                const preview = document.getElementById('qrPreview');
+                // console.log(data);
 
-                    preview.src = data.qrstring;
-                    preview.style.display = 'block';
+                preview.src = data.qrstring;
+                preview.style.display = 'block';
 
-                    document.getElementById('QRCodeBase64').value = data.qrstring;
-                })
-                .catch(error => {
-                    console.error('Error generating QR code:', error);
-                });
-        });
+                document.getElementById('QRCodeBase64').value = data.qrstring;
+            })
+            .catch(error => {
+                console.error('Error generating QR code:', error);
+            });
+        })
     </script>
 }

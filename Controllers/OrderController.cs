@@ -22,12 +22,22 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public IActionResult Orders()
         {
-            var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")); 
-            var orders = _context.Orders.Include(x => x.OrderItems)
-                .ThenInclude(x => x.Prod).ThenInclude(x => x.Subcategory).Include(x => x.Table)
-                .Where(x => x.TableId == HttpContext.Session.GetString("Table") &&
-                x.Paid == false); 
-            return View(orders.ToList());
+            var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy"));
+            var orders = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).ToList();
+            //    var orders = _context.Orders
+            //        .Include(x => x.OrderItems)
+            //        .ThenInclude(x => x.Prod)
+            //        .ThenInclude(x => x.Subcategory)
+            //        .Include(x => x.Table)
+            //        .Where(x => x.Paid == false)
+            //        .GroupBy(x=> new { x.TableId, x.OrderId, x.OrderItems })
+            //        .Select(g => new Order
+            //        {
+            //            OrderId = g.Key.OrderId,
+            //            TableId = g.Key.TableId,
+            //            OrderItems = g.Key.OrderItems.ToList()
+            //        }).ToList(); 
+            return View(orders);
         }
 
         public IActionResult MyOrders()

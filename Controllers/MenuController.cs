@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
@@ -178,18 +179,30 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return Json(subcategories);
         }
+
+        //Set session
+        public IActionResult Table(string id)
+        {
+            HttpContext.Session.SetString("Table", id);
+            return RedirectToAction("Menu");
+        }
+
         [HttpGet]
 
         //Digital Menu
-        public IActionResult Menu(string id)
+        public IActionResult Menu()
         {
-            if (string.IsNullOrEmpty(id) || !_context.Tables.Any(x => x.Id == id)) return NotFound();
+            var table = HttpContext.Session.GetString("Table");
+            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.Id == table)) 
+                return NotFound();
+            
             var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
-            HttpContext.Session.SetString("Table", id);
+
+
             if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
             {
                 //Check for table this table orders
-                var orders = _context.OrderItems.Where(x => x.Order.TableId == id /* && x.Paid == false*/).ToList();
+                var orders = _context.OrderItems.Where(x => x.Order.TableId == table /* && x.Paid == false*/).ToList();
                 if (orders.Any())
                 {
                     HttpContext.Session.SetString("Order", orders.First().OrderId);
@@ -199,6 +212,7 @@ namespace TheSocialCebu_Capstone.Controllers
                     HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
                 }
             }
+
             PopulateCategories();
             var vm = products.Select(p => new ProductVM
             {
