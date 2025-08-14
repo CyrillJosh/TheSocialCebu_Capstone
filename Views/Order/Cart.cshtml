@@ -20,7 +20,7 @@
             </button>
             <h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Your Cart</h1>
             <a class="text-decoration-none text-yellow m-2 py-2 px-3 rounded-1 position-absolute end-0 top-0"
-               href="/Menu/Menu/@table">
+               href="/Order/Menu/@table">
                 Return
             </a>
         </div>
@@ -100,7 +100,7 @@
         $(document).ready(function (){
             $(".checkout").on("click", ()=> {
                 const tableId = "@table";
-                fetch(`/Order/ConfirmOrder?id=${tableId}`)
+                fetch(`/Order/ConfirmCart?id=${tableId}`)
                 .then(rawData => rawData.json())
                 .then(data => {
                     alert(data.message)

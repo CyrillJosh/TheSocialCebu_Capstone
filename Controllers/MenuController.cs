@@ -180,71 +180,8 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(subcategories);
         }
 
-        //Set session
-        public IActionResult Table(string id)
-        {
-            HttpContext.Session.SetString("Table", id);
-            return RedirectToAction("Menu");
-        }
+       
 
-        [HttpGet]
-
-        //Digital Menu
-        public IActionResult Menu()
-        {
-            var table = HttpContext.Session.GetString("Table");
-            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.Id == table)) 
-                return NotFound();
-            
-            var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
-
-
-            if(HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
-            {
-                //Check for table this table orders
-                var orders = _context.OrderItems.Where(x => x.Order.TableId == table /* && x.Paid == false*/).ToList();
-                if (orders.Any())
-                {
-                    HttpContext.Session.SetString("Order", orders.First().OrderId);
-                }
-                else
-                {
-                    HttpContext.Session.SetString("Order",Guid.NewGuid().ToString());
-                }
-            }
-
-            PopulateCategories();
-            var vm = products.Select(p => new ProductVM
-            {
-                ProdId = p.ProdId,
-                ProdName = p.ProdName,
-                Description = p.Description,
-                Price = p.Price,
-                CategoryId = p.Subcategory.Category.CategoryId,
-                SubcategoryId = p.SubcategoryId,
-                Availability = p.Availability,
-                ExistingImage = p.ProdImage,
-                Categories = Categories,
-                Subcategories = Subcategories
-            }).OrderBy(x => x.ProdName).ToList();
-
-            return View(vm);
-        }
-
-        //Preview Product
-        public IActionResult Preview(string id)
-        {
-            var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
-            if (product == null)
-                return NotFound();
-            return Json(new
-            {
-                prodId = product.ProdId,
-                prodName = product.ProdName,
-                price = product.Price,
-                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
-            });
-        }
 
         //
         //Custom Methods

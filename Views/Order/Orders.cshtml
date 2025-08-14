@@ -3,14 +3,14 @@
 	ViewData["Title"] = "Orders";
 }
 @model List<Table>
-<div class="render-body">
-	<div class="p-4">
-		<div class="d-flex justify-content-between">
+<div class="render-body vh-100">
+	<div class="p-4 h-100">
+		@* <div class="d-flex justify-content-between">
 			<h1>Orders</h1>
 			<h3>@DateTime.Now.ToString("MMMM, dd, yyyy")</h3>
-		</div>
+		</div> *@
 
-		<div class="d-flex">
+		@* <div class="d-flex">
 			<div>
 				<button>All</button>
 				<button>On Process</button>
@@ -26,64 +26,122 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row row-cols-2">
-			@foreach(var item in Model)
-			{
-				<div class="col border border-1 shadow rounded-3 p-3">
-					<div>
-						<div class="bg-primary d-flex justify-content-center align-items-center">
-							<p>@item.TableNumber</p>
-						</div>
-						@* <p>@item.OrderId</p> *@
-					</div>
-					<hr />
-					<div>
+		</div> *@
+		<div class="row row-cols-2 ">
+			<h1>Approved Orders</h1>
+			<div class="col-9 d-flex flex-column gap-3">
+				@foreach(var item in Model.Where(x => x.Orders.Count > 0))
+				{
+					<div class="border border-1 shadow rounded-3 p-3">
 						<div>
-							<table class="table table-bordered">
-								<thead>
-									<tr>
-										<th>Product</th>
-										<th>Quantity</th>
-										<th>Price</th>
-									</tr>
-								</thead>
-								<tbody>
-								@foreach(var order in item.Orders)
-								{
-									@foreach(var orderitem in order.OrderItems)
-									{
+							<div class="bg-primary d-flex justify-content-center align-items-center">
+								<p>@item.TableNumber</p>
+							</div>
+							@* <p>@item.OrderId</p> *@
+						</div>
+						<hr />
+						<div>
+							<div>
+								<table class="table table-bordered">
+									<thead>
 										<tr>
-											<td>@orderitem.Prod.ProdName</td>
-											<td>@orderitem.Qty</td>
-											<td>@orderitem.Prod.Price</td>
+											<th>Product</th>
+											<th>Quantity</th>
+											<th>Price</th>
+											<th>Subtotal</th>
+											<th>Status</th>
 										</tr>
+									</thead>
+									<tbody>
+									@foreach(var order in item.Orders.Where(x => x.Status != "Pending" && x.Paid == false))
+									{
+										@foreach(var orderitem in order.OrderItems)
+										{
+											<tr>
+												<td>@orderitem.Prod.ProdName</td>
+												<td>@orderitem.Qty</td>
+												<td>@orderitem.Prod.Price</td>
+												<td>@(orderitem.Prod.Price * orderitem.Qty)</td>
+												<td>@order.Status</td>
+											</tr>
+										}
 									}
-								}
-								</tbody>
-							</table>
+									</tbody>
+								</table>
+							</div>
+							<div class="d-flex justify-content-between">
+								<p>Total:</p>
+								<p>@item.Orders.Where(x => x.Status != "Pending").Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Qty))</p>
+							</div>
 						</div>
-						<div class="d-flex justify-content-between">
-							<p>Total:</p>
-							<p>@item.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Qty))</p>
-						</div>
-					</div>
-					<hr />
-					<div>
+						<hr />
 						<div>
-							<button class="btn btn-primary confirm" data-id="@item.Id">Confirm</button>
-							@* <button class="btn btn-yellow confirm" data-id="@item.Id">Pay Bills</button> *@
+							<div>
+								@* <button class="btn btn-primary confirm" data-id="@item.Id">Confirm</button> *@
+								@* <button class="btn btn-yellow confirm" data-id="@item.Id">Pay Bills</button> *@
+							</div>
 						</div>
 					</div>
+				}
+			</div>
+			<div class="col-3">
+				<h1 class="text-center">Pending</h1>
+				<div class="d-flex flex-column gap-3">
+				@foreach (var item in Model)
+				{
+					@foreach (var order in item.Orders.Where(x => x.Status == "Pending"))
+					{
+						<div class="border border-1 shadow rounded-3 p-3">
+							<div>
+								<div class="hstack justify-content-between">
+									<h2>@item.TableNumber</h2>
+									<button class="btn btn-primary confirm" data-id="@order.OrderId">Confirm</button>
+								</div>
+								<table class="table table-bordered">
+									<thead>
+										<tr>
+											<th>Product</th>
+											<th>Quantity</th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var orderitem in order.OrderItems)
+										{
+
+											<tr>
+												<td>@orderitem.Prod.ProdName</td>
+												<td>@orderitem.Qty</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					}
+				}
 				</div>
-			}
+			</div>
 		</div>
 	</div>
 </div>
 @section Scripts{
 	<script>
 		$(document).ready( function () {
-			// const
+			const buttons = $(".confirm")
+			$.each(buttons, (index, value) => {
+				let button = value;
+				button.addEventListener("click", (e) =>{
+					let id =  e.currentTarget.dataset.id;
+					fetch(`/Order/ConfirmOrder?id=${id}&status=In Progress`)
+					.then(response => response.json())
+					.then(confirm => {
+						console.log(confirm)
+						if(confirm.message == "OK"){
+							window.location.reload();
+						}
+					})
+				})
+			})
 		})
 	</script>
 }

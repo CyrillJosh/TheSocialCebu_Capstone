@@ -14,12 +14,76 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Fields
         private readonly MyDBContext _context;
-
+        private List<Category> Categories;
+        private List<SubCategory> Subcategories;
         public OrderController(MyDBContext context)
         {
             _context = context;
         }
+        //Set session
+        public IActionResult Table(string id)
+        {
+            HttpContext.Session.SetString("Table", id);
+            return RedirectToAction("Menu");
+        }
+        [HttpGet]
 
+        //Digital Menu
+        public IActionResult Menu()
+        {
+            var table = HttpContext.Session.GetString("Table");
+            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.Id == table))
+                return NotFound();
+
+            var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
+
+
+            if (HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
+            {
+                //Check for table this table orders
+                var orders = _context.OrderItems.Where(x => x.Order.TableId == table /* && x.Paid == false*/).ToList();
+                if (orders.Any())
+                {
+                    HttpContext.Session.SetString("Order", orders.First().OrderId);
+                }
+                else
+                {
+                    HttpContext.Session.SetString("Order", Guid.NewGuid().ToString());
+                }
+            }
+
+            PopulateCategories();
+            var vm = products.Select(p => new ProductVM
+            {
+                ProdId = p.ProdId,
+                ProdName = p.ProdName,
+                Description = p.Description,
+                Price = p.Price,
+                CategoryId = p.Subcategory.Category.CategoryId,
+                SubcategoryId = p.SubcategoryId,
+                Availability = p.Availability,
+                ExistingImage = p.ProdImage,
+                Categories = Categories,
+                Subcategories = Subcategories
+            }).OrderBy(x => x.ProdName).ToList();
+
+            return View(vm);
+        }
+
+        //Preview Product
+        public IActionResult Preview(string id)
+        {
+            var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
+            if (product == null)
+                return NotFound();
+            return Json(new
+            {
+                prodId = product.ProdId,
+                prodName = product.ProdName,
+                price = product.Price,
+                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
+            });
+        }
         public IActionResult Orders()
         {
             var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy"));
@@ -40,37 +104,50 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(orders);
         }
 
+        public IActionResult ConfirmOrder(string id, string status)
+        {
+            if (id == null)
+            {
+                return Json(new { message = "Error" });
+            }
+            var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            order.Status = status;
+            _context.Update(order);
+            _context.SaveChanges();
+            return Json(new { message = "OK" });
+        }
+
         public IActionResult MyOrders()
         {
             var id = HttpContext.Session.GetString("Table");
+            var orderitems = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).Where(x => x.TableId == id).OrderByDescending(x=> x.Status).ToList();
+            //var table = _context.Tables
+            //    .Include(x => x.Orders)
+            //    .ThenInclude(x => x.OrderItems)
+            //    .FirstOrDefault(x => x.Id == id);
 
-            var table = _context.Tables
-                .Include(x => x.Orders)
-                .ThenInclude(x => x.OrderItems)
-                .FirstOrDefault(x => x.Id == id);
+            //if (table == null)
+            //    return NotFound();
+            ////Adjust
+            //var orderItems = _context.OrderItems
+            //    .Where(oi => oi.Order.Table.Id == id)
+            //    .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
+            //    .Select(g => new OrderitemSummary
+            //    {
+            //        ProdId = g.Key.ProdId,
+            //        ProdName = g.Key.ProdName,
+            //        TotalQty = g.Sum(x => x.Qty),
+            //        Price = g.Key.Price,
+            //        TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
+            //        CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
+            //    })
+            //    .OrderByDescending(x => x.TotalQty)
+            //    .ToList();
 
-            if (table == null)
-                return NotFound();
-
-            var orderItems = _context.OrderItems
-                .Where(oi => oi.Order.Table.Id == id)
-                .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
-                .Select(g => new OrderitemSummary
-                {
-                    ProdId = g.Key.ProdId,
-                    ProdName = g.Key.ProdName,
-                    TotalQty = g.Sum(x => x.Qty),
-                    Price = g.Key.Price,
-                    TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
-                    CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
-                })
-                .OrderByDescending(x => x.TotalQty)
-                .ToList();
-
-            return View(orderItems);
+            return View(orderitems);
         }
 
-        public IActionResult Index()
+        public IActionResult Cart()
         {
             var orders = GetOrders();
             return View(orders);
@@ -116,7 +193,7 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(orders);
         }
 
-        public JsonResult ConfirmOrder(string id)
+        public JsonResult ConfirmCart(string id)
             {
             var orderItems = HttpContext.Session.GetString("Orders");
             if(orderItems == null)
@@ -131,7 +208,7 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 OrderId = Guid.NewGuid().ToString(),
                 CreatedAt = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")),
-                Status = true,
+                Status = "Pending",
                 TableId = id,
                 Billings = null,
                 OrderItems = items,
@@ -144,6 +221,17 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new {message = "Confirming"});
         }
 
+        public IActionResult Kitchen()
+        {
+            var orders = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).ToList(); 
+            return View(orders);
+        }
+
+        //
+        //Custom Methods
+        //
+
+        // Get Orders
         private List<OrderItem> GetOrders()
         {
             var orders = HttpContext.Session.GetString("Orders");
@@ -152,10 +240,16 @@ namespace TheSocialCebu_Capstone.Controllers
             return new List<OrderItem>();
         }
 
+        //Save cart
         private void SaveCart(List<OrderItem> orders)
         {
             HttpContext.Session.SetString("Orders", JsonSerializer.Serialize(orders));
         }
 
+        private void PopulateCategories()
+        {
+            Categories = _context.Categories.ToList();
+            Subcategories = _context.SubCategories.Include(x => x.Category).ToList();
+        }
     }
 }

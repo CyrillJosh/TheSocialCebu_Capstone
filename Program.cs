@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+//SignalR
+builder.Services.AddSignalR();
 
 //Database
 builder.Services.AddDbContext<MyDBContext>(options =>
@@ -40,6 +43,8 @@ app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
 
+//SignalR Mapping
+app.MapHub<ConnectorHub>("/connectorHub");
 
 app.UseAuthorization();
 

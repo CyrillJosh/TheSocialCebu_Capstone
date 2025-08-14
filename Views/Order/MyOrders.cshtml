@@ -1,9 +1,9 @@
-﻿@using TheSocialCebu_Capstone.ViewModels
+﻿@using TheSocialCebu_Capstone.Models.OrderClasses
 @{
 	ViewData["Title"] = "My Orders";
 }
-@model List<OrderitemSummary>
-<div class="render-body">
+@model List<Order>
+<div class="render-body vh-100 overflow-y-scroll">
 <nav id="categoryNav"
 	 class="nav flex-row bg-dark w-100 p-2 sticky-top"
 	 style="height: 10vh; top: 0; z-index: 1020;">
@@ -19,33 +19,37 @@
 		</button>
 		<h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Orders</h1>
 		<a class="text-decoration-none text-yellow m-2 py-2 px-3 rounded-1 position-absolute end-0 top-0"
-		   href="/Order/">Return
+		   href="/Order/Cart">Return
 		</a>
 	</div>
 </nav>
 	<div class="p-3">
-		<table class="table">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Quantity</th>
-				<th>Price</th>
-				<th>Subtotal</th>
-			</tr>
-		</thead>
-		<tbody>
-		@foreach (var item in Model)
+		@foreach (var order in Model)
 		{
-			<tr>
-				<td>@item.ProdName</td>
-				<td>@item.TotalQty</td>
-				<td>@item.Price</td>
-				<td>@item.TotalAmount.ToString("0.00")</td>
-			</tr>
+			<h5>@order.Status</h5>
+			<table class="table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Quantity</th>
+					<th>Price</th>
+					<th>Subtotal</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach (var item in order.OrderItems)
+			{
+					<tr>
+						<td>@item.Prod.ProdName</td>
+						<td>@item.Qty</td>
+						<td>@item.Prod.Price</td>
+						<td>@(item.Prod.Price * item.Qty)</td>
+					</tr>
+				@* <h2>Total: @Model.Select(x => x.OrderItems).ToString("0.00")</h2> *@
+			}
+			</tbody>
+			</table>
 		}
-		</tbody>
-		</table>
-		<h2>Total: @Model.Sum(x=> x.TotalAmount).ToString("0.00")</h2>
 
 
 		<button class="btn btn-yellow">Request Bill</button>
