@@ -24,18 +24,20 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Table(string id)
         {
             HttpContext.Session.SetString("Table", id);
-            return RedirectToAction("Menu");
+            return RedirectToAction("Index","Home");
         }
         [HttpGet]
 
         //Digital Menu
-        public IActionResult Menu()
+        public IActionResult Menu(string category)
         {
             var table = HttpContext.Session.GetString("Table");
             if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.Id == table))
                 return NotFound();
+            if(string.IsNullOrEmpty(category))
+                return NotFound();
 
-            var products = _context.Products.Where(x => x.Availability == true).Include(s => s.Subcategory).ThenInclude(c => c.Category).ToList();
+            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products).ToList();
 
 
             if (HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
@@ -52,22 +54,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 }
             }
 
-            PopulateCategories();
-            var vm = products.Select(p => new ProductVM
-            {
-                ProdId = p.ProdId,
-                ProdName = p.ProdName,
-                Description = p.Description,
-                Price = p.Price,
-                CategoryId = p.Subcategory.Category.CategoryId,
-                SubcategoryId = p.SubcategoryId,
-                Availability = p.Availability,
-                ExistingImage = p.ProdImage,
-                Categories = Categories,
-                Subcategories = Subcategories
-            }).OrderBy(x => x.ProdName).ToList();
-
-            return View(vm);
+            return View(subcat);
         }
 
         //Preview Product
@@ -80,8 +67,8 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 prodId = product.ProdId,
                 prodName = product.ProdName,
+                description = product.Description,
                 price = product.Price,
-                prodImage = Convert.ToBase64String(product.ProdImage ?? new byte[0])
             });
         }
         public IActionResult Orders()
@@ -111,7 +98,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 return Json(new { message = "Error" });
             }
             var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
-            order.Status = status;
+            order.Status = false;
             _context.Update(order);
             _context.SaveChanges();
             return Json(new { message = "OK" });
@@ -208,7 +195,7 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 OrderId = Guid.NewGuid().ToString(),
                 CreatedAt = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")),
-                Status = "Pending",
+                Status = false,
                 TableId = id,
                 Billings = null,
                 OrderItems = items,

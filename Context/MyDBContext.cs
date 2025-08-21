@@ -128,7 +128,7 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.OrderId)
                 .HasMaxLength(50)
                 .HasColumnName("OrderID");
-            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Status).HasDefaultValue(false);
             entity.Property(e => e.TableId)
                 .HasMaxLength(50)
                 .HasColumnName("TableID");
@@ -150,6 +150,7 @@ public partial class MyDBContext : DbContext
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("OrderItemID");
             entity.Property(e => e.Instructions).HasMaxLength(255);
+            entity.Property(e => e.Status);
             entity.Property(e => e.OrderId)
                 .HasMaxLength(50)
                 .HasColumnName("OrderID");

@@ -8,14 +8,14 @@
 		<div class="row row-cols-2 ">
 			<h1>Orders</h1>
 			<div class="col-9 d-flex flex-column gap-3">
-				@foreach (var order in Model.Where(x => x.Status !="Pending"))
+				@foreach (var order in Model.Where(x => x.Status == false))
 				{
 					<div class="border border-1 shadow rounded-3 p-3">
 						<div>
 							<div class="d-flex justify-content-between align-items-center">
 								<h3>@order.Status</h3>
 								<p>@order.OrderId</p>
-								@if (order.Status != "Preparing")
+								@if (order.Status == false)
 								{
 									<button class="btn btn-primary confirm" data-id="@order.OrderId">Confirm</button>
 								}

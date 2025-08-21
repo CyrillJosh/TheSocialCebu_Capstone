@@ -1,8 +1,83 @@
-﻿@{
+﻿@using TheSocialCebu_Capstone.Models.MenuClasses
+@{
     ViewData["Title"] = "Home Page";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@model List<Category>
+<div class="render-body d-flex flex-column overflow-hidden" style="background: /* linear-gradient(0deg, #FFFFFF, #FFFFFF), */
+radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);
+">
+    <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top"
+         style="height: 45vh; top: 0; z-index: 1020;">
+         <div class="h-100 w-100 p-3">
+            <div class="w-100 mb-2">
+                <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
+                    <button class="btn bg-transparent text-yellow m-0 p-0 d-sm-none"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#sidebarMenu"
+                            aria-controls="sidebarMenu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                        </svg>
+                    </button>
+                    <a class="visually-hidden bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
+                       href="/Order/Cart">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="px-3 row">
+                <div class="col-7">
+                    <p class="text-light" style="font-family: sans-serif;
+                        font-weight: 700;
+                        font-size: 50px;
+                        line-height: 100%;
+                        letter-spacing: 0%;">
+                        THE SOCIAL
+                    </p>
+                    <p class="text-light" style="font-family: Amaranth;
+                        font-weight: 400;
+                        font-style: Italic;
+                        font-size: 18px;
+                        line-height: 100%;
+                        letter-spacing: 0%;">
+                        It’s not just food,<br />
+                        it’s the experience.
+                    </p>
+                </div>
+                <div class="col-5 d-flex justify-content-center">
+                    <img class="logo" src="/images/The Social Logo.png" height="100" />
+                </div>
+            </div>
+            <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3" style="min-height:40px">
+                <div class="flex-grow-1 d-flex px-3 py-2 border border-2 rounded-pill border-light text-light col-md-12 align-items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search m-0 p-0" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg>
+                    <input id="custom-search-input" type="text" placeholder="Search your favorite food" class="border-0 focus-none bg-transparent m-0 p-0 text-light flex-grow-1" />
+                </div>
+                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart"
+                   href="/Order/Cart">
+                    <img src="~/Images/Cart.png" height="30"/>
+                </a>
+            </div>
+            <p class="text-light">Select by Category</p>
+         </div>
+    </nav>
+    <div class="p-4 overflow-y-scroll" style="height:55vh">
+        <div class="row row-cols-1 gap-3">
+        @foreach(var cat in Model)
+        {
+            <div class="col px-2">
+                <div class="card shadow rounded-4 border-0 h-100">
+                        <a class="card-body d-flex justify-content-center align-items-center text-decoration-none text-center" asp-controller="Order" asp-action="Menu" asp-route-category="@cat.CategoryId">
+                            <h3>@cat.CategoryName</h3>
+                        </a>
+                </div>
+            </div>
+        }
+        </div>
+    </div>
 </div>

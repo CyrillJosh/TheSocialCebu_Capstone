@@ -12,6 +12,7 @@ public partial class OrderItem
 
     public string Instructions { get; set; } = null!;
 
+    public bool Status { get; set; }
     public string ProdId { get; set; } = null!;
 
     public string OrderId { get; set; } = null!;

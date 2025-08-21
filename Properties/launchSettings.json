@@ -15,6 +15,10 @@
       "launchBrowser": true,
       "applicationUrl": "http://0.0.0.0:5021",
       //"applicationUrl": "http://localhost:5021",
+      "hotReloadEnabled": true,
+      //"launchUrl": "TheSocialCebu.com",
+      //"httpPort": 5021,
+      //"publishAllPorts": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

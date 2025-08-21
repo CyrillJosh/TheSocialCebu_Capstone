@@ -53,7 +53,7 @@
 										</tr>
 									</thead>
 									<tbody>
-									@foreach(var order in item.Orders.Where(x => x.Status != "Pending" && x.Paid == false))
+									@foreach(var order in item.Orders.Where(x => x.Status == false && x.Paid == false))
 									{
 										@foreach(var orderitem in order.OrderItems)
 										{
@@ -71,7 +71,7 @@
 							</div>
 							<div class="d-flex justify-content-between">
 								<p>Total:</p>
-								<p>@item.Orders.Where(x => x.Status != "Pending").Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Qty))</p>
+								<p>@item.Orders.Where(x => x.Status == false).Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Qty))</p>
 							</div>
 						</div>
 						<hr />
@@ -89,7 +89,7 @@
 				<div class="d-flex flex-column gap-3">
 				@foreach (var item in Model)
 				{
-					@foreach (var order in item.Orders.Where(x => x.Status == "Pending"))
+					@foreach (var order in item.Orders.Where(x => x.Status == false))
 					{
 						<div class="border border-1 shadow rounded-3 p-3">
 							<div>
