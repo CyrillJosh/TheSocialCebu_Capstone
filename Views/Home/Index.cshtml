@@ -1,13 +1,19 @@
-﻿@using TheSocialCebu_Capstone.Models.MenuClasses
+﻿@using System.Text.Json
+@using TheSocialCebu_Capstone.Models.MenuClasses
+@using TheSocialCebu_Capstone.Models.OrderClasses
 @{
     ViewData["Title"] = "Home Page";
+    var ordersJson = Context.Session.GetString("Orders");
+    var orders = string.IsNullOrEmpty(ordersJson)
+       ? new List<OrderItem>()
+       : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
 @model List<Category>
 <div class="render-body d-flex flex-column overflow-hidden" style="background: /* linear-gradient(0deg, #FFFFFF, #FFFFFF), */
 radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);
 ">
     <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top"
-         style="height: 45vh; top: 0; z-index: 1020;">
+         style="height: 47vh; top: 0; z-index: 1020;">
          <div class="h-100 w-100 p-3">
             <div class="w-100 mb-2">
                 <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
@@ -58,26 +64,49 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                     </svg>
                     <input id="custom-search-input" type="text" placeholder="Search your favorite food" class="border-0 focus-none bg-transparent m-0 p-0 text-light flex-grow-1" />
                 </div>
-                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart"
+                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart position-relative"
                    href="/Order/Cart">
                     <img src="~/Images/Cart.png" height="30"/>
+                    <div class="pill">
+                        @if (orders.Count > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @orders.Count
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        }
+                    </div>
                 </a>
             </div>
             <p class="text-light">Select by Category</p>
          </div>
     </nav>
-    <div class="p-4 overflow-y-scroll" style="height:55vh">
-        <div class="row row-cols-1 gap-3">
-        @foreach(var cat in Model)
-        {
-            <div class="col px-2">
-                <div class="card shadow rounded-4 border-0 h-100">
-                        <a class="card-body d-flex justify-content-center align-items-center text-decoration-none text-center" asp-controller="Order" asp-action="Menu" asp-route-category="@cat.CategoryId">
-                            <h3>@cat.CategoryName</h3>
-                        </a>
+   <div class="p-4 overflow-y-scroll" style="height:53vh">
+        <div class="row row-cols-2">
+            @foreach(var cat in Model)
+            {
+                <div class="col my-3">
+                    <a class="text-decoration-none px-2 d-block"   
+                       style="height:150px;"                       
+                       asp-controller="Order"
+                       asp-action="Menu"
+                       asp-route-category="@cat.CategoryId">
+
+                        <div class="bg-white position-relative h-100 rounded overflow-hidden shadow-sm d-flex">
+                            <img
+                                 alt="@cat.CategoryName"
+                                 class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
+
+                            <div class="position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background: rgba(0,0,0,0.3);"></div>
+
+                            <h4 class="text-white text-center z-1 w-100 mt-1">
+                                @cat.CategoryName
+                            </h4>
+                        </div>
+                    </a>
                 </div>
-            </div>
-        }
+            }
         </div>
     </div>
 </div>

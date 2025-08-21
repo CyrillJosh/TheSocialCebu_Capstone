@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using TheSocialCebu_Capstone.Models.OrderClasses;
 using TheSocialCebu_Capstone.Models.MenuClasses;
+using TheSocialCebu_Capstone.Models.OrderClasses;
 using TheSocialCebu_Capstone.Models.TableClasses;
 using TheSocialCebu_Capstone.Models.UserClasses;
-
 
 namespace TheSocialCebu_Capstone.Context;
 
@@ -52,7 +51,7 @@ public partial class MyDBContext : DbContext
     {
         modelBuilder.Entity<Billing>(entity =>
         {
-            entity.HasKey(e => e.BillingId).HasName("PK__Billing__F1656D138735D068");
+            entity.HasKey(e => e.BillingId).HasName("PK__Billing__F1656D1348357234");
 
             entity.ToTable("Billing");
 
@@ -69,12 +68,12 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Discount).WithMany(p => p.Billings)
                 .HasForeignKey(d => d.DiscountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Billing__Discoun__47A6A41B");
+                .HasConstraintName("FK__Billing__Discoun__5D95E53A");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Billings)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Billing__OrderID__489AC854");
+                .HasConstraintName("FK__Billing__OrderID__5E8A0973");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -123,12 +122,11 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFB25BC9F6");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFB38BCE70");
 
             entity.Property(e => e.OrderId)
                 .HasMaxLength(50)
                 .HasColumnName("OrderID");
-            entity.Property(e => e.Status).HasDefaultValue(false);
             entity.Property(e => e.TableId)
                 .HasMaxLength(50)
                 .HasColumnName("TableID");
@@ -136,12 +134,12 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Table).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.TableId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Orders__TableID__3F115E1A");
+                .HasConstraintName("FK__Orders__TableID__59C55456");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A11BD0F569");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A1B673F630");
 
             entity.ToTable("OrderItem");
 
@@ -150,23 +148,23 @@ public partial class MyDBContext : DbContext
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("OrderItemID");
             entity.Property(e => e.Instructions).HasMaxLength(255);
-            entity.Property(e => e.Status);
             entity.Property(e => e.OrderId)
                 .HasMaxLength(50)
                 .HasColumnName("OrderID");
             entity.Property(e => e.ProdId)
                 .HasMaxLength(50)
                 .HasColumnName("Prod_Id");
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__43D61337");
+                .HasConstraintName("FK__OrderItem__Order__625A9A57");
 
             entity.HasOne(d => d.Prod).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProdId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Prod___44CA3770");
+                .HasConstraintName("FK__OrderItem__Prod___634EBE90");
         });
 
         modelBuilder.Entity<Person>(entity =>

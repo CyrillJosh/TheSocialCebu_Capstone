@@ -37,7 +37,7 @@ namespace TheSocialCebu_Capstone.Controllers
             if(string.IsNullOrEmpty(category))
                 return NotFound();
 
-            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products).ToList();
+            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products).Include(x => x.Category).ToList();
 
 
             if (HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
@@ -108,28 +108,28 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var id = HttpContext.Session.GetString("Table");
             var orderitems = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).Where(x => x.TableId == id).OrderByDescending(x=> x.Status).ToList();
-            //var table = _context.Tables
-            //    .Include(x => x.Orders)
-            //    .ThenInclude(x => x.OrderItems)
-            //    .FirstOrDefault(x => x.Id == id);
+            var table = _context.Tables
+                .Include(x => x.Orders)
+                .ThenInclude(x => x.OrderItems)
+                .FirstOrDefault(x => x.Id == id);
 
-            //if (table == null)
-            //    return NotFound();
-            ////Adjust
-            //var orderItems = _context.OrderItems
-            //    .Where(oi => oi.Order.Table.Id == id)
-            //    .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
-            //    .Select(g => new OrderitemSummary
-            //    {
-            //        ProdId = g.Key.ProdId,
-            //        ProdName = g.Key.ProdName,
-            //        TotalQty = g.Sum(x => x.Qty),
-            //        Price = g.Key.Price,
-            //        TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
-            //        CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
-            //    })
-            //    .OrderByDescending(x => x.TotalQty)
-            //    .ToList();
+            if (table == null)
+                return NotFound();
+            //Adjust
+            var orderItems = _context.OrderItems
+                .Where(oi => oi.Order.Table.Id == id)
+                .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
+                .Select(g => new OrderitemSummary
+                {
+                    ProdId = g.Key.ProdId,
+                    ProdName = g.Key.ProdName,
+                    TotalQty = g.Sum(x => x.Qty),
+                    Price = g.Key.Price,
+                    TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
+                    CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
+                })
+                .OrderByDescending(x => x.TotalQty)
+                .ToList();
 
             return View(orderitems);
         }
@@ -139,10 +139,10 @@ namespace TheSocialCebu_Capstone.Controllers
             var orders = GetOrders();
             return View(orders);
         }
-        public IActionResult AddToCart(string id, int qty)
+        public IActionResult AddToCart(string id, int qty, string ins)
         {
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
-            if (product == null || !product.Availability) return NotFound();
+            if (product == null || !product.Availability) return Json(new { message = "Error" });
 
             var orders = GetOrders();
             var existingItem = orders.FirstOrDefault(o => o.ProdId == id);
@@ -156,56 +156,66 @@ namespace TheSocialCebu_Capstone.Controllers
                 {
                     OrderItemId = Guid.NewGuid().ToString(),
                     Qty = qty,
-                    Instructions = "DEBUG",
+                    Instructions = ins == null? "": ins,
+                    Status = "Pending",
                     ProdId = id,
                     OrderId = HttpContext.Session.GetString("Order"),
+                    Order = new Order(),
                     Prod = product,
-                    Order = new Order()
                 });
             }
 
             SaveCart(orders);
-            return Json(orders);
+            return Json(new { orders = orders, message = "Success" });
         }
 
         public IActionResult RemoveFromCart(string id)
         {
             var orders = GetOrders();
-            var item = orders.FirstOrDefault(o => o.ProdId == id);
+            var item = orders.FirstOrDefault(o => o.OrderItemId == id);
             if (item != null)
             {
                 orders.Remove(item);
                 SaveCart(orders);
             }
-            return Json(orders);
+            return Json(new { orders = orders, message = "Success" });
         }
 
         public JsonResult ConfirmCart(string id)
+        {
+            var table = _context.Tables.FirstOrDefault(x => x.Id == id);
+            if (table == null)
             {
+                return Json(new { message = "Error: Table not found" });
+            }
+
             var orderItems = HttpContext.Session.GetString("Orders");
-            if(orderItems == null)
-                return Json(new {message = "Invalid!"});
+            if (orderItems == null)
+                return Json(new { message = "Error: No items in cart" });
 
             var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItems);
+
             foreach (var item in items)
             {
-                _context.Attach(item.Prod); 
+                if (item.Prod != null)
+                    _context.Attach(item.Prod);
             }
+
             Order order = new()
             {
                 OrderId = Guid.NewGuid().ToString(),
-                CreatedAt = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy")),
+                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
                 Status = false,
                 TableId = id,
-                Billings = null,
                 OrderItems = items,
-                Table = _context.Tables.FirstOrDefault(x => x.Id == id)
+                Table = table
             };
+
             _context.Orders.Add(order);
-            HttpContext.Session.Remove("Orders"); 
+            HttpContext.Session.Remove("Orders");
             _context.SaveChanges();
 
-            return Json(new {message = "Confirming"});
+            return Json(new { message = "Success" });
         }
 
         public IActionResult Kitchen()

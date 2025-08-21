@@ -1,11 +1,18 @@
-﻿@using TheSocialCebu_Capstone.Models.MenuClasses;
+﻿@using System.Text.Json
+@using TheSocialCebu_Capstone.Models.MenuClasses;
+@using TheSocialCebu_Capstone.Models.OrderClasses
+
 @model List<SubCategory>
 @{
     ViewData["Title"] = "Digital Menu";
+    var ordersJson = Context.Session.GetString("Orders");
+    var orders = string.IsNullOrEmpty(ordersJson)
+          ? new List<OrderItem>()
+          : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-<div class="render-body vh-100 bg-black">
-    <div class="flex-row bg-transparent w-100 p-2 sticky-top"
-         style="height: 30vh; top: 0; z-index: 1020;">
+<div class="render-body vh-100 bg-black overflow-hidden">
+    <div class="flex-row bg-black w-100 p-2 sticky-top"
+         style="height:45vh; top:0; z-index:1020;">
         <div class="h-100 w-100 p-3">
             <div class="w-100 mb-2 d-flex justify-content-between">
                 <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
@@ -19,15 +26,25 @@
                         </svg>
                     </button>
                     <a class="bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
-                        href="/Home/Index">
+                       href="/Home/Index">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
                         </svg>
                     </a>
-                </div>                    
-                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart"
-                    href="/Order/Cart">
+                </div>
+                <h1 class="text-light">@Model[0].Category.CategoryName</h1>
+                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart position-relative"
+                   href="/Order/Cart">
                     <img src="~/Images/Cart.png" height="30" />
+                    <div class="pill">
+                        @if(orders.Count > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @orders.Count
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        }
+                    </div>
                 </a>
             </div>
             <div class="w-100 d-flex flex-row justify-content-between align-items-center gap-3" style="min-height:40px">
@@ -37,16 +54,29 @@
                     </svg>
                     <input id="custom-search-input" type="text" placeholder="Search your favorite food" class="border-0 focus-none bg-transparent m-0 p-0 text-light flex-grow-1" />
                 </div>
-            </div>             
-            <div class="d-flex flex-nowrap mt-2 w-100 align-items-center overflow-x-scroll gap-3" style="scrollbar-width:none">
+            </div>
+            <div class="d-flex flex-nowrap mt-2 w-100 align-items-center overflow-x-scroll overflow-y-hidden gap-3" style="scrollbar-width:thin; height:60%">
                 @foreach (var navcat in Model)
                 {
-                        <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "")" class="nav-link text-white">@navcat.SubcategoryName</a>
+                    <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "")"
+                       class="nav-link text-white h-100 p-3 d-flex flex-column align-items-center gap-2"
+                       style="width: 70px">
+                        <span class="rounded rounded-5 bg-gray p-2 d-flex justify-content-center">
+                            <img src="#" class="object-fit-cover" style="width:40px; height:40px;" />
+                        </span>
+                        <p class="text-center mb-0">
+                            @navcat.SubcategoryName
+                        </p>
+                    </a>
                 }
             </div>
         </div>
     </div>
-    <div class="overflow-auto d-flex flex-column gap-2" style="height:70vh">
+
+    <div id="productContainer"
+         class="overflow-auto d-flex flex-column gap-2"
+         style="height:100vh; margin-top:-55vh; padding: 55vh 0"
+         tabindex="0">
         @foreach (var subcat in Model)
         {
             <h1 id="@subcat.SubcategoryName.Replace(" ", "").Replace("&", "")"
@@ -55,49 +85,70 @@
             </h1>
             @foreach (var item in subcat.Products)
             {
-                <div class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3" style="background: linear-gradient(180deg, rgba(217, 217, 217, 0) 0%, rgba(115, 115, 115, 0.25) 100%);">
-                    <button data-id="@item.ProdId"
-                            class="add-product px-3 py-2 w-100 h-100 m-0 bg-transparent border-0"
+                <div class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3"
+                     style="background: linear-gradient(180deg, rgba(217, 217, 217, 0) 0%, rgba(115, 115, 115, 0.25) 100%);">
+                    <button class="add-product px-3 py-3 w-100 h-100 m-0 bg-transparent border-0"
                             data-bs-toggle="offcanvas"
                             data-bs-target="#offcanvasBottom"
-                            aria-controls="offcanvasBottom">
-                            <div class="d-flex justify-content-between align-items-center text-white">
-                                    <h5 class="mb-0">@item.ProdName</h5>
-                                    <span>@item.Price.ToString("₱ 0.00")</span>
-                            </div>
+                            data-id="@item.ProdId">
+                        <div class="d-flex justify-content-between align-items-center text-white">
+                            <h5 class="mb-0">@item.ProdName.ToUpper()</h5>
+                            <span>@item.Price.ToString("₱ 0.00")</span>
+                        </div>
                     </button>
                 </div>
             }
-        }   
+        }
     </div>
 </div>
+<style>
+    h1[id] {
+        scroll-margin-top: 55vh;
+    }
+</style>
 
+<script>
+       document.addEventListener("DOMContentLoaded", function () {
+        const header = document.querySelector('.sticky-top');
+        const headerHeight = header.offsetHeight;
+        const scrollEl = document.querySelector('#productContainer');
+
+        new bootstrap.ScrollSpy(scrollEl, {
+            target: '#productScroll',
+            offset: headerHeight
+        });
+    });
+</script>
 <!-- off canvas -->
-<div class="offcanvas offcanvas-bottom bg-dark h-50 pb-3 rounded rounded-top-4 text-white border border-1 border-start-0 border-bottom-0 border-end-0" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+<div class="offcanvas offcanvas-bottom bg-dark h-50 pb-3 rounded rounded-top-4 text-white border border-1 border-start-0 border-bottom-0 border-end-0 overflow-hidden" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
     <button type="button" class="text-light bg-transparent border border-0 position-absolute top-0 end-0 m-4 " data-bs-dismiss="offcanvas" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
             <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
         </svg>
     </button>
-    <div class="offcanvas-body small set-body p-5">
+    <div class="offcanvas-body p-5">
+        <div class="set-body">
 
-    </div>
-    <div class="w-100">
-        <div class="d-flex justify-content-center align-items-center col-6 m-0 w-100 py-3 gap-5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-dash-circle minus" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
-            </svg>
-            <span id="qty">1</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle add" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-            </svg>
-        </div>  
-
-        <div class="col-6 m-0 d-flex justify-content-center w-100">
-            <button class="btn btn-yellow col-6 m-0 add-to-order w-75 rounded-pill" style="max-width:50%" data-bs-dismiss="offcanvas">Add to my cart</button>
         </div>
+        <div class="w-100 row m-0">
+            <div class="set-price col-6 ps-0">
+            </div>
+            <div class="col-6 position-relative">
+                <div class="rounded-pill p-1 minus position-absolute start-0" style="background:#959595">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black" viewBox="0 0 16 16">
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                    </svg>
+                </div>
+                <h2 id="qty" class="position-absolute start-50 translate-middle-x"></h2>
+                <div class="rounded-pill p-1 bg-yellow add position-absolute end-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+            </div>  
+        </div>
+        <textarea id="instructions" class="w-100 bg-transparent text-white rounded rounded-2 mt-2" placeholder="Instructions"></textarea>
+        <button class="btn btn-yellow col-6 p-3 add-to-order w-100 rounded-pill" data-bs-dismiss="offcanvas">ADD TO MY CART</button>
     </div>
 </div>
 
@@ -109,25 +160,22 @@
                 windows.location.href = $(this).attr('href')
             })
 
-            const buttons = $(".add-product")
-            $.each(buttons, (index, value) => {
-                let button = value;
-                button.addEventListener("click", (e) =>{
-                    let id =  e.currentTarget.dataset.id;
-                    fetch(`/Order/Preview?id=${id}`)
-                    .then(response => response.json())
-                    .then(prod => {
-                        $("#qty").text("1")
-                        $(".set-body").empty()
-                        $(".set-header").empty()
-                        $(".add-to-order").data("id",prod.prodId);
+            $(".add-product").on("click", function () {
+                let id =  $(this).data("id");
+                fetch(`/Order/Preview?id=${id}`)
+                .then(response => response.json())
+                .then(prod => {
+                    $("#qty").text("01")
+                    $(".set-body").empty()
+                    $(".set-header").empty()
+                    $(".set-price").empty()
+                    $(".add-to-order").data("id",prod.prodId);
 
-                         $(".set-body").append(`<h2>${prod.prodName}</h2>`)
-                         $(".set-body").append(`<p>${prod.description}</p>`)
-                         $(".set-body").append(`<label>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</label>`)
+                        $(".set-body").append(`<h2>${prod.prodName}</h2>`)
+                        $(".set-body").append(`<p>${prod.description}</p>`)
+                        $(".set-price").append(`<h2>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
 
-                         $(".add-to-order").data("id", prod.prodId);
-                    })
+                        $(".add-to-order").data("id", prod.prodId);
                 })
             })
             //Add
@@ -135,7 +183,7 @@
                 const qty = $("#qty")
                 let num = parseInt(qty.text())
                 num++
-                qty.text(num);
+                qty.text(num.toString().padStart(2, "0"));
             })
             //Minus
              $(".minus").on("click", ()=> {
@@ -147,17 +195,24 @@
                 else{
                     num--
                 }
-                qty.text(num);
+                qty.text(num.toString().padStart(2, "0"));
             })
             const addtoorder = $(".add-to-order")
             addtoorder.on("click", () => {
                 let id = addtoorder.data("id");
                 let qty = $("#qty").text();
-
-                fetch(`/Order/AddToCart?id=${id}&qty=${qty}`)
+                let ins = $("#instructions").val();
+                fetch(`/Order/AddToCart?id=${id}&qty=${qty}&ins=${ins}`)
                 .then(rawData => rawData.json())
                 .then(data => {
                     console.log(data)
+                    let pill = $(".pill")
+                    pill.empty()
+                    let count = data["orders"].length
+                    pill.append(`<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        ${count}
+                        <span class="visually-hidden">unread messages</span>
+                    </span>`)
                 })
             })
         })

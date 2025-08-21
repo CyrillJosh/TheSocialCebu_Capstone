@@ -12,9 +12,9 @@ public partial class Order
 
     public bool Status { get; set; }
 
-    public string TableId { get; set; } = null!;
+    public bool Paid { get; set; }
 
-    public bool Paid { get; set; } 
+    public string TableId { get; set; } = null!;
 
     public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
 
