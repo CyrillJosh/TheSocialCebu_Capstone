@@ -1,6 +1,7 @@
 ﻿@using TheSocialCebu_Capstone.Models.OrderClasses
 @{
 	ViewData["Title"] = "My Orders";
+	string table = Context.Session.GetString("Table");
 }
 @model List<Order>
 <div class="render-body vh-100 overflow-y-scroll bg-black">
@@ -51,7 +52,20 @@
 			</table>
 		}
 
-
 		<button class="btn btn-yellow">Request Bill</button>
+		<div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
+			<a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
+				<img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto"/>
+				<p class="m-0 text-white">Home</p>
+			</a>
+			<a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
+				<img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(0) saturate(100%) invert(89%) sepia(90%) saturate(937%) hue-rotate(360deg) brightness(102%) contrast(103%)" />
+				<p class="m-0 text-yellow">Orders</p>
+			</a>
+			@*         <div class="d-flex flex-column align-items-center w-25 text-center">
+            <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
+            <p class="m-0">Notifications</p>
+        </div> *@
+		</div>
 	</div>
 </div>

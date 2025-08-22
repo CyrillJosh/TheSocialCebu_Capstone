@@ -3,6 +3,7 @@
 @using TheSocialCebu_Capstone.Models.OrderClasses
 @{
     ViewData["Title"] = "Home Page";
+    var table = Context.Session.GetString("Table");
     var ordersJson = Context.Session.GetString("Orders");
     var orders = string.IsNullOrEmpty(ordersJson)
        ? new List<OrderItem>()
@@ -108,5 +109,19 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                 </div>
             }
         </div>
+    </div>
+    <div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
+        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
+            <img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(0) saturate(100%) invert(89%) sepia(90%) saturate(937%) hue-rotate(360deg) brightness(102%) contrast(103%)" />
+            <p class="m-0 text-yellow">Home</p>
+        </a>
+        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
+            <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" />
+            <p class="m-0 text-white">Orders</p>
+        </a>
+@*         <div class="d-flex flex-column align-items-center w-25 text-center">
+            <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
+            <p class="m-0">Notifications</p>
+        </div> *@
     </div>
 </div>

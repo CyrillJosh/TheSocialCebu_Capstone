@@ -37,7 +37,7 @@ namespace TheSocialCebu_Capstone.Controllers
             if(string.IsNullOrEmpty(category))
                 return NotFound();
 
-            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products).Include(x => x.Category).ToList();
+            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products.Where(x=> x.Availability == true)).Include(x => x.Category).ToList();
 
 
             if (HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
