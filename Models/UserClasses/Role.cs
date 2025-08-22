@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TheSocialCebu_Capstone.Models.UserClasses;
+namespace TheSocialCebu_Capstone.Models.UserCLasses;
 
 public partial class Role
 {
@@ -9,7 +9,5 @@ public partial class Role
 
     public string RoleName { get; set; } = null!;
 
-    public string? Description { get; set; }
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<Person> People { get; set; } = new List<Person>();
 }

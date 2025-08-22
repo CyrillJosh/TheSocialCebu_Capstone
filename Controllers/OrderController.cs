@@ -32,7 +32,7 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Menu(string category)
         {
             var table = HttpContext.Session.GetString("Table");
-            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.Id == table))
+            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.TableId == table))
                 return NotFound();
             if(string.IsNullOrEmpty(category))
                 return NotFound();
@@ -111,21 +111,21 @@ namespace TheSocialCebu_Capstone.Controllers
             var table = _context.Tables
                 .Include(x => x.Orders)
                 .ThenInclude(x => x.OrderItems)
-                .FirstOrDefault(x => x.Id == id);
+                .FirstOrDefault(x => x.TableId == id);
 
             if (table == null)
                 return NotFound();
             //Adjust
             var orderItems = _context.OrderItems
-                .Where(oi => oi.Order.Table.Id == id)
+                .Where(oi => oi.Order.Table.TableId == id)
                 .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
                 .Select(g => new OrderitemSummary
                 {
                     ProdId = g.Key.ProdId,
                     ProdName = g.Key.ProdName,
-                    TotalQty = g.Sum(x => x.Qty),
+                    TotalQty = (int)g.Sum(x => x.Quantity),
                     Price = g.Key.Price,
-                    TotalAmount = g.Sum(x => x.Qty * g.Key.Price),
+                    TotalAmount = (decimal)g.Sum(x => x.Quantity * g.Key.Price),
                     CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
                 })
                 .OrderByDescending(x => x.TotalQty)
@@ -148,14 +148,14 @@ namespace TheSocialCebu_Capstone.Controllers
             var existingItem = orders.FirstOrDefault(o => o.ProdId == id);
             if (existingItem != null)
             {
-                existingItem.Qty+= qty;
+                existingItem.Quantity += qty;
             }
             else
             {
                 orders.Add(new OrderItem
                 {
                     OrderItemId = Guid.NewGuid().ToString(),
-                    Qty = qty,
+                    Quantity = qty,
                     Instructions = ins == null? "": ins,
                     Status = "Pending",
                     ProdId = id,
@@ -183,7 +183,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public JsonResult ConfirmCart(string id)
         {
-            var table = _context.Tables.FirstOrDefault(x => x.Id == id);
+            var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
             if (table == null)
             {
                 return Json(new { message = "Error: Table not found" });
@@ -204,9 +204,9 @@ namespace TheSocialCebu_Capstone.Controllers
             Order order = new()
             {
                 OrderId = Guid.NewGuid().ToString(),
-                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
-                Status = false,
                 TableId = id,
+                CreatedAt = DateTime.Now,
+                Status = false,
                 OrderItems = items,
                 Table = table
             };

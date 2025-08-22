@@ -42,9 +42,9 @@
 			{
 					<tr>
 						<td>@item.Prod.ProdName</td>
-						<td>@item.Qty</td>
+						<td>@item.Quantity</td>
 						<td>@item.Prod.Price</td>
-						<td>@(item.Prod.Price * item.Qty)</td>
+						<td>@(item.Prod.Price* item.Quantity)</td>
 					</tr>
 				@* <h2>Total: @Model.Select(x => x.OrderItems).ToString("0.00")</h2> *@
 			}

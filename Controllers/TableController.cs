@@ -43,7 +43,7 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 var newTable = new Table
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    TableId = Guid.NewGuid().ToString(),
                     TableNumber = vm.TableNumber,
                     Status = vm.Status,
                     LocationId = vm.LocationId,
@@ -52,7 +52,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
                 _context.Add(newTable);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Print", new { id = newTable.Id });
+                return RedirectToAction("Print", new { id = newTable.TableId });
             }
 
             vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
@@ -66,7 +66,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             var table = _context.Tables
                 .Include(t => t.Location)
-                .FirstOrDefault(t => t.Id == id);
+                .FirstOrDefault(t => t.TableId == id);
 
             if (table == null) return NotFound();
 
@@ -83,7 +83,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             var vm = new TableVM
             {
-                Id = table.Id,
+                Id = table.TableId,
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
                 Status = table.Status,
@@ -132,7 +132,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Get table
             var table = await _context.Tables.FindAsync(id);
             //Make table unavailable
-            table.Status = false;
+            table.Status = "Unavailable";
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }

@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheSocialCebu_Capstone.Models.BillingClasses;
 
-namespace TheSocialCebu_Capstone.Models.UserClasses;
+namespace TheSocialCebu_Capstone.Models.UserCLasses;
 
 public partial class Person
 {
-    public string UserId { get; set; } = null!;
+    public string PersonId { get; set; } = null!;
+
+    public string RoleId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
-
-    public byte? Age { get; set; }
-
-    public string? Gender { get; set; }
 
     public DateOnly BirthDate { get; set; }
 
     public DateOnly HiredDate { get; set; }
 
-    public bool? Status { get; set; }
+    public bool Status { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public string Gender { get; set; } = null!;
+
+    public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
+
+    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+
+    public virtual Role Role { get; set; } = null!;
 }

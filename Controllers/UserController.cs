@@ -34,7 +34,7 @@ namespace Menu.Controllers
         {
             if(!ModelState.IsValid) return View();
 
-            var exist = _context.Users.Include(u => u.Role).Include(u => u.Person).FirstOrDefault(a => a.Username == user.Username);
+            var exist = _context.Accounts.Include(u => u.Person).ThenInclude(x => x.Role).FirstOrDefault(a => a.Username == user.Username);
 
             if (!BCrypt.Net.BCrypt.Verify(user.Password, exist.Password))
             {
