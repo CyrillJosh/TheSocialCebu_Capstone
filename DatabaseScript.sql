@@ -53,6 +53,7 @@ LocationName nvarchar(50) UNIQUE NOT NULL
  ('VIP'), ('Front'), ('Back'), ('Side')
 
 
+
 -- Table Status Lookup Table (3NF)
 CREATE TABLE TableStatus (
     TableStatusId INT PRIMARY KEY IDENTITY,
@@ -378,7 +379,7 @@ OrderItemId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
 OrderId NVARCHAR(50) NOT NULL,
 ProdId NVARCHAR(50) NOT NULL,
 Quantity INT,
-Instructions NVARCHAR(100),
+Instructions NVARCHAR(100) NULL,
 OrderItemStatusId INT NOT NULL, -- Changed from NVARCHAR
 -- pending, preparing, serving, served, cancelled
 FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
@@ -409,14 +410,14 @@ GrandTotal DECIMAL (10,2),
 FOREIGN KEY (SessionId) REFERENCES TableSession(SessionId)
 )
 
-----associative entity
---CREATE TABLE BillingOrder (
---    BillingOrderId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()), -- Unique ID for the association
---    BillingId NVARCHAR(50) NOT NULL,         -- Foreign Key to Billing
---    OrderId NVARCHAR(50) NOT NULL,           -- Foreign Key to Orders
---    FOREIGN KEY (BillingId) REFERENCES Billing(BillingId),
---    FOREIGN KEY (OrderId) REFERENCES Orders(OrderId)
---)
+--associative entity
+CREATE TABLE BillingOrder (
+    BillingOrderId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()), -- Unique ID for the association
+    BillingId NVARCHAR(50) NOT NULL,         -- Foreign Key to Billing
+    OrderId NVARCHAR(50) NOT NULL,           -- Foreign Key to Orders
+    FOREIGN KEY (BillingId) REFERENCES Billing(BillingId),
+    FOREIGN KEY (OrderId) REFERENCES Orders(OrderId)
+)
 
 
 --Payment
