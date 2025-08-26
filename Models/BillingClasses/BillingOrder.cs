@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheSocialCebu_Capstone.Models.OrderClasses;
+using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.Models.BillingClasses;
 

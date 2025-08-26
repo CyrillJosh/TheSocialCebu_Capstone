@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace TheSocialCebu_Capstone.Models;
 
-public partial class Location
+public partial class TableStatus
 {
-    public string LocationId { get; set; } = null!;
+    public int TableStatusId { get; set; }
 
-    public string LocationName { get; set; } = null!;
+    public string StatusName { get; set; } = null!;
 
     public virtual ICollection<Table> Tables { get; set; } = new List<Table>();
 }

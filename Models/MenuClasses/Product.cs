@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheSocialCebu_Capstone.Models.OrderClasses;
 
-namespace TheSocialCebu_Capstone.Models.MenuClasses;
+namespace TheSocialCebu_Capstone.Models;
 
 public partial class Product
 {

@@ -7,8 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
-using TheSocialCebu_Capstone.Models.MenuClasses;
-using TheSocialCebu_Capstone.Models.OrderClasses;
+using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers

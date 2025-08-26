@@ -6,7 +6,6 @@ using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 using QRCoder;
-using TheSocialCebu_Capstone.Models.TableClasses;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
@@ -22,7 +21,7 @@ namespace TheSocialCebu_Capstone.Controllers
         //Index
         public async Task<IActionResult> Index()
         {
-            var tables = await _context.Tables.Include(t => t.Location).ToListAsync();
+            var tables = await _context.Tables.Include(t => t.Location).Include(t => t.TableStatus).ToListAsync();
             return View(tables);
         }
 
@@ -31,7 +30,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var vm = new TableVM
             {
-                LocationList = _context.Locations.Select(l => new SelectListItem{Value = l.LocationId, Text = l.LocationName}).ToList()
+                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
             };
             return View(vm);
         }
@@ -39,13 +38,25 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(TableVM vm)
         {
+            // Re-populate LocationList for the view in case of a model validation error
+            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
+
             if (ModelState.IsValid)
             {
+                // Correctly get the TableStatusId by matching the string Status name
+                var tableStatus = _context.TableStatuses.FirstOrDefault(s => s.StatusName == vm.Status);
+
+                if (tableStatus == null)
+                {
+                    ModelState.AddModelError("Status", "Invalid status selected.");
+                    return View(vm);
+                }
+
                 var newTable = new Table
                 {
-                    TableId = Guid.NewGuid().ToString(),
+                    TableId = vm.Id, // Use the ID passed from the view
                     TableNumber = vm.TableNumber,
-                    Status = vm.Status,
+                    TableStatusId = tableStatus.TableStatusId, // Correctly map the status string to the integer ID
                     LocationId = vm.LocationId,
                     QrcodeImage = Convert.FromBase64String(vm.QRCodeBase64.Split(',')[1]),
                 };
@@ -55,7 +66,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 return RedirectToAction("Print", new { id = newTable.TableId });
             }
 
-            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
             return View(vm);
         }
 
@@ -86,7 +96,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 Id = table.TableId,
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
-                Status = table.Status,
+                Status = table.TableStatus?.StatusName,
                 ExistingQRCodeImage = table.QrcodeImage,
                 LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
             };
@@ -107,7 +117,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
                 table.TableNumber = vm.TableNumber;
                 table.LocationId = vm.LocationId;
-                table.Status = vm.Status;
+                table.TableStatus.StatusName = vm.Status;
 
 
                 if (!string.IsNullOrEmpty(vm.QRCodeBase64))
@@ -132,7 +142,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Get table
             var table = await _context.Tables.FindAsync(id);
             //Make table unavailable
-            table.Status = "Unavailable";
+            table.TableStatusId = 5;
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
@@ -142,7 +152,7 @@ namespace TheSocialCebu_Capstone.Controllers
         public JsonResult GenerateQRCode(string value)
         {
             var qrcode = new QRCodeGenerator();
-            var qr = qrcode.CreateQrCode("http://10.160.245.47:5021/Order/Table/" + value, QRCodeGenerator.ECCLevel.M);
+            var qr = qrcode.CreateQrCode("http://192.168.1.12:5021/Order/Table/" + value, QRCodeGenerator.ECCLevel.M);
             Base64QRCode qrimage = new Base64QRCode(qr);
             string qrstring = "data:image/png;base64," + qrimage.GetGraphic(20);
             return Json(new { qrstring = qrstring } );

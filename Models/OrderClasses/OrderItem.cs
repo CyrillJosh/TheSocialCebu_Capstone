@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheSocialCebu_Capstone.Models.MenuClasses;
 
-namespace TheSocialCebu_Capstone.Models.OrderClasses;
+namespace TheSocialCebu_Capstone.Models;
 
 public partial class OrderItem
 {
@@ -16,9 +15,11 @@ public partial class OrderItem
 
     public string? Instructions { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int OrderItemStatusId { get; set; }
 
     public virtual Order Order { get; set; } = null!;
+
+    public virtual OrderItemStatus OrderItemStatus { get; set; } = null!;
 
     public virtual Product Prod { get; set; } = null!;
 }

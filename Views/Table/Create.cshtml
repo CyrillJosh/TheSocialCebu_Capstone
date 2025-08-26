@@ -36,17 +36,18 @@
                     <input type="radio" class="btn-check" name="Status" id="unavailability" value="Available" autocomplete="off" checked>
                     <label class="btn btn-outline-success" for="unavailability">Available</label>
 
-                    <input type="radio" class="btn-check" name="Status" id="availability" value="Unavailable" autocomplete="off" @(Model.Status == "Unavailable" ? "checked" : "")>
-                    <label class="btn btn-outline-success" for="availability">Unavailable</label>
+                    <input type="radio" class="btn-check" asp-for="Status" id="unavailable" value="Unavailable" autocomplete="off">
+                    <label class="btn btn-outline-success" for="unavailable">Unavailable</label>
 
-                    <input type="radio" class="btn-check" name="Status" id="Payment" value="Payment" autocomplete="off" @(Model.Status == "Payment" ? "checked" : "")>
-                    <label class="btn btn-outline-success" for="Payment">Payment</label>
+                    <input type="radio" class="btn-check" asp-for="Status" id="payment" value="Payment" autocomplete="off">
+                    <label class="btn btn-outline-success" for="payment">Payment</label>
 
-                    <input type="radio" class="btn-check" name="Status" id="Billing" value="Billing" autocomplete="off" @(Model.Status == "Billing" ? "checked" : "")>
-                    <label class="btn btn-outline-success" for="Billing">Billing</label>
+                    <input type="radio" class="btn-check" asp-for="Status" id="billing" value="Billing" autocomplete="off">
+                    <label class="btn btn-outline-success" for="billing">Billing</label>
 
-                    <input type="radio" class="btn-check" name="Status" id="Occupied" value="Occupied" autocomplete="off" @(Model.Status == "Occupied" ? "checked" : "")>
-                    <label class="btn btn-outline-success" for="Occupied">Occupied</label>
+                    <input type="radio" class="btn-check" asp-for="Status" id="occupied" value="Occupied" autocomplete="off">
+                    <label class="btn btn-outline-success" for="occupied">Occupied</label>
+
                 </div>
 
             </div>

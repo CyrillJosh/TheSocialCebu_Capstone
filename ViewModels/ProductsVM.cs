@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using TheSocialCebu_Capstone.Models.MenuClasses;
+using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.ViewModels
 {

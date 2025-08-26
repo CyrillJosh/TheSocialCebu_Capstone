@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TheSocialCebu_Capstone.Context;
-using TheSocialCebu_Capstone.Models.MenuClasses;
-using TheSocialCebu_Capstone.Models.OrderClasses;
+using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -31,28 +31,36 @@ namespace TheSocialCebu_Capstone.Controllers
         //Digital Menu
         public IActionResult Menu(string category)
         {
-            var table = HttpContext.Session.GetString("Table");
-            if (string.IsNullOrEmpty(table) || !_context.Tables.Any(x => x.TableId == table))
+            var tableId = HttpContext.Session.GetString("Table");
+            if (string.IsNullOrEmpty(tableId) || !_context.Tables.Any(x => x.TableId == tableId))
                 return NotFound();
             if(string.IsNullOrEmpty(category))
                 return NotFound();
+            var sessionId = HttpContext.Session.GetString("SessionId");
+            TableSession? currentSession = null;
 
-            var subcat = _context.SubCategories.Where(x => x.CategoryId == category).Include(x => x.Products.Where(x=> x.Availability == true)).Include(x => x.Category).ToList();
-
-
-            if (HttpContext.Session.GetString("Table") == null || HttpContext.Session.GetString("Order") == null)
+            if (!string.IsNullOrEmpty(sessionId))
             {
-                //Check for table this table orders
-                var orders = _context.OrderItems.Where(x => x.Order.TableId == table /* && x.Paid == false*/).ToList();
-                if (orders.Any())
-                {
-                    HttpContext.Session.SetString("Order", orders.First().OrderId);
-                }
-                else
-                {
-                    HttpContext.Session.SetString("Order", Guid.NewGuid().ToString());
-                }
+                // Find active session by SessionId and TableId
+                currentSession = _context.TableSessions
+                                    .FirstOrDefault(s => s.SessionId == sessionId && s.TableId == tableId && s.EndedAt == null);
             }
+
+            // If no active session, create a new one
+            if (currentSession == null)
+            {
+                currentSession = new TableSession { TableId = tableId, StartedAt = DateTime.Now };
+                _context.TableSessions.Add(currentSession);
+                _context.SaveChanges();
+                HttpContext.Session.SetString("SessionId", currentSession.SessionId);
+            }
+            // --- END REFACTOR ---
+
+            var subcat = _context.SubCategories
+                .Where(x => x.CategoryId == category)
+                .Include(x => x.Products.Where(p => p.Availability)) // Only show available products
+                .Include(x => x.Category)
+                .ToList();
 
             return View(subcat);
         }
@@ -74,7 +82,13 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Orders()
         {
             var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy"));
-            var orders = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).ToList();
+            var sessionsWithOrders = _context.TableSessions
+                         .Include(ts => ts.Table)
+                         .Include(ts => ts.Orders)
+                         .ThenInclude(o => o.OrderItems)
+                         .ThenInclude(oi => oi.Prod)
+                         .Where(ts => ts.EndedAt == null && ts.Orders.Any()) // Only active sessions with at least one order
+                         .ToList();
             //    var orders = _context.Orders
             //        .Include(x => x.OrderItems)
             //        .ThenInclude(x => x.Prod)
@@ -88,7 +102,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //            TableId = g.Key.TableId,
             //            OrderItems = g.Key.OrderItems.ToList()
             //        }).ToList(); 
-            return View(orders);
+            return View(sessionsWithOrders);
         }
 
         public IActionResult ConfirmOrder(string id, string status)
@@ -98,7 +112,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 return Json(new { message = "Error" });
             }
             var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
-            order.Status = false;
+            order.OrderStatusId = 2;
             _context.Update(order);
             _context.SaveChanges();
             return Json(new { message = "OK" });
@@ -106,32 +120,22 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public IActionResult MyOrders()
         {
-            var id = HttpContext.Session.GetString("Table");
-            var orderitems = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).Where(x => x.TableId == id).OrderByDescending(x=> x.Status).ToList();
-            var table = _context.Tables
-                .Include(x => x.Orders)
-                .ThenInclude(x => x.OrderItems)
-                .FirstOrDefault(x => x.TableId == id);
+            var tableId = HttpContext.Session.GetString("Table");
+            // --- REFACTOR: Use a single, efficient query to get aggregated order items ---
+            var sessionsWithOrders = _context.TableSessions
+                                .Include(ts => ts.Table)
+                                .Include(ts => ts.Orders)
+                                    .ThenInclude(o => o.OrderStatus) // Include the main order status
+                                .Include(ts => ts.Orders)
+                                    .ThenInclude(o => o.OrderItems)
+                                        .ThenInclude(oi => oi.Prod) // Include product details
+                                .Include(ts => ts.Orders)
+                                    .ThenInclude(o => o.OrderItems)
+                                        .ThenInclude(oi => oi.OrderItemStatus) // Include the item status
+                                .Where(ts => ts.TableId == tableId && ts.EndedAt == null)
+                                .ToList();
 
-            if (table == null)
-                return NotFound();
-            //Adjust
-            var orderItems = _context.OrderItems
-                .Where(oi => oi.Order.Table.TableId == id)
-                .GroupBy(oi => new { oi.Prod.ProdId, oi.Prod.ProdName, oi.Prod.Price })
-                .Select(g => new OrderitemSummary
-                {
-                    ProdId = g.Key.ProdId,
-                    ProdName = g.Key.ProdName,
-                    TotalQty = (int)g.Sum(x => x.Quantity),
-                    Price = g.Key.Price,
-                    TotalAmount = (decimal)g.Sum(x => x.Quantity * g.Key.Price),
-                    CombinedInstructions = string.Join("; ", g.Select(x => x.Instructions))
-                })
-                .OrderByDescending(x => x.TotalQty)
-                .ToList();
-
-            return View(orderitems);
+            return View(sessionsWithOrders);
         }
 
         public IActionResult Cart()
@@ -157,10 +161,7 @@ namespace TheSocialCebu_Capstone.Controllers
                     OrderItemId = Guid.NewGuid().ToString(),
                     Quantity = qty,
                     Instructions = ins == null? "": ins,
-                    Status = "Pending",
                     ProdId = id,
-                    OrderId = HttpContext.Session.GetString("Order"),
-                    Order = new Order(),
                     Prod = product,
                 });
             }
@@ -181,12 +182,12 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new { orders = orders, message = "Success" });
         }
 
-        public JsonResult ConfirmCart(string id)
+        public JsonResult ConfirmCart() // Removed the 'string id' parameter
         {
-            var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
-            if (table == null)
+            var sessionId = HttpContext.Session.GetString("SessionId");
+            if (sessionId == null)
             {
-                return Json(new { message = "Error: Table not found" });
+                return Json(new { message = "Error: No active session found." });
             }
 
             var orderItems = HttpContext.Session.GetString("Orders");
@@ -197,6 +198,8 @@ namespace TheSocialCebu_Capstone.Controllers
 
             foreach (var item in items)
             {
+                item.OrderItemStatusId = 1;
+
                 if (item.Prod != null)
                     _context.Attach(item.Prod);
             }
@@ -204,11 +207,10 @@ namespace TheSocialCebu_Capstone.Controllers
             Order order = new()
             {
                 OrderId = Guid.NewGuid().ToString(),
-                TableId = id,
+                SessionId = sessionId,
                 CreatedAt = DateTime.Now,
-                Status = false,
-                OrderItems = items,
-                Table = table
+                OrderStatusId = 1, // Assuming 1 is the 'Pending' status ID
+                OrderItems = items
             };
 
             _context.Orders.Add(order);
@@ -217,7 +219,6 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return Json(new { message = "Success" });
         }
-
         public IActionResult Kitchen()
         {
             var orders = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).ToList(); 
