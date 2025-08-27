@@ -19,9 +19,9 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //Index
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var tables = await _context.Tables.Include(t => t.Location).Include(t => t.TableStatus).ToListAsync();
+            var tables = _context.Tables.Include(t => t.Location).Include(t => t.TableStatus).ToList();
             return View(tables);
         }
 
@@ -30,7 +30,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var vm = new TableVM
             {
-                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
+                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList()
             };
             return View(vm);
         }
@@ -39,7 +39,7 @@ namespace TheSocialCebu_Capstone.Controllers
         public async Task<IActionResult> Create(TableVM vm)
         {
             // Re-populate LocationList for the view in case of a model validation error
-            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList();
+            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList();
 
             if (ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (id == null) return NotFound();
 
-            var table = await _context.Tables.FindAsync(id);
+            var table = _context.Tables.Include(x => x.TableStatus).FirstOrDefault(x => x.TableId == id);
             if (table == null) return NotFound();
 
             var vm = new TableVM
@@ -97,8 +97,10 @@ namespace TheSocialCebu_Capstone.Controllers
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
                 Status = table.TableStatus?.StatusName,
+                StatusId = table.TableStatusId,
                 ExistingQRCodeImage = table.QrcodeImage,
-                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId, Text = l.LocationName }).ToList()
+                LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList(),
+                StatusList = _context.TableStatuses.ToList()
             };
 
 
@@ -117,7 +119,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
                 table.TableNumber = vm.TableNumber;
                 table.LocationId = vm.LocationId;
-                table.TableStatus.StatusName = vm.Status;
+                table.TableStatusId = vm.StatusId;
 
 
                 if (!string.IsNullOrEmpty(vm.QRCodeBase64))
@@ -131,7 +133,8 @@ namespace TheSocialCebu_Capstone.Controllers
                 return RedirectToAction("Index");
             }
 
-            vm.LocationList = new SelectList(_context.Locations.Select(c => new SelectListItem { Value = c.LocationId.ToString(), Text = c.LocationName }).ToList()); 
+            vm.StatusList = _context.TableStatuses.ToList(); 
+            vm.LocationList = _context.Locations.Select(c => new SelectListItem { Value = c.LocationId.ToString(), Text = c.LocationName }).ToList(); 
             return View(vm);
         }
 

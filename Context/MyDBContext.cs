@@ -59,7 +59,7 @@ public partial class MyDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-TVI6OFS\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-K56S2BSD\\SQLEXPRESS;Initial Catalog=TheSocialCebu;Integrated Security=True;Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -377,7 +377,7 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.TableId)
                 .HasMaxLength(50)
                 .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
-            entity.Property(e => e.LocationId).HasMaxLength(50);
+            entity.Property(e => e.LocationId);
             entity.Property(e => e.QrcodeImage).HasColumnName("QRCodeImage");
             entity.Property(e => e.TableNumber).HasMaxLength(50);
             entity.Property(e => e.TableStatusId).HasDefaultValue(1);

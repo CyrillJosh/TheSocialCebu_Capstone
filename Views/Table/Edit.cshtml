@@ -25,8 +25,13 @@
         <div class="mb-3">
             <label class="d-block mb-2">Status</label>
 
-            <div class="btn-group" role="group" aria-label="Status"> @* Occupied, Billing, Payment, Available, Unavailable *@
-                @* <input type="radio" class="btn-check" name="Status" id="unavailability" value="Available" autocomplete="off" @(Model.Status == "Available" ? "checked" : ""))>
+            <div class="btn-group" role="group" aria-label="Status">
+                @foreach(var stat in Model.StatusList)
+                {
+                    <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.Status == stat.StatusName ? "checked" : "")>
+                    <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>
+                }
+               @*  <input type="radio" class="btn-check" name="Status" id="unavailability" value="Available" autocomplete="off" @(Model.Status == "Available" ? "checked" : ""))>
                 <label class="btn btn-outline-success" for="unavailability">Available</label>
 
                 <input type="radio" class="btn-check" name="Status" id="availability" value="Unavailable" autocomplete="off" @(Model.Status == "Unavailable" ? "checked" : "")>

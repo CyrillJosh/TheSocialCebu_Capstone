@@ -13,7 +13,7 @@ public partial class Table
 
     public int TableStatusId { get; set; }
 
-    public string LocationId { get; set; } = null!;
+    public int LocationId { get; set; }
 
     public virtual Location Location { get; set; } = null!;
 

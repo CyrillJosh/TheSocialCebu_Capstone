@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.ViewModels
 {
@@ -11,16 +13,20 @@ namespace TheSocialCebu_Capstone.ViewModels
         public string TableNumber { get; set; }
 
         [Required(ErrorMessage = "Please select a location")]
-        public string LocationId { get; set; }
+        public int LocationId { get; set; }
 
         public string Status { get; set; }
+        public int StatusId { get; set; }
 
         public IFormFile? QRCodeImageFile { get; set; }
 
         public string? QRCodeBase64 { get; set; }
 
         public byte[]? ExistingQRCodeImage { get; set; }
-
+        [BindNever]
         public IEnumerable<SelectListItem>? LocationList { get; set; }
+
+        [BindNever]
+        public List<TableStatus>? StatusList { get; set; }
     }
 }

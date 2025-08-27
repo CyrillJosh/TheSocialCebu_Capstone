@@ -5,7 +5,7 @@ namespace TheSocialCebu_Capstone.Models;
 
 public partial class Location
 {
-    public string LocationId { get; set; } = null!;
+    public int LocationId { get; set; }
 
     public string LocationName { get; set; } = null!;
 
