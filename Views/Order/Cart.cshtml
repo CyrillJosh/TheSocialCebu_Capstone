@@ -60,11 +60,11 @@
                             </div>
                             <div class="col-4 d-flex align-items-end pb-2">
                                 <div class="rounded-pill bg-yellow d-flex gap-2 justify-content-center align-items-center text-black">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black" viewBox="0 0 16 16">
+                                    <svg data-id="@item.OrderItemId" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black @(item.Quantity == 1 ? "disabled" : "")" viewBox="0 0 16 16">
                                         <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
                                     </svg>
-                                        <p id="qty" class="m-0">@item.Quantity</p>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
+                                        <p id="@("qty" + item.OrderItemId)" class="m-0 qty">@(item.Quantity?.ToString("D2") ?? "00")</p>
+                                    <svg data-id="@item.OrderItemId" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
                                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                                     </svg>
                                 </div>
@@ -125,6 +125,35 @@
 @section Scripts {
     <script>
         $(document).ready(function (){
+            $(".bi-plus").on("click", function () {
+                let id =  $(this).data("id");
+                fetch(`/Order/UpdateQuantity?id=${id}&type=Add`)
+                .then(rawData => rawData.json())
+                .then(data => {
+                    const qty = $(`#qty${id}`)
+                    let num = parseInt(qty.text())
+                    num++
+                    qty.text(num.toString().padStart(2, "0"));
+                })
+            })
+            $(".bi-dash").on("click", function () {
+                let id =  $(this).data("id");
+                fetch(`/Order/UpdateQuantity?id=${id}&type=Minus`)
+                .then(rawData => rawData.json())
+                .then(data => {
+                    const qty = $(`#qty${id}`)
+                    let num = parseInt(qty.text())
+                    if((num-1) == 0){
+                        num = 1
+                    }
+                    else{
+                        num--
+                    }
+                    qty.text(num.toString().padStart(2, "0"));
+                })
+            })
+
+
             $(".checkout").on("click", ()=> {
                 const tableId = "@table";
                 fetch(`/Order/ConfirmCart?id=${tableId}`)

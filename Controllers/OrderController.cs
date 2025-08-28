@@ -143,6 +143,24 @@ namespace TheSocialCebu_Capstone.Controllers
             var orders = GetOrders();
             return View(orders);
         }
+        public IActionResult UpdateQuantity(string id, string type)
+        {
+            var orders = GetOrders();
+            switch (type) {
+                case "Add":
+                    orders.FirstOrDefault(x => x.OrderItemId == id).Quantity++;
+                    break;
+                case "Minus":
+                    var order = orders.FirstOrDefault(x => x.OrderItemId == id);
+                    if (order.Quantity - 1 == 0)
+                        order.Quantity = 1;
+                    else
+                        order.Quantity--;
+                        break;
+            }
+            SaveCart(orders);
+            return Json(new { orders = orders, message = "Success" });
+        }
         public IActionResult AddToCart(string id, int qty, string ins)
         {
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
@@ -221,7 +239,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult Kitchen()
         {
-            var orders = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).ToList(); 
+            var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).OrderBy(x => x.CreatedAt).ToList(); 
             return View(orders);
         }
 

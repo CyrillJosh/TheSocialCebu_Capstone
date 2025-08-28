@@ -30,6 +30,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var vm = new TableVM
             {
+                StatusList = _context.TableStatuses.ToList(),
                 LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList()
             };
             return View(vm);
@@ -38,13 +39,10 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(TableVM vm)
         {
-            // Re-populate LocationList for the view in case of a model validation error
-            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList();
-
             if (ModelState.IsValid)
             {
                 // Correctly get the TableStatusId by matching the string Status name
-                var tableStatus = _context.TableStatuses.FirstOrDefault(s => s.StatusName == vm.Status);
+                var tableStatus = _context.TableStatuses.FirstOrDefault(s => s.TableStatusId == vm.StatusId);
 
                 if (tableStatus == null)
                 {
@@ -65,7 +63,9 @@ namespace TheSocialCebu_Capstone.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Print", new { id = newTable.TableId });
             }
-
+            // Re-populate LocationList for the view in case of a model validation error
+            vm.LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList();
+            vm.StatusList = _context.TableStatuses.ToList();
             return View(vm);
         }
 
@@ -96,7 +96,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 Id = table.TableId,
                 TableNumber = table.TableNumber,
                 LocationId = table.LocationId,
-                Status = table.TableStatus?.StatusName,
                 StatusId = table.TableStatusId,
                 ExistingQRCodeImage = table.QrcodeImage,
                 LocationList = _context.Locations.Select(l => new SelectListItem { Value = l.LocationId.ToString(), Text = l.LocationName }).ToList(),

@@ -28,23 +28,9 @@
             <div class="btn-group" role="group" aria-label="Status">
                 @foreach(var stat in Model.StatusList)
                 {
-                    <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.Status == stat.StatusName ? "checked" : "")>
+                    <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.StatusId == stat.TableStatusId ? "checked" : "")>
                     <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>
                 }
-               @*  <input type="radio" class="btn-check" name="Status" id="unavailability" value="Available" autocomplete="off" @(Model.Status == "Available" ? "checked" : ""))>
-                <label class="btn btn-outline-success" for="unavailability">Available</label>
-
-                <input type="radio" class="btn-check" name="Status" id="availability" value="Unavailable" autocomplete="off" @(Model.Status == "Unavailable" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="availability">Unavailable</label>
-
-                <input type="radio" class="btn-check" name="Status" id="Payment" value="Payment" autocomplete="off" @(Model.Status == "Payment" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="Payment">Payment</label>
-
-                <input type="radio" class="btn-check" name="Status" id="Billing" value="Billing" autocomplete="off" @(Model.Status == "Billing" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="Billing">Billing</label>
-
-                <input type="radio" class="btn-check" name="Status" id="Occupied" value="Occupied" autocomplete="off" @(Model.Status == "Occupied" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="Occupied">Occupied</label> *@
             </div>
 
         </div>

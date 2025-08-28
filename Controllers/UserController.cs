@@ -42,7 +42,7 @@ namespace Menu.Controllers
                 return View();
             }
 
-            //var userRole = _context.Users.FirstOrDefault(u => u == exist).Role.RoleId;
+            var userRole = exist.Person.Role.RoleId;
 
             //Set Session String
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
@@ -94,5 +94,9 @@ namespace Menu.Controllers
         //    HttpContext.Session.Clear(); // clears all session data
         //    return RedirectToAction("Login", "User");
         //}
+
+        //
+        //Custom Methods
+        //
     }
 }

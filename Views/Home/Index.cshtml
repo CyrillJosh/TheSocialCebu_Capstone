@@ -85,27 +85,30 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
         <div class="row row-cols-2">
             @foreach(var cat in Model)
             {
-                <div class="col my-3">
-                    <a class="text-decoration-none px-2 d-block"   
-                       style="height:150px;"                       
-                       asp-controller="Order"
-                       asp-action="Menu"
-                       asp-route-category="@cat.CategoryId">
+                @if(cat.SubCategories.Select(x => x.Products) != null)
+                {
+                    <div class="col my-3">
+                        <a class="text-decoration-none px-2 d-block"   
+                           style="height:150px;"                       
+                           asp-controller="Order"
+                           asp-action="Menu"
+                           asp-route-category="@cat.CategoryId">
 
-                        <div class="bg-white position-relative h-100 rounded overflow-hidden shadow-sm d-flex">
-                            <img
-                                 alt="@cat.CategoryName"
-                                 class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
+                            <div class="bg-white position-relative h-100 rounded overflow-hidden shadow-sm d-flex">
+                                <img
+                                     alt="@cat.CategoryName"
+                                     class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
 
-                            <div class="position-absolute top-0 start-0 w-100 h-100" 
-                                 style="background: rgba(0,0,0,0.3);"></div>
+                                <div class="position-absolute top-0 start-0 w-100 h-100" 
+                                     style="background: rgba(0,0,0,0.3);"></div>
 
-                            <h4 class="text-white text-center z-1 w-100 mt-1">
-                                @cat.CategoryName
-                            </h4>
-                        </div>
-                    </a>
-                </div>
+                                <h4 class="text-white text-center z-1 w-100 mt-1">
+                                    @cat.CategoryName.ToUpper()
+                                </h4>
+                            </div>
+                        </a>
+                    </div>
+                }
             }
         </div>
     </div>

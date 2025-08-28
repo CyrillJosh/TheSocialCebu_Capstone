@@ -18,7 +18,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public IActionResult Index()
         {
-            var categories = _context.Categories.Include(x => x.SubCategories).ThenInclude(x => x.Products).ToList();
+            var categories = _context.Categories.Include(x => x.SubCategories).ThenInclude(x => x.Products).Where(x => x.SubCategories.Any(y => y.Products.Any())).OrderBy(x => x.CategoryName).ToList();
             return View(categories);
         }
     }

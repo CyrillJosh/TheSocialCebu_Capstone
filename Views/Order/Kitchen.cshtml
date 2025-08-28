@@ -4,46 +4,78 @@
 }
 @model List<Order>
 <div class="render-body vh-100">
-	<div class="p-4 h-100">
-		<div class="row row-cols-2 ">
-			<h1>Orders</h1>
-			<div class="col-9 d-flex flex-column gap-3">
-				@foreach (var order in Model.Where(x => x.OrderStatusId == 1))
-				{
-					<div class="border border-1 shadow rounded-3 p-3">
-						<div>
-							<div class="d-flex justify-content-between align-items-center">
-								<h3>@order.OrderStatusId</h3>
-								<p>@order.OrderId</p>
-								@if (order.OrderStatusId == 1)
-								{
-									<button class="btn btn-primary confirm" data-id="@order.OrderId">Confirm</button>
-								}
+	<div class="p-4 h-100 ">
+		<div class="row h-100">
+			<div class="col-8 h-100">
+				<h1>Orders</h1>
+				<button class="btn btn-light type">Approved</button>
+				<button class="btn btn-yellow type">Pending</button>
+				<div class="w-100 h-100 pt-2">
+					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3">
+						@foreach (var order in Model)
+						{
+							<div class="border border-1 shadow rounded-3 p-2 hstack gap-3 me-2 Order visually-hidden @order.OrderStatus.StatusName" id="@order.OrderId">
+								<div class="p-2 px-3 bg-primary">
+									<h3>@order.Session.Table.TableNumber</h3>
+								</div>
+								<div class="d-flex flex-column justify-content-center">
+									<p class="m-0 fw-bold">Order #: @order.OrderId</p>
+									<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+								</div>
 							</div>
+						}
+					</div>
+				</div>
+			</div>
+			<div class="col-4 h-100">
+				<h1>Order Details</h1>
+				<div id="OrderDetails">
+					<p>Select an order to view details</p>
+					@foreach (var order in Model)
+					{
+						<div class="border border-1 shadow rounded-3 p-3 visually-hidden OrderDetails" id="@order.OrderId">
 							<div>
-								<table>
-									<thead>
-										<tr>
-											@* <th>Check</th> *@
-											<th>Product Name</th>
-											<th>Quantity</th>
-										</tr>
-									</thead>
-									<tbody>
-									@foreach(var item in order.OrderItems)
-									{
-										<tr>
-											@* <td><input type="checkbox" checked/></td> *@
-											<td>@item.Prod.ProdName</td>
-											<td>@item.Quantity</td>
-										</tr>
-									}
-									</tbody>
-								</table>
+								<div class="p-2 hstack gap-3 me-2">
+									<div class="p-2 px-3 bg-primary">
+										<h3>@order.Session.Table.TableNumber</h3>
+									</div>
+									<div class="d-flex flex-column justify-content-center">
+										<p class="m-0 fw-bold">Order #: @order.OrderId</p>
+										<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+									</div>
+								</div>
+								<hr />
+								<div class="w-100 overflow-y-scroll" style="min-height: 300px">
+									<table class="w-100">
+										<thead>
+											<tr>
+												<th></th>
+												<th></th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var item in order.OrderItems)
+											{
+												<tr>
+													<td>
+														<div>
+															<h5>@item.Prod.ProdName</h5>
+															<p class="fst-italic">@(string.IsNullOrEmpty(item.Instructions)? "" : "Instructions: " + item.Instructions )</p>
+														</div>
+													</td>
+													<td>@item.Quantity</td>
+													<td><input type="checkbox" checked/></td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+								<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5">Confirm</button>
 							</div>
 						</div>
-					</div>
-				}
+					}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -52,6 +84,25 @@
 	@section Scripts {
 	<script>
 		$(document).ready( function () {
+			$(".Order." + "Pending").removeClass("visually-hidden");
+
+
+			$(".Order").on("click", function () {
+				let id = $(this).attr("id");
+				$(".OrderDetails").addClass("visually-hidden");
+				$("#" + id + ".OrderDetails").removeClass("visually-hidden");
+			})
+
+			$(".type").on("click", function () {
+				let status = $(this).text().trim() == "Approved" ? "Confirmed" : $(this).text().trim();
+				$(".Order").addClass("visually-hidden");
+				$(".Order." + status).removeClass("visually-hidden");
+
+				$(".type").addClass("btn-light");
+				$(this).removeClass("btn-light")
+				$(this).addClass("btn-yellow");
+			});
+
 			const buttons = $(".confirm")
 			$.each(buttons, (index, value) => {
 				let button = value;
