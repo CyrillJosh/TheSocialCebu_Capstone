@@ -153,6 +153,44 @@
                 })
             })
 
+            function getOrders() {
+                let orders = sessionStorage.getItem("Orders");
+                if (orders) {
+                    return JSON.parse(orders);
+                }
+                return [];
+            }
+
+            function saveCart(orders) {
+                sessionStorage.setItem("Orders", JSON.stringify(orders));
+            }
+
+            function updateOrder(id, type) {
+                let orders = getOrders();
+
+                switch (type) {
+                    case "Add":
+                        let addOrder = orders.find(x => x.orderItemId === id);
+                        if (addOrder) {
+                            addOrder.quantity++;
+                        }
+                        break;
+
+                    case "Minus":
+                        let order = orders.find(x => x.orderItemId === id);
+                        if (order) {
+                            if (order.quantity - 1 === 0) {
+                                order.quantity = 1;
+                            } else {
+                                order.quantity--;
+                            }
+                        }
+                        break;
+                }
+
+                saveCart(orders);
+                return { orders: orders, message: "Success" };
+            }
 
             $(".checkout").on("click", ()=> {
                 const tableId = "@table";

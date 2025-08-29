@@ -54,24 +54,43 @@
 												<th></th>
 											</tr>
 										</thead>
-										<tbody>
+										<tbody id="@("body" + order.OrderId)">
 											@foreach (var item in order.OrderItems)
 											{
-												<tr>
+												<tr id="@item.OrderItemId" class="Orderitem">
 													<td>
 														<div>
 															<h5>@item.Prod.ProdName</h5>
 															<p class="fst-italic">@(string.IsNullOrEmpty(item.Instructions)? "" : "Instructions: " + item.Instructions )</p>
 														</div>
 													</td>
-													<td>@item.Quantity</td>
-													<td><input type="checkbox" checked/></td>
+													<td>
+														<div class="hstack align-items-center justify-content-between">
+															@* <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash text-black m-0 bg-yellow rounded-pill" viewBox="0 0 16 16">
+																<path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+															</svg> *@
+															<p id="qty" class="m-0">@item.Quantity</p>
+															@* <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus text-black m-0 bg-yellow rounded-pill" viewBox="0 0 16 16">
+																<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+															</svg> *@
+														</div>
+													</td>
+													@if(item.OrderItemStatus.StatusName != "Served")
+													{
+														<td class="ps-4"><input type="checkbox" checked/>@* @item.OrderItemStatus.StatusName *@</td>
+													}
 												</tr>
 											}
 										</tbody>
 									</table>
 								</div>
-								<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5">Confirm</button>
+								@if(order.OrderStatus.StatusName != "Confirmed"){
+									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 confirm" id="@order.OrderId">Confirm</button>
+								}
+								else if (order.OrderStatus.StatusName == "Confirmed")
+								{
+									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 confirm" id="@order.OrderId">Ready to Serve</button>
+								}
 							</div>
 						</div>
 					}
@@ -103,20 +122,36 @@
 				$(this).addClass("btn-yellow");
 			});
 
-			const buttons = $(".confirm")
-			$.each(buttons, (index, value) => {
-				let button = value;
-				button.addEventListener("click", (e) =>{
-					let id =  e.currentTarget.dataset.id;
-					fetch(`/Order/ConfirmOrder?id=${id}&status=Preparing`)
-					.then(response => response.json())
-					.then(confirm => {
-						console.log(confirm)
-						if(confirm.message == "OK"){
-							window.location.reload();
-						}
-					})
+
+			//Get current items where it is checked and get its quantity 
+			$(".confirm").on("click", function (){
+				let id = $(this).attr("id");
+				const orderitems = $(`#body${id}`).children()
+				let items = [];
+				orderitems.each(function(){
+					let checkbox = $(this).children().last().children().first();
+					if(checkbox.is(":checked")){
+						items.push($(this).attr("id"))
+					}
 				})
+
+				console.log(items)
+				fetch(`/Order/ConfirmOrder?id=${items.join(",")}&orderid=${id}`)
+				.then(response => response.json())
+				.then(confirm => {
+					console.log(confirm)
+					if(confirm.message == "Success"){
+						window.location.reload();
+					}
+				})
+				// fetch(`/Order/ConfirmOrder?id=${id}&status=Preparing`)
+				// .then(response => response.json())
+				// .then(confirm => {
+				// 	console.log(confirm)
+				// 	if(confirm.message == "OK"){
+				// 		window.location.reload();
+				// 	}
+				// })
 			})
 		})
 	</script>

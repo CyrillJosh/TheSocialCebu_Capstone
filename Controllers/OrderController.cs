@@ -105,17 +105,40 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(sessionsWithOrders);
         }
 
-        public IActionResult ConfirmOrder(string id, string status)
+        public IActionResult ConfirmOrder(string id, string orderid)
         {
-            if (id == null)
+            var itemsid = id.Split(",");
+            var orderitems = _context.OrderItems.Include(x => x.Order).Include(x => x.OrderItemStatus) .ToList();
+            var updateItems = new List<OrderItem>();
+            foreach (var itemid in itemsid)
             {
-                return Json(new { message = "Error" });
+                var orderitem = orderitems.FirstOrDefault(x => x.OrderItemId == itemid);
+                if (orderitem != null)
+                {
+                    orderitem.OrderItemStatusId = 2; 
+                    updateItems.Add(orderitem);
+                }
             }
-            var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
-            order.OrderStatusId = 2;
+
+            _context.UpdateRange(updateItems);
+            var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
+            if(order.OrderItems.All(x => x.OrderItemStatusId == 2))
+            {
+                order.OrderStatusId = 2;
+            }
             _context.Update(order);
             _context.SaveChanges();
-            return Json(new { message = "OK" });
+
+
+            return Json(new { message = "Success" });
+            //if (id == null)
+            //{
+            //    return Json(new { message = "Error" });
+            //}
+            //var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            //order.OrderStatusId = 2;
+            //_context.Update(order);
+            //_context.SaveChanges();
         }
 
         public IActionResult MyOrders()
@@ -239,7 +262,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult Kitchen()
         {
-            var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).OrderBy(x => x.CreatedAt).ToList(); 
+            var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemStatus).OrderBy(x => x.CreatedAt).ToList(); 
             return View(orders);
         }
 
@@ -254,7 +277,7 @@ namespace TheSocialCebu_Capstone.Controllers
             if (orders != null)
                 return JsonSerializer.Deserialize<List<OrderItem>>(orders);
             return new List<OrderItem>();
-        }
+            }
 
         //Save cart
         private void SaveCart(List<OrderItem> orders)
