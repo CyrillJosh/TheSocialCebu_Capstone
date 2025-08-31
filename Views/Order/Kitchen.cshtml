@@ -75,7 +75,7 @@
 															</svg> *@
 														</div>
 													</td>
-													@if(item.OrderItemStatus.StatusName != "Served")
+													@if(item.OrderItemStatus.StatusName != "Serving")
 													{
 														<td class="ps-4"><input type="checkbox" checked/>@* @item.OrderItemStatus.StatusName *@</td>
 													}
@@ -89,7 +89,7 @@
 								}
 								else if (order.OrderStatus.StatusName == "Confirmed")
 								{
-									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 confirm" id="@order.OrderId">Ready to Serve</button>
+									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 readytoserve" id="@order.OrderId">Ready to Serve</button>
 								}
 							</div>
 						</div>
@@ -144,14 +144,11 @@
 						window.location.reload();
 					}
 				})
-				// fetch(`/Order/ConfirmOrder?id=${id}&status=Preparing`)
-				// .then(response => response.json())
-				// .then(confirm => {
-				// 	console.log(confirm)
-				// 	if(confirm.message == "OK"){
-				// 		window.location.reload();
-				// 	}
-				// })
+			})
+
+			$(".readytoserve").on("click", function(){
+				let id = $(this).attr("id");
+
 			})
 		})
 	</script>

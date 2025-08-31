@@ -28,6 +28,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         [HttpGet]
 
+        #region Customer
         //Digital Menu
         public IActionResult Menu(string category)
         {
@@ -64,7 +65,6 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return View(subcat);
         }
-
         //Preview Product
         public IActionResult Preview(string id)
         {
@@ -79,68 +79,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 price = product.Price,
             });
         }
-        public IActionResult Orders()
-        {
-            var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy"));
-            var sessionsWithOrders = _context.TableSessions
-                         .Include(ts => ts.Table)
-                         .Include(ts => ts.Orders)
-                         .ThenInclude(o => o.OrderItems)
-                         .ThenInclude(oi => oi.Prod)
-                         .Where(ts => ts.EndedAt == null && ts.Orders.Any()) // Only active sessions with at least one order
-                         .ToList();
-            //    var orders = _context.Orders
-            //        .Include(x => x.OrderItems)
-            //        .ThenInclude(x => x.Prod)
-            //        .ThenInclude(x => x.Subcategory)
-            //        .Include(x => x.Table)
-            //        .Where(x => x.Paid == false)
-            //        .GroupBy(x=> new { x.TableId, x.OrderId, x.OrderItems })
-            //        .Select(g => new Order
-            //        {
-            //            OrderId = g.Key.OrderId,
-            //            TableId = g.Key.TableId,
-            //            OrderItems = g.Key.OrderItems.ToList()
-            //        }).ToList(); 
-            return View(sessionsWithOrders);
-        }
-
-        public IActionResult ConfirmOrder(string id, string orderid)
-        {
-            var itemsid = id.Split(",");
-            var orderitems = _context.OrderItems.Include(x => x.Order).Include(x => x.OrderItemStatus) .ToList();
-            var updateItems = new List<OrderItem>();
-            foreach (var itemid in itemsid)
-            {
-                var orderitem = orderitems.FirstOrDefault(x => x.OrderItemId == itemid);
-                if (orderitem != null)
-                {
-                    orderitem.OrderItemStatusId = 2; 
-                    updateItems.Add(orderitem);
-                }
-            }
-
-            _context.UpdateRange(updateItems);
-            var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
-            if(order.OrderItems.All(x => x.OrderItemStatusId == 2))
-            {
-                order.OrderStatusId = 2;
-            }
-            _context.Update(order);
-            _context.SaveChanges();
-
-
-            return Json(new { message = "Success" });
-            //if (id == null)
-            //{
-            //    return Json(new { message = "Error" });
-            //}
-            //var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
-            //order.OrderStatusId = 2;
-            //_context.Update(order);
-            //_context.SaveChanges();
-        }
-
+        //Customer Orders
         public IActionResult MyOrders()
         {
             var tableId = HttpContext.Session.GetString("Table");
@@ -161,6 +100,8 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(sessionsWithOrders);
         }
 
+
+        //Cart Operations
         public IActionResult Cart()
         {
             var orders = GetOrders();
@@ -223,7 +164,7 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new { orders = orders, message = "Success" });
         }
 
-        public JsonResult ConfirmCart() // Removed the 'string id' parameter
+        public JsonResult ConfirmCart()
         {
             var sessionId = HttpContext.Session.GetString("SessionId");
             if (sessionId == null)
@@ -260,11 +201,112 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return Json(new { message = "Success" });
         }
+        #endregion
+
+
+        #region Kitchen
         public IActionResult Kitchen()
         {
             var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemStatus).OrderBy(x => x.CreatedAt).ToList(); 
             return View(orders);
         }
+        public IActionResult ConfirmOrder(string orderid)
+        {
+            var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
+            foreach (var item in order.OrderItems)
+            {
+                item.OrderItemStatusId = 2; // Set to 'In Progress'
+            }
+            order.OrderStatusId = 2; // Set to 'In Progress'
+            _context.Update(order);
+            _context.SaveChanges();
+
+            return Json(new { message = "Success" });
+
+            //var itemsid = id.Split(",");
+            //var orderitems = _context.OrderItems.Include(x => x.Order).Include(x => x.OrderItemStatus) .ToList();
+            //var updateItems = new List<OrderItem>();
+            //foreach (var itemid in itemsid)
+            //{
+            //    var orderitem = orderitems.FirstOrDefault(x => x.OrderItemId == itemid);
+            //    if (orderitem != null)
+            //    {
+            //        orderitem.OrderItemStatusId = 2; 
+            //        updateItems.Add(orderitem);
+            //    }
+            //}
+
+            //_context.UpdateRange(updateItems);
+            //var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
+            //if(order.OrderItems.All(x => x.OrderItemStatusId == 2))
+            //{
+            //    order.OrderStatusId = 2;
+            //}
+            //_context.Update(order);
+            //_context.SaveChanges();
+            //return Json(new { message = "Success" });
+            //if (id == null)
+            //{
+            //    return Json(new { message = "Error" });
+            //}
+            //var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            //order.OrderStatusId = 2;
+            //_context.Update(order);
+            //_context.SaveChanges();
+        }
+
+        public IActionResult CompleteOrder(string id)
+        {   
+            //Addan pa for each item or tagsatagsa for each item
+            if (id == null)
+            {
+                return Json(new { message = "Error" });
+            }
+            var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            order.OrderStatusId = 3;
+            _context.Update(order);
+            _context.SaveChanges();
+            return Json(new { message = "Success" });
+        }
+
+        public IActionResult UpdateMenu()
+        {
+            //UI for updating menu items or reuse menu/index add condition for role set
+            var products = _context.Products.Where(x => x.Availability == true).ToList();
+            return View(products);
+        }
+        #endregion
+
+        #region Manager
+        public IActionResult Orders()
+        {
+            var date = DateOnly.Parse(DateTime.Now.ToString("MMMM dd, yyyy"));
+            var sessionsWithOrders = _context.TableSessions
+                         .Include(ts => ts.Table)
+                         .Include(ts => ts.Orders)
+                         .ThenInclude(o => o.OrderItems)
+                         .ThenInclude(oi => oi.Prod)
+                         .Where(ts => ts.EndedAt == null && ts.Orders.Any()) // Only active sessions with at least one order
+                         .ToList();
+            //    var orders = _context.Orders
+            //        .Include(x => x.OrderItems)
+            //        .ThenInclude(x => x.Prod)
+            //        .ThenInclude(x => x.Subcategory)
+            //        .Include(x => x.Table)
+            //        .Where(x => x.Paid == false)
+            //        .GroupBy(x=> new { x.TableId, x.OrderId, x.OrderItems })
+            //        .Select(g => new Order
+            //        {
+            //            OrderId = g.Key.OrderId,
+            //            TableId = g.Key.TableId,
+            //            OrderItems = g.Key.OrderItems.ToList()
+            //        }).ToList(); 
+            return View(sessionsWithOrders);
+        }
+        #endregion
+
+
+
 
         //
         //Custom Methods

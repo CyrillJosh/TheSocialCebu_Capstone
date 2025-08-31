@@ -45,42 +45,40 @@
             {
                 @foreach (var order in session.Orders)
                 {
-                    <h5 class="text-white">Order Status: @order.OrderStatus.StatusName</h5>
-                    <table class="table text-white">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Subtotal</th>
-                                <th>Item Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in order.OrderItems)
-                            {
+                    <div class="">
+                        <h5 class="text-white">Order</h5>
+                        <table class="table text-white">
+                            <thead>
                                 <tr>
-                                    <td>@item.Prod.ProdName</td>
-                                    <td>@item.Quantity</td>
-                                    <td>@item.Prod.Price.ToString("₱ 0.00")</td>
-                                    <td>@string.Format("₱ {0:N2}", item.Prod.Price* item.Quantity)</td>
-                                    <td>@item.OrderItemStatus.StatusName</td>
+                                    <th>Quantity</th>
+                                    <th>Item</th>
+                                    <th>Item Status</th>
                                 </tr>
-                                @if (!string.IsNullOrEmpty(item.Instructions))
+                            </thead>
+                            <tbody>
+                                @foreach (var item in order.OrderItems)
                                 {
                                     <tr>
-                                        <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
-                                            Notes: @item.Instructions
-                                        </td>
+                                        <td>@item.Quantity</td>
+                                        <td>@item.Prod.ProdName</td>
+                                        <td>@item.OrderItemStatus.StatusName</td>
                                     </tr>
+                                    @if (!string.IsNullOrEmpty(item.Instructions))
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
+                                                Notes: @item.Instructions
+                                            </td>
+                                        </tr>
+                                    }
                                 }
-                            }
-                        </tbody>
-                    </table>
-                    <h4 class="text-white text-end fw-bold mt-4">
-                        Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
-                    </h4>
-                        }
+                            </tbody>
+                        </table>
+                        <h4 class="text-white text-end fw-bold mt-4">
+                            Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
+                        </h4>
+                    </div>
+                }
             }
         }
     </div>
