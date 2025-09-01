@@ -93,7 +93,7 @@
                             data-id="@item.ProdId">
                         <div class="d-flex justify-content-between align-items-center text-white">
                             <h5 class="mb-0">@item.ProdName.ToUpper()</h5>
-                            <span>@item.Price.ToString("₱ 0.00")</span>
+                            <span>@item.Price.ToString("₱0.00")</span>
                         </div>
                     </button>
                 </div>
@@ -187,7 +187,7 @@
 
                         $(".set-body").append(`<h2>${prod.prodName}</h2>`)
                         $(".set-body").append(`<p>${prod.description}</p>`)
-                        $(".set-price").append(`<h2>${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
+                        $(".set-price").append(`<h2 id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
 
                         $(".add-to-order").data("id", prod.prodId);
                 })
@@ -195,14 +195,21 @@
             //Add
             $(".add").on("click", ()=> {
                 const qty = $("#qty")
+				const price = $("#price")
+				let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
                 let num = parseInt(qty.text())
+                let basePrice = currentPrice / num
                 num++
                 qty.text(num.toString().padStart(2, "0"));
+                price.text((basePrice * num).toLocaleString("en-PH", { style: "currency", currency: "PHP" }))
             })
             //Minus
              $(".minus").on("click", ()=> {
                 const qty = $("#qty")
                 let num = parseInt(qty.text())
+                const price = $("#price")
+                let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
+				let basePrice = currentPrice / num
                 if((num-1) == 0){
                     num = 1
                 }
@@ -210,6 +217,7 @@
                     num--
                 }
                 qty.text(num.toString().padStart(2, "0"));
+                price.text((basePrice * num).toLocaleString("en-PH", { style: "currency", currency: "PHP" }))
             })
             const addtoorder = $(".add-to-order")
             addtoorder.on("click", () => {

@@ -41,27 +41,29 @@
         }
         else
         {
+            <div class="h-100 w-100 vstack gap-2">
             @foreach (var session in Model)
             {
                 @foreach (var order in session.Orders)
                 {
-                    <div class="">
+                    <div class="card bg-dark p-2">
                         <h5 class="text-white">Order</h5>
-                        <table class="table text-white">
-                            <thead>
-                                <tr>
-                                    <th>Quantity</th>
-                                    <th>Item</th>
-                                    <th>Item Status</th>
+                        <p class="text-white">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+                        <table class="table text-white table-borderless bg-transparent">
+                            <thead class="bg-transparent">
+                                <tr class="bg-transparent">
+                                    <th class="text-yellow bg-transparent">Qty</th>
+                                    <th class="text-yellow bg-transparent">Item</th>
+                                    <th class="text-yellow bg-transparent">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="bg-transparent">
                                 @foreach (var item in order.OrderItems)
                                 {
-                                    <tr>
-                                        <td>@item.Quantity</td>
-                                        <td>@item.Prod.ProdName</td>
-                                        <td>@item.OrderItemStatus.StatusName</td>
+                                    <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
+                                        <td class="bg-transparent text-white">@item.Quantity</td>
+                                        <td class="bg-transparent text-white">@item.Prod.ProdName</td>
+                                        <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
@@ -74,12 +76,13 @@
                                 }
                             </tbody>
                         </table>
-                        <h4 class="text-white text-end fw-bold mt-4">
+                      @*   <h4 class="text-white text-end fw-bold mt-4">
                             Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
-                        </h4>
+                        </h4> *@
                     </div>
                 }
             }
+            </div>
         }
     </div>
     @if(Model.All(x => x.Orders.All(y => y.OrderStatusId == 3)))

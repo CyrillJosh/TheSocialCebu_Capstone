@@ -26,9 +26,9 @@ namespace TheSocialCebu_Capstone.Controllers
             HttpContext.Session.SetString("Table", id);
             return RedirectToAction("Index","Home");
         }
-        [HttpGet]
 
         #region Customer
+        [HttpGet]
         //Digital Menu
         public IActionResult Menu(string category)
         {
@@ -207,7 +207,7 @@ namespace TheSocialCebu_Capstone.Controllers
         #region Kitchen
         public IActionResult Kitchen()
         {
-            var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemStatus).OrderBy(x => x.CreatedAt).ToList(); 
+            var orders = _context.Orders.Include(x => x.OrderStatus).Include(x => x.Session).ThenInclude(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).ThenInclude(x => x.Subcategory).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemStatus).OrderBy(x => x.CreatedAt).ToList(); 
             return View(orders);
         }
         public IActionResult ConfirmOrder(string orderid)
@@ -255,15 +255,48 @@ namespace TheSocialCebu_Capstone.Controllers
             //_context.SaveChanges();
         }
 
-        public IActionResult CompleteOrder(string id)
-        {   
-            //Addan pa for each item or tagsatagsa for each item
-            if (id == null)
+        public IActionResult ServeOrder(string orderid, string id)
+        {
+            ////Addan pa for each item or tagsatagsa for each item
+            //if (id == null)
+            //{
+            //    return Json(new { message = "Error" });
+            //}
+            //var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            //order.OrderStatusId = 3;
+            //_context.Update(order);
+            //_context.SaveChanges();
+            //return Json(new { message = "Success" });
+
+            //if (id == null)
+            //{
+            //    return Json(new { message = "Error" });
+            //}
+            //var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
+            //order.OrderStatusId = 2;
+            //_context.Update(order);
+            //_context.SaveChanges();
+
+
+            var itemsid = id.Split(",");
+            var orderitems = _context.OrderItems.Include(x => x.Order).Include(x => x.OrderItemStatus).ToList();
+            var updateItems = new List<OrderItem>();
+            foreach (var itemid in itemsid)
             {
-                return Json(new { message = "Error" });
+                var orderitem = orderitems.FirstOrDefault(x => x.OrderItemId == itemid && x.Order.OrderId == orderid);
+                if (orderitem != null)
+                {
+                    orderitem.OrderItemStatusId = 2;
+                    updateItems.Add(orderitem);
+                }
             }
-            var order = _context.Orders.FirstOrDefault(x => x.OrderId == id);
-            order.OrderStatusId = 3;
+
+            _context.UpdateRange(updateItems);
+            var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
+            if (order.OrderItems.All(x => x.OrderItemStatusId == 2))
+            {
+                order.OrderStatusId = 2;
+            }
             _context.Update(order);
             _context.SaveChanges();
             return Json(new { message = "Success" });
