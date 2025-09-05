@@ -1,5 +1,6 @@
 ﻿@using System.Text.Json
-@using TheSocialCebu_Capstone.Models
+@using TheSocialCebu_Capstone.Models;
+@model List<Category>
 @{
     ViewData["Title"] = "Home Page";
     var table = Context.Session.GetString("Table");
@@ -8,7 +9,6 @@
        ? new List<OrderItem>()
        : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-@model List<Category>
 <div class="render-body d-flex flex-column overflow-hidden" style="background: /* linear-gradient(0deg, #FFFFFF, #FFFFFF), */
 radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);
 ">
@@ -77,12 +77,20 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                         }
                     </div>
                 </a>
+            @* <div class="w-100 prod">
+                @foreach (var prod in Model.SelectMany(x => x.SubCategories)
+                                    .SelectMany(y => y.Products))
+                {
+                    <p>@prod.ProdName</p>
+                }
+            </div> *@
             </div>
+        </div>
             <p class="text-light">Select by Category</p>
-         </div>
-    </nav>
+    </div>
+</nav>
    <div class="p-4 overflow-y-scroll" style="height:53vh">
-        <div class="row row-cols-2">
+        <div class="row row-cols-2 categories">
             @foreach(var cat in Model)
             {
                 @if(cat.SubCategories.Select(x => x.Products) != null)
@@ -110,7 +118,6 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                     </div>
                 }
             }
-        </div>
     </div>
     <div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
         <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">

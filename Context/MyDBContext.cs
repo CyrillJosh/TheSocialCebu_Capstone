@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.TableClasses;
 using TheSocialCebu_Capstone.Models.UserClasses;
 
 namespace TheSocialCebu_Capstone.Context;

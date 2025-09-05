@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheSocialCebu_Capstone.Models.TableClasses;
 
 namespace TheSocialCebu_Capstone.Models;
 

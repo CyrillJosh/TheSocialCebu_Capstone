@@ -15,6 +15,10 @@
         </div>
 
         <form asp-action="Create" enctype="multipart/form-data" id="tableForm">
+            <div class="btn-group" role="group" aria-label="Status" hidden>
+                    <input type="radio" class="btn-check" name="StatusId" id="1" value="1" autocomplete="off" checked>
+            </div>
+
             <input hidden asp-for="Id" value="@Guid.NewGuid().ToString()" id="TableID"/>
             <div class="mb-3">
                 <input asp-for="TableNumber" placeholder="Table Number" class="form-control bg-dark text-white border-secondary" />
@@ -28,18 +32,6 @@
                 <span asp-validation-for="LocationId" class="text-danger small"></span>
             </div>
 
-            <div class="mb-3">
-                <label class="d-block mb-2">Status</label>
-
-                <div class="btn-group" role="group" aria-label="Status">
-                    @foreach(var stat in Model.StatusList)
-                    {
-                        <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off">
-                        <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>
-                    }
-                </div>
-
-            </div>
 
             <div class="mb-4">
                 <label class="form-label">QR Code Preview</label><br />

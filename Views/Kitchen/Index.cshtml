@@ -12,9 +12,9 @@
 				<button class="btn btn-yellow type">Pending</button>
 				<div class="w-100 h-100 pt-2">
 					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3">
-						@foreach (var order in Model)
+						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
-							<div class="border border-1 shadow rounded-3 p-2 hstack gap-3 me-2 Order visually-hidden @order.OrderStatus.StatusName" id="@order.OrderId">
+							<div class="border border-1 shadow rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
 								<div class="p-2 px-3 bg-primary">
 									<h3>@order.Session.Table.TableNumber</h3>
 								</div>
@@ -31,7 +31,7 @@
 				<h1>Order Details</h1>
 				<div id="OrderDetails">
 					<p>Select an order to view details</p>
-					@foreach (var order in Model)
+					@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 					{
 						<div class="border border-1 shadow rounded-3 p-3 visually-hidden OrderDetails" id="@order.OrderId">
 							<div>
@@ -65,9 +65,9 @@
 													</td>
 												</tr>
 												@foreach (var item in order.OrderItems.Where(x => x.Prod.SubcategoryId == subcat.SubcategoryId))
-												{ 
-													<tr>
-														@if(item.OrderItemStatus.StatusName == "Pending")
+												{
+													<tr id="@item.OrderItemId">
+														@if (item.OrderItemStatus.StatusName == "Pending")
 														{
 															<td colspan="2">
 																<div>
@@ -90,7 +90,19 @@
 															<td>
 																<p id="qty" class="m-0">@item.Quantity</p>
 															</td>
-															<td class="ps-4"><input type="checkbox" checked /> @item.OrderItemStatus.StatusName</td>
+															<td class="ps-4"><input type="checkbox" /> @item.OrderItemStatus.StatusName</td>
+														}
+														@if (item.OrderItemStatus.OrderItemStatusId == 3)
+														{
+															<td>
+																<div>
+																	<h5><del>@item.Prod.ProdName</del></h5>
+																</div>
+															</td>
+															<td>
+																<p id="qty" class="m-0">@item.Quantity</p>
+															</td>
+															<td class="ps-4"><input type="checkbox" disabled/> @item.OrderItemStatus.StatusName</td>
 														}
 													</tr>
 												}
@@ -104,7 +116,7 @@
 								}
 								else if (order.OrderStatus.StatusName == "Confirmed")
 								{
-									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 readytoserve" id="@order.OrderId">Ready to Serve</button>
+									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 serve" id="@order.OrderId">Ready to Serve</button>
 								}
 							</div>
 						</div>
@@ -115,7 +127,7 @@
 	</div>
 </div>
 
-	@section Scripts {
+@section Scripts {
 	<script>
 		$(document).ready( function () {
 			$(".Order." + "Pending").removeClass("visually-hidden");
@@ -131,6 +143,7 @@
 				let status = $(this).text().trim() == "Approved" ? "Confirmed" : $(this).text().trim();
 				$(".Order").addClass("visually-hidden");
 				$(".Order." + status).removeClass("visually-hidden");
+				$(".OrderDetails").addClass("visually-hidden");
 
 				$(".type").addClass("btn-light");
 				$(this).removeClass("btn-light")
@@ -149,7 +162,7 @@
 				// 	}
 				// })
 
-				fetch(`/Order/ConfirmOrder?orderid=${id}`)
+				fetch(`/Kitchen/ConfirmOrder?orderid=${id}`)
 				.then(response => response.json())
 				.then(confirm => {
 					console.log(confirm)
@@ -161,16 +174,17 @@
 
 			$(".serve").on("click", function(){
 				let id = $(this).attr("id");
-				const orderitems = $(`#body${id}`).children()
 				let items = [];
-				orderitems.each(function(){
-					let checkbox = $(this).children().last().children().first();
-					if(checkbox.is(":checked")){
-						items.push($(this).attr("id"))
-					}
-				})
 
-				fetch(`/Order/ServeOrder?orderid=${id}&id=${items.join(',')`)
+				$(`#body${id} tr`).each(function () {
+					let checkbox = $(this).find("input[type=checkbox]");
+					if (checkbox.length && checkbox.is(":checked")) {
+						items.push($(this).attr("id")); // row's id = OrderItemId
+					}
+				});
+				 console.log("Items to serve:", items);
+
+				fetch(`/Kitchen/ServeOrder?orderid=${id}&id=${items.join(",")}`)
 				.then(response => response.json())
 				.then(confirm => {
 					console.log(confirm)

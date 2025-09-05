@@ -26,7 +26,7 @@
             <label class="d-block mb-2">Status</label>
 
             <div class="btn-group" role="group" aria-label="Status">
-                @foreach(var stat in Model.StatusList)
+                @foreach(var stat in Model.StatusList.Where(x => x.StatusName == "Available" || x.StatusName == "Unavailable"))
                 {
                     <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.StatusId == stat.TableStatusId ? "checked" : "")>
                     <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>

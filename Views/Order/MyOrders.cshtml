@@ -28,7 +28,7 @@
             </a>
         </div>
     </nav>
-    <div class="p-3">
+    <div class="p-3 pb-5 mb-5">
         @if (!Model.Any(s => s.Orders.Any()))
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
@@ -42,52 +42,50 @@
         else
         {
             <div class="h-100 w-100 vstack gap-2">
-            @foreach (var session in Model)
+            @foreach (var session in Model.Where(x => x.Orders.Any()))
             {
-                @foreach (var order in session.Orders)
-                {
-                    <div class="card bg-dark p-2">
-                        <h5 class="text-white">Order</h5>
-                        <p class="text-white">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
-                        <table class="table text-white table-borderless bg-transparent">
-                            <thead class="bg-transparent">
-                                <tr class="bg-transparent">
-                                    <th class="text-yellow bg-transparent">Qty</th>
-                                    <th class="text-yellow bg-transparent">Item</th>
-                                    <th class="text-yellow bg-transparent">Status</th>
+                <div class="card bg-dark p-2">
+                    @* <h5 class="text-white">Order</h5>
+                    <p class="text-white">@Convert.ToDateTime(session.Orders.CreatedAt).ToString("T").ToUpper()</p> *@
+                    <table class="table text-white table-borderless bg-transparent">
+                        <thead class="bg-transparent">
+                            <tr class="bg-transparent">
+                                <th class="text-yellow bg-transparent">Qty</th>
+                                <th class="text-yellow bg-transparent">Item</th>
+                                <th class="text-yellow bg-transparent">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-transparent">
+                            @foreach (var item in session.Orders.SelectMany(x => x.OrderItems))
+                            {
+                                <tr></tr>
+                                <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
+                                    <td class="bg-transparent text-white">@item.Quantity</td>
+                                    <td class="bg-transparent text-white">@item.Prod.ProdName</td>
+                                    <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-transparent">
-                                @foreach (var item in order.OrderItems)
+                                @if (!string.IsNullOrEmpty(item.Instructions))
                                 {
-                                    <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
-                                        <td class="bg-transparent text-white">@item.Quantity</td>
-                                        <td class="bg-transparent text-white">@item.Prod.ProdName</td>
-                                        <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
+                                    <tr>
+                                        <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
+                                            Notes: @item.Instructions
+                                        </td>
                                     </tr>
-                                    @if (!string.IsNullOrEmpty(item.Instructions))
-                                    {
-                                        <tr>
-                                            <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
-                                                Notes: @item.Instructions
-                                            </td>
-                                        </tr>
-                                    }
                                 }
-                            </tbody>
-                        </table>
-                      @*   <h4 class="text-white text-end fw-bold mt-4">
-                            Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
-                        </h4> *@
-                    </div>
-                }
+                            }
+                        </tbody>
+                    </table>
+                    @*   <h4 class="text-white text-end fw-bold mt-4">
+                        Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
+                    </h4> *@
+                </div>
             }
             </div>
         }
     </div>
     @if(Model.All(x => x.Orders.All(y => y.OrderStatusId == 3)))
     {
-        <button class="btn btn-warning">Request Bill</button>
+        <button class="btn btn-warning d-block mx-auto">Request Bill</button>
     }
     <div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
         <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">

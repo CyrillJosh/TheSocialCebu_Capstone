@@ -54,15 +54,6 @@
                     <label class="btn btn-outline-danger px-3 rounded-pill py-0 ms-5" for="availabilityFalse">Unvailable</label>
                 </div>
             </div>
-
-            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
-                <label class="form-label text-nowrap text-dark mb-0">Change Image</label>
-                <label class="input-group-text bg-info text-white border-0 rounded-pill py-0 px-3" 
-                        for="UploadImage" 
-                        style="cursor:pointer">Upload</label>
-                <input asp-for="UploadImage" type="file" class="form-control border-secondary" id="UploadImage" onchange="previewImage(this)">
-                <img id="imagePreview" class="img-thumbnail mt-2 d-none" alt="Image Preview" style="max-height: 150px; display:none"/>
-            </div>
         </form>
     </div>
 </div>
