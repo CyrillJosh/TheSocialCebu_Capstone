@@ -24,6 +24,10 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Table(string id)
         {
             HttpContext.Session.SetString("Table", id);
+            var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
+            table.TableStatusId = 2;
+            _context.Update(table);
+            _context.SaveChanges();
             return RedirectToAction("Index","Home");
         }
 
@@ -94,7 +98,7 @@ namespace TheSocialCebu_Capstone.Controllers
                                 .Include(ts => ts.Orders)
                                     .ThenInclude(o => o.OrderItems)
                                         .ThenInclude(oi => oi.OrderItemStatus) // Include the item status
-                                .Where(ts => ts.TableId == tableId && ts.EndedAt == null)
+                                .Where(ts => ts.TableId == tableId && ts.EndedAt == null && ts.Orders.Count > 0)
                                 .ToList();
 
             return View(sessionsWithOrders);
@@ -127,6 +131,15 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult AddToCart(string id, int qty, string ins)
         {
+            var tableid = HttpContext.Session.GetString("Table").ToString();
+            if(string.IsNullOrEmpty(tableid))
+                return Json(new {message = "Error" });
+            var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
+            if(table == null || table.TableStatusId == 3)
+            {
+                return Json(new {message = "Error cannot add new orders"});
+            }
+
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
             if (product == null || !product.Availability) return Json(new { message = "Error" });
 
@@ -202,7 +215,28 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new { message = "Success" });
         }
         #endregion
+        
 
+        public JsonResult RequestBill(string tableid)
+        {
+            if (string.IsNullOrEmpty(tableid) || !_context.Tables.Any(x => x.TableId == tableid))
+                return Json(new { message = "Error" });
+            var orders = _context.Orders.Where(x => x.Session.TableId == tableid).ToList();
+            foreach(var order in orders)
+            {
+                order.OrderStatusId = 4;
+            }
+            var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
+            if(table == null)
+                return Json(new { message = "Error" });
+
+            table.TableStatusId = 3;
+            _context.UpdateRange(orders);
+            _context.Update(table);
+            _context.SaveChanges(); 
+
+            return Json(new { message = "Requesting" });
+        }
 
         //
         //Custom Methods

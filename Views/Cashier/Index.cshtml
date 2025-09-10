@@ -8,7 +8,7 @@
 	<div class="p-4">
 		<div class="row">
 			<div class="col-7 d-flex flex-column gap-2">
-				@foreach (var t in Model@* .Where(x => x.OrderItems.Count() > 0 && x.OrderItems.All(y => y.OrderItemStatusId > 2)) *@)
+				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1)@* .Where(x => x.OrderItems.Count() > 0 && x.OrderItems.All(y => y.OrderItemStatusId > 2)) *@)
 				{
 					<div class="show" id="@t.Table.TableId">
 						<div class="border border-1 shadow rounded-3 p-2 hstack gap-3 me-2">
@@ -59,27 +59,27 @@
 								<hr />
 								<div class="vstack">
 									<div class="d-flex justify-content-between align-items-center">
-										<p>Subtotal</p>
-										<p>₱@Convert.ToDecimal(t.Subtotal).ToString()</p>
+										<p>Vat Sales</p>
+										<p>₱@Convert.ToDecimal(t.Subtotal).ToString("0.00")</p>
 									</div>
 									@* <div class="d-flex justify-content-between align-items-center">
 										<p>Discount</p>
 									</div> *@
 									<div class="d-flex justify-content-between align-items-center">
-										<p>Service Charge</p>
-										<p>₱@Convert.ToDecimal(t.ServiceCharge).ToString("0.00")</p>
+										<p>Vat amount</p>
+										<p>₱@Convert.ToDecimal(t.Tax).ToString("0.00")</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
-										<p>Tax</p>
-										<p>₱@Convert.ToDecimal(t.Tax).ToString("0.00")</p>
+										<p>Service Charge</p>
+										<p>₱@Convert.ToDecimal(t.ServiceCharge).ToString("0.00")</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
 										<p>Total</p>
 										<p>₱@Convert.ToDecimal(t.Total).ToString("0.00")</p>
 									</div>
 									<div class="d-flex flex-row gap-2">
-										<button class="btn btn-yellow pay flex-fill" data-bs-toggle="modal" data-bs-target="#PayModal" id="@t.Table.TableId">Pay Bill</button>
-										<button class="btn btn-yellow bill flex-fill" data-bs-toggle="modal" data-bs-target="#BillModal" id="@t.Table.TableId">Generate Bill</button>
+										<button class="btn btn-yellow pay flex-fill" data-bs-toggle="modal" data-bs-target="#PayModal" id="@t.Table.TableId" @(t.Orders.All(x => x.OrderStatusId == 4) ? "" : "disabled")>Pay Bill</button>
+										<button class="btn btn-yellow bill flex-fill" data-bs-toggle="modal" data-bs-target="#BillModal" id="@t.Table.TableId" @(t.Orders.All(x => x.OrderStatusId == 4) ? "" : "disabled")>Generate Bill</button>
 									</div>
 								</div>
 							</div>
@@ -167,7 +167,8 @@
 			$(".pay").click(function (){
 				let id = $(this).attr("id")
 				$("#trandet").addClass("visually-hidden")
-
+				
+				//Fetch with table id
 
 
 

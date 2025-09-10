@@ -83,9 +83,9 @@
             </div>
         }
     </div>
-    @if(Model.All(x => x.Orders.All(y => y.OrderStatusId == 3)))
+    @if(Model.All(x => x.Orders.All(y => y.OrderStatusId >= 3)))
     {
-        <button class="btn btn-warning d-block mx-auto">Request Bill</button>
+        <button class="btn btn-warning d-block mx-auto" id="Req"data-id="@table">Request Bill</button>
     }
     <div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
         <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
@@ -98,3 +98,20 @@
         </a>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+               $("#Req").on("click", function () {
+                    let id = $(this).data("id");
+
+                    fetch(`/Order/RequestBill?tableid=${id}`)
+                    .then(response => response.json())
+                    .then(x => {
+                        console.log(x)
+                           alert(x.message)
+                    })
+               })
+        })
+    </script>
+}

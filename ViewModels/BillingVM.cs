@@ -10,5 +10,7 @@ namespace TheSocialCebu_Capstone.ViewModels
         public decimal Total { get; set; }
         public Table Table { get; set; }
         public IEnumerable<OrderItem> OrderItems { get; set; }
+
+        public IEnumerable<Order> Orders { get; set; }
     }
 }

@@ -8,7 +8,7 @@
 		<div class="row h-100">
 			<div class="col-8 h-100">
 				<h1>Orders</h1>
-				<button class="btn btn-light type">Approved</button>
+				<button class="btn btn-light type">Confirmed</button>
 				<button class="btn btn-yellow type">Pending</button>
 				<div class="w-100 h-100 pt-2">
 					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3">
@@ -132,7 +132,6 @@
 		$(document).ready( function () {
 			$(".Order." + "Pending").removeClass("visually-hidden");
 
-
 			$(".Order").on("click", function () {
 				let id = $(this).attr("id");
 				$(".OrderDetails").addClass("visually-hidden");
@@ -140,7 +139,7 @@
 			})
 
 			$(".type").on("click", function () {
-				let status = $(this).text().trim() == "Approved" ? "Confirmed" : $(this).text().trim();
+				let status = $(this).text().trim();
 				$(".Order").addClass("visually-hidden");
 				$(".Order." + status).removeClass("visually-hidden");
 				$(".OrderDetails").addClass("visually-hidden");
