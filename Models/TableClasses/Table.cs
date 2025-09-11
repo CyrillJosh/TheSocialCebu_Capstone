@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheSocialCebu_Capstone.Models.TableClasses;
 
 namespace TheSocialCebu_Capstone.Models;
 
@@ -16,9 +15,11 @@ public partial class Table
 
     public int LocationId { get; set; }
 
+    public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
+
     public virtual Location Location { get; set; } = null!;
 
-    public virtual ICollection<TableSession> TableSessions { get; set; } = new List<TableSession>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual TableStatus TableStatus { get; set; } = null!;
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TheSocialCebu_Capstone.Models.UserClasses;
+namespace TheSocialCebu_Capstone.Models;
 
 public partial class Person
 {
@@ -20,8 +20,6 @@ public partial class Person
     public string Gender { get; set; } = null!;
 
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
-
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
 
     public virtual Role Role { get; set; } = null!;
 }

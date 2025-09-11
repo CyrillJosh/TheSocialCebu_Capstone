@@ -370,7 +370,7 @@ SessionId NVARCHAR(50) NOT NULL,
 CreatedAt DATETIME,
 OrderStatusId INT NOT NULL,
 FOREIGN KEY (OrderStatusId) REFERENCES OrderStatus(OrderStatusId),
-FOREIGN KEY (SessionId) REFERENCES TableSession(SessionId)
+FOREIGN KEY (TableId) REFERENCES [Table](TableId)
 )
 
 --OrderItem

@@ -15,9 +15,9 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult Index()
         {
-            var table = _context.Tables.ToList();
-            var orderitems = _context.OrderItems.Include(x => x.Order).ThenInclude(x => x.Session).ThenInclude(x => x.Table).Include(x => x.Prod).ToList();
-            var orders = _context.Orders.Include(x => x.Session).ToList();
+            var table = _context.Tables.Where(x => x.Orders.Any(y => y.OrderStatusId == 4)).ToList();
+            var orderitems = _context.OrderItems.Include(x => x.Order).ThenInclude(x => x.Table).Include(x => x.Prod).ToList();
+            var orders = _context.Orders.Include(x => x.Table).ToList();
             var vm = new List<BillingVM>();
             foreach (var item in table)
             {
@@ -27,7 +27,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 vm.Add(new BillingVM()
                 {
                     Table = item,
-                    OrderItems = orderitems.Where(x => x.Order.Session.TableId == item.TableId)
+                    OrderItems = orderitems.Where(x => x.Order.TableId == item.TableId)
                     .GroupBy(x => x.ProdId)
                     .Select(x => new OrderItem
                     {
@@ -39,26 +39,9 @@ namespace TheSocialCebu_Capstone.Controllers
                     Tax = tax,
                     ServiceCharge = servicecharge,
                     Total = subtotal + tax + servicecharge,
-                    Orders = orders.Where(x => x.Session.TableId == item.TableId).ToList()
+                    Orders = orders.Where(x => x.TableId == item.TableId).ToList()
                 });
             }
-            //var lst = new List<Billing>();
-            //foreach(var item in table)
-            //{
-            //    decimal subtotal = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) / (decimal)1.12;
-            //    decimal tax = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) - subtotal;
-            //    decimal servicecharge = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) * (decimal)0.10;
-            //    lst.Add(new Billing()
-            //    {
-            //        BillingId = Guid.NewGuid().ToString(),
-            //        //SessionId = item.TableSessions,
-            //        BillingTime = null,
-            //        Subtotal = subtotal,
-            //        VatAmount = tax,
-            //        ServiceCharge = servicecharge,
-            //        GrandTotal = subtotal + tax + servicecharge,
-            //    });
-            //}
             return View(vm);
         }
 

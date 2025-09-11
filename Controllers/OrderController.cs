@@ -1,12 +1,8 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
-using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
@@ -41,25 +37,26 @@ namespace TheSocialCebu_Capstone.Controllers
                 return NotFound();
             if(string.IsNullOrEmpty(category))
                 return NotFound();
-            var sessionId = HttpContext.Session.GetString("SessionId");
-            TableSession? currentSession = null;
 
-            if (!string.IsNullOrEmpty(sessionId))
-            {
-                // Find active session by SessionId and TableId
-                currentSession = _context.TableSessions
-                                    .FirstOrDefault(s => s.SessionId == sessionId && s.TableId == tableId && s.EndedAt == null);
-            }
 
-            // If no active session, create a new one
-            if (currentSession == null)
-            {
-                currentSession = new TableSession { TableId = tableId, StartedAt = DateTime.Now };
-                _context.TableSessions.Add(currentSession);
-                _context.SaveChanges();
-                HttpContext.Session.SetString("SessionId", currentSession.SessionId);
-            }
-            // --- END REFACTOR ---
+            //var sessionId = HttpContext.Session.GetString("SessionId");
+            //TableSession? currentSession = null;
+
+            //if (!string.IsNullOrEmpty(sessionId))
+            //{
+            //    currentSession = _context.TableSessions
+            //                        .FirstOrDefault(s => s.SessionId == sessionId && s.TableId == tableId && s.EndedAt == null);
+            //}
+
+            //// If no active session, create a new one
+            //if (currentSession == null)
+            //{
+            //    currentSession = new TableSession { TableId = tableId, StartedAt = DateTime.Now };
+            //    _context.TableSessions.Add(currentSession);
+            //    _context.SaveChanges();
+            //    HttpContext.Session.SetString("SessionId", currentSession.SessionId);
+            //}
+            //// --- END REFACTOR ---
 
             var subcat = _context.SubCategories
                 .Where(x => x.CategoryId == category)
@@ -88,20 +85,21 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var tableId = HttpContext.Session.GetString("Table");
             // --- REFACTOR: Use a single, efficient query to get aggregated order items ---
-            var sessionsWithOrders = _context.TableSessions
-                                .Include(ts => ts.Table)
-                                .Include(ts => ts.Orders)
-                                    .ThenInclude(o => o.OrderStatus) // Include the main order status
-                                .Include(ts => ts.Orders)
-                                    .ThenInclude(o => o.OrderItems)
-                                        .ThenInclude(oi => oi.Prod) // Include product details
-                                .Include(ts => ts.Orders)
-                                    .ThenInclude(o => o.OrderItems)
-                                        .ThenInclude(oi => oi.OrderItemStatus) // Include the item status
-                                .Where(ts => ts.TableId == tableId && ts.EndedAt == null && ts.Orders.Count > 0)
-                                .ToList();
+            //var sessionsWithOrders = _context.TableSessions
+            //                    .Include(ts => ts.Table)
+            //                    .Include(ts => ts.Orders)
+            //                        .ThenInclude(o => o.OrderStatus) // Include the main order status
+            //                    .Include(ts => ts.Orders)
+            //                        .ThenInclude(o => o.OrderItems)
+            //                            .ThenInclude(oi => oi.Prod) // Include product details
+            //                    .Include(ts => ts.Orders)
+            //                        .ThenInclude(o => o.OrderItems)
+            //                            .ThenInclude(oi => oi.OrderItemStatus) // Include the item status
+            //                    .Where(ts => ts.TableId == tableId && ts.EndedAt == null && ts.Orders.Count > 0)
+            //                    .ToList();
 
-            return View(sessionsWithOrders);
+            var orders = _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Prod).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemStatus).Where(x => x.TableId == tableId).ToList();
+            return View(orders);
         }
 
 
@@ -179,8 +177,8 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public JsonResult ConfirmCart()
         {
-            var sessionId = HttpContext.Session.GetString("SessionId");
-            if (sessionId == null)
+            var tableId = HttpContext.Session.GetString("Table");
+            if (tableId == null)
             {
                 return Json(new { message = "Error: No active session found." });
             }
@@ -202,7 +200,7 @@ namespace TheSocialCebu_Capstone.Controllers
             Order order = new()
             {
                 OrderId = Guid.NewGuid().ToString(),
-                SessionId = sessionId,
+                TableId = tableId,
                 CreatedAt = DateTime.Now,
                 OrderStatusId = 1, // Assuming 1 is the 'Pending' status ID
                 OrderItems = items
@@ -215,25 +213,25 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new { message = "Success" });
         }
         #endregion
-        
+
 
         public JsonResult RequestBill(string tableid)
         {
             if (string.IsNullOrEmpty(tableid) || !_context.Tables.Any(x => x.TableId == tableid))
                 return Json(new { message = "Error" });
-            var orders = _context.Orders.Where(x => x.Session.TableId == tableid).ToList();
-            foreach(var order in orders)
+            var orders = _context.Orders.Where(x => x.TableId == tableid).ToList();
+            foreach (var order in orders)
             {
                 order.OrderStatusId = 4;
             }
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
-            if(table == null)
+            if (table == null)
                 return Json(new { message = "Error" });
 
             table.TableStatusId = 3;
             _context.UpdateRange(orders);
             _context.Update(table);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
 
             return Json(new { message = "Requesting" });
         }

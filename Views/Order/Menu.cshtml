@@ -1,6 +1,5 @@
 ﻿@using System.Text.Json
 @using TheSocialCebu_Capstone.Models
-
 @model List<SubCategory>
 @{
     ViewData["Title"] = "Digital Menu";
@@ -15,24 +14,15 @@
          style="height:45vh; top:0; z-index:1020;">
         <div class="h-100 w-100 p-3">
             <div class="w-100 mb-2 d-flex justify-content-between">
-                <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
-                    <button class="btn bg-transparent text-yellow m-0 p-0 d-sm-none"
-                            type="button"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#sidebarMenu"
-                            aria-controls="sidebarMenu">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                        </svg>
-                    </button>
+                <div class="d-flex flex-row flex-nowrap gap-0">
                     <a class="bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
-                       href="/Home/Index">
+                       onclick="history.back()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
                         </svg>
                     </a>
                 </div>
-                <h1 class="text-light">@Model[0].Category.CategoryName</h1>
+                <h1 class="text-light text-center">@Model[0].Category.CategoryName</h1>
                 <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart position-relative"
                    href="/Order/Cart">
                     <img src="~/Images/Cart.png" height="30" />
@@ -75,7 +65,7 @@
 
     <div id="productContainer"
          class="overflow-auto d-flex flex-column gap-2"
-         style="height:100vh; margin-top:-55vh; padding: 55vh 0"
+         style="height:100vh; margin-top:-55vh; padding: 10vh 0"
          tabindex="0">
         @foreach (var subcat in Model)
         {
@@ -106,7 +96,7 @@
             <p class="m-0 text-yellow">Home</p>
         </a>
         <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
-            <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" />
+            <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(1) saturate(0%)" />
             <p class="m-0 text-white">Orders</p>
         </a>
         @*         <div class="d-flex flex-column align-items-center w-25 text-center">

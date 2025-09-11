@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using TheSocialCebu_Capstone.Models.TableClasses;
+using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.ViewModels
 {

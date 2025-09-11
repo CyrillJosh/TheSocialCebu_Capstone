@@ -17,15 +17,6 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
          <div class="h-100 w-100 p-3">
             <div class="w-100 mb-2">
                 <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
-                    <button class="btn bg-transparent text-yellow m-0 p-0 d-sm-none"
-                            type="button"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#sidebarMenu"
-                            aria-controls="sidebarMenu">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                        </svg>
-                    </button>
                     <a class="visually-hidden bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
                        href="/Order/Cart">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
@@ -85,11 +76,10 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                 }
             </div> *@
             </div>
-        </div>
             <p class="text-light">Select by Category</p>
-    </div>
-</nav>
-   <div class="p-4 overflow-y-scroll" style="height:53vh">
+        </div>
+    </nav>
+   <div class="p-4 pt-0 pb-5 mb-5 overflow-y-scroll" style="height:53vh; scrollbar-width:thin; padding-bottom: 5rem !important">
         <div class="row row-cols-2 categories">
             @foreach(var cat in Model)
             {
@@ -118,19 +108,20 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
                     </div>
                 }
             }
-    </div>
-    <div class="position-fixed w-100 bg-black py-3 bottom-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
-        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
-            <img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(0) saturate(100%) invert(89%) sepia(90%) saturate(937%) hue-rotate(360deg) brightness(102%) contrast(103%)" />
-            <p class="m-0 text-yellow">Home</p>
-        </a>
-        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
-            <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" />
-            <p class="m-0 text-white">Orders</p>
-        </a>
-@*         <div class="d-flex flex-column align-items-center w-25 text-center">
-            <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
-            <p class="m-0">Notifications</p>
-        </div> *@
+        </div>
+        <div class="position-fixed w-100 bg-black py-3 bottom-0 start-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
+            <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
+                <img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(0) saturate(100%) invert(89%) sepia(90%) saturate(937%) hue-rotate(360deg) brightness(102%) contrast(103%)" />
+                <p class="m-0 text-yellow">Home</p>
+            </a>
+            <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
+                <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(1) saturate(0%)" />
+                <p class="m-0 text-white">Orders</p>
+            </a>
+    @*         <div class="d-flex flex-column align-items-center w-25 text-center">
+                <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
+                <p class="m-0">Notifications</p>
+            </div> *@
+        </div>
     </div>
 </div>

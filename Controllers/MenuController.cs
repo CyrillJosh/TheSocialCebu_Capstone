@@ -1,11 +1,5 @@
-﻿using Menu.Attributes;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System;
-using System.Diagnostics;
-using System.Reflection.Emit;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;

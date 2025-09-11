@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TheSocialCebu_Capstone.Models.UserClasses;
+namespace TheSocialCebu_Capstone.Models;
 
 public partial class Account
 {

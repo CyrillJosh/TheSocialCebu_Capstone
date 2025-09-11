@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheSocialCebu_Capstone.Models;
 
-namespace TheSocialCebu_Capstone.Models.BillingClasses;
+namespace TheSocialCebu_Capstone.Models;
 
 public partial class BillingOrder
 {
