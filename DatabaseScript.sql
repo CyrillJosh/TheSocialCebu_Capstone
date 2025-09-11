@@ -46,7 +46,7 @@ FOREIGN KEY (PersonId) REFERENCES Person(PersonId))
 --QR Integration
 --Location
 CREATE Table [Location](
-LocationId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
+LocationId INT PRIMARY KEY IDENTITY,
 LocationName nvarchar(50) UNIQUE NOT NULL
 )
  INSERT INTO [Location] (LocationName)VALUES
@@ -68,26 +68,18 @@ TableId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
 TableNumber NVARCHAR(50) Not Null,
 QRCodeImage varbinary(max) NULL,
 TableStatusId INT NOT NULL DEFAULT 1, -- Default to 'Available'
-LocationId NVARCHAR(50) NOT NULL,
+LocationId INT NOT NULL,
 FOREIGN KEY (LocationId) REFERENCES [Location](LocationId),
 FOREIGN KEY (TableStatusId) REFERENCES TableStatus(TableStatusId),
 CONSTRAINT UQ_Table_TableNumber_Location UNIQUE (TableNumber, LocationId)
 )
 
---Sessions
-CREATE TABLE TableSession (
-    SessionId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-    TableId NVARCHAR(50) NOT NULL,
-    StartedAt DATETIME NOT NULL DEFAULT GETDATE(),
-    EndedAt DATETIME NULL,
-    FOREIGN KEY (TableId) REFERENCES [Table](TableId)
-);
-
 --Menu
 --Category
 CREATE TABLE Category(
     CategoryId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-    CategoryName NVARCHAR(100) NOT NULL
+    CategoryName NVARCHAR(100) NOT NULL,
+	CategoryImage VARBINARY(MAX)
 );
 
 --SubCategory
@@ -95,6 +87,7 @@ CREATE TABLE SubCategory(
     SubcategoryId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
     SubcategoryName NVARCHAR(100) NOT NULL,
     CategoryId NVARCHAR(50) NOT NULL,
+	SubCategoryImage VARBINARY(MAX),
     FOREIGN KEY (CategoryId) REFERENCES Category(CategoryId)
 );
 
@@ -105,7 +98,6 @@ CREATE TABLE [Product](
     [Description] NVARCHAR(MAX),
     Price DECIMAL(18, 2) NOT NULL,
     Availability BIT DEFAULT 1 Not NULL,
-    ProdImage VARBINARY(MAX),
     SubcategoryId NVARCHAR(50) NOT NULL,
     FOREIGN KEY (SubcategoryId) REFERENCES SubCategory(SubcategoryId)
 );
@@ -352,7 +344,7 @@ CREATE TABLE OrderStatus (
 );
 
  INSERT INTO OrderStatus VALUES
- ('Pending'), ('Confirmed'), ('Completed') 
+ ('Pending'), ('Confirmed'), ('ToPay'), ('RequestBill'),  ('Completed')
 
 -- OrderItem Status Lookup Table (3NF)
 CREATE TABLE OrderItemStatus (
@@ -366,11 +358,11 @@ CREATE TABLE OrderItemStatus (
 --Orders
 CREATE TABLE Orders(
 OrderId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-SessionId NVARCHAR(50) NOT NULL, 
+TableId NVARCHAR(50) NOT NULL,
 CreatedAt DATETIME,
 OrderStatusId INT NOT NULL,
 FOREIGN KEY (OrderStatusId) REFERENCES OrderStatus(OrderStatusId),
-FOREIGN KEY (SessionId) REFERENCES TableSession(SessionId)
+FOREIGN KEY (TableId) REFERENCES [Table](TableId)
 )
 
 --OrderItem
@@ -401,13 +393,16 @@ FOREIGN KEY (ProdId) REFERENCES [Product](ProdId)
 --Billing
 CREATE TABLE Billing(
 BillingId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-SessionId NVARCHAR(50) NOT NULL,
+TableId NVARCHAR(50) NOT NULL,
 BillingTime DATETIME DEFAULT GETDATE(),
 Subtotal DECIMAL (10,2),
+VatableSale DECIMAL(10,2) DEFAULT 0,
+VatExemptSale DECIMAL(10,2) DEFAULT 0,
+--VatZeroRatedSale DECIMAL(10,2) DEFAULT 0,
 VatAmount DECIMAL (10,2),
 ServiceCharge DECIMAL (10,2),
 GrandTotal DECIMAL (10,2),
-FOREIGN KEY (SessionId) REFERENCES TableSession(SessionId)
+FOREIGN KEY (TableId) REFERENCES [Table](TableId)
 )
 
 --associative entity
@@ -434,8 +429,13 @@ FOREIGN KEY (BillingId) REFERENCES Billing(BillingId)
 CREATE TABLE DiscountType(
     DiscountTypeId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
     DiscountName NVARCHAR(100) NOT NULL,
-    Percentage DECIMAL(5,2) NOT NULL     
+    [Percentage] DECIMAL(5,2) NOT NULL     
 );
+
+INSERT INTO DiscountType (DiscountName, [Percentage]) VALUES
+('PWD', 20.00),
+('Senior Citizen', 20.00),
+('Employee', 20.00)
 
 CREATE TABLE Discounts(
     DiscountId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
@@ -462,3 +462,4 @@ CREATE TABLE Marketing(
 EmailId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
 Email NVARCHAR(50) UNIQUE NOT NULL
 )
+
