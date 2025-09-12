@@ -3,8 +3,9 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
+    "publishAllPorts": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:45447",
+      "applicationUrl": "http://thesocialceb.com:45447;http://0.0.0.0:45447",
       "sslPort": 44352
     }
   },
@@ -13,7 +14,8 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://0.0.0.0:5021",
+      "publishAllPorts": true,
+      "applicationUrl": "http://thesocialcebu.com:5021;http://0.0.0.0:5021",
       //"applicationUrl": "http://localhost:5021",
       "hotReloadEnabled": true,
       //"launchUrl": "TheSocialCebu.com",
@@ -25,9 +27,10 @@
     },
     "https": {
       "commandName": "Project",
+      "publishAllPorts": true,
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://0.0.0.0:7004;http://0.0.0.0:5021",
+      "applicationUrl": "https://thesocialcebu.com:7004;http://thesocialcebu.com:5021;http://0.0.0.0:5021;http://0.0.0.0:7004",
       //"applicationUrl": "https://localhost:7004;http://localhost:5021",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

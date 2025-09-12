@@ -153,7 +153,8 @@ namespace TheSocialCebu_Capstone.Controllers
         public JsonResult GenerateQRCode(string value)
         {
             var qrcode = new QRCodeGenerator();
-            var qr = qrcode.CreateQrCode("http://192.168.1.12:5021/Order/Table/" + value, QRCodeGenerator.ECCLevel.M);
+            var qr = qrcode.CreateQrCode("http://thesocialcebu.com:5021/Order/Table/" + value, QRCodeGenerator.ECCLevel.M);
+            //var qr = qrcode.CreateQrCode("http://10.160.245.47:5021/Order/Table/" + value, QRCodeGenerator.ECCLevel.M);
             Base64QRCode qrimage = new Base64QRCode(qr);
             string qrstring = "data:image/png;base64," + qrimage.GetGraphic(20);
             return Json(new { qrstring = qrstring } );

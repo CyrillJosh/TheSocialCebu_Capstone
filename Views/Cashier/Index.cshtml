@@ -10,7 +10,7 @@
 			<div class="col-7 d-flex flex-column gap-2">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1)@* .Where(x => x.OrderItems.Count() > 0 && x.OrderItems.All(y => y.OrderItemStatusId > 2)) *@)
 				{
-					<div class="show" id="@t.Table.TableId">
+					<div class="show focus-ring-success" id="@t.Table.TableId">
 						<div class="border border-1 shadow rounded-3 p-2 hstack gap-3 me-2">
 							<div class="p-2 px-3 bg-primary">
 								<h3>@t.Table.TableNumber</h3>

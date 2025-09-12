@@ -11,10 +11,10 @@
 				<button class="btn btn-light type">Confirmed</button>
 				<button class="btn btn-yellow type">Pending</button>
 				<div class="w-100 h-100 pt-2">
-					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3">
+					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3 p-1">
 						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
-							<div class="border border-1 shadow rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
+							<button class="focus-ring focus-ring-success focus border border-1 rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
 								<div class="p-2 px-3 bg-primary">
 									<h3>@order.Table.TableNumber</h3>
 								</div>
@@ -22,7 +22,7 @@
 									<p class="m-0 fw-bold">Order #: @order.OrderId</p>
 									<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
 								</div>
-							</div>
+							</button>
 						}
 					</div>
 				</div>
