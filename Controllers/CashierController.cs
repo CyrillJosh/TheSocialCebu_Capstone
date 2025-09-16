@@ -45,6 +45,29 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(vm);
         }
 
+        public JsonResult GenerateBill(string tableid){
+            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
+            if (table == null)
+                return Json(new { message = "Error" });
+
+            decimal subtotal = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) / (decimal)1.12;
+            decimal tax = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) - subtotal;
+            decimal servicecharge = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) * (decimal)0.10;
+           
+            var bill = new Billing(){
+                BillingId = new GUID.NewGUID.ToString(),
+                Tableid = tableid,
+                DateTime = DateTime.Now(),
+                Subtotal = subtotal,
+                VatAmount = tax,
+                ServiceCharge = servicecharge,
+                GrandTotal = subtotal + tax + servicecharge,
+                
+            }
+
+            return Json(new {message = "Success"})
+        }
+
         public JsonResult PayBill(string tableid)
         {
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);

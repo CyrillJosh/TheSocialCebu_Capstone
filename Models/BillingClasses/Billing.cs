@@ -18,6 +18,7 @@ public partial class Billing
     public decimal? ServiceCharge { get; set; }
 
     public decimal? GrandTotal { get; set; }
+    //Change to ORDERS
 
     public virtual ICollection<BillingOrder> BillingOrders { get; set; } = new List<BillingOrder>();
 
