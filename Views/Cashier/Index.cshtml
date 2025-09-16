@@ -4,6 +4,49 @@
 	ViewData["Title"] = "Cashier";
 }
 @model List<BillingVM>
+
+<style>
+	@@media print {
+  @@page {
+    size: 80mm auto;   /* common thermal receipt width */
+    margin: 5mm;       /* small margins */
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #billbody, #billbody * {
+    visibility: visible;
+  }
+
+  #billbody {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;       /* match receipt width */
+    height: auto;
+    overflow: visible;
+    font-family: monospace, sans-serif; /* receipt-like font */
+    font-size: 12px;
+  }
+
+  /* remove scroll containers */
+  #billbody .overflow-y-auto {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* optional: remove borders/shadows for clean print */
+  #billbody .border,
+  #billbody .shadow,
+  #billbody .rounded-3 {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+</style>
 <div class="render-body">
 	<div class="p-4">
 		<div class="row">
@@ -159,41 +202,64 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
+			$("#calc").click(function (){
+				let amount = parseFloat($("#amount").val())
+				let id = $(this).attr("data-id")
+				fetch(`/Cashier/CalculatePayment?tableid=${id}&amount=${amount}`)
+				.then(rawData => rawData.json())
+				.then(m => {
+					console.log(m)
+				});
+			});
+
 			$(".show").click(function () {
 				let id = $(this).attr("id");
 				$(".details").addClass("visually-hidden");
 				$(`#Details${id}`).removeClass("visually-hidden");
 			});
+
+
 			$(".pay").click(function (){
 				let id = $(this).attr("id")
+				$("#calc").attr("data-id", id);
 				$("#trandet").addClass("visually-hidden")
-				
-				//Fetch with table id
-
-
-
 				let content = $(`#Details${id}`).clone();
 				content.find(".btn").remove();
 				$("#DisplayBody").html(content);
 				$("#amount").val("")
 
 			})
-			$(".bill").click(function (){
-				let id = $(this).attr("id")
-				let content = $(`#Details${id}`).clone();
-				content.find(".btn").remove();
-				content.find(".bg-primary").remove();
+				$(".bill").click(async function () {
+		let id = $(this).attr("id");
+		let content = $(`#Details${id}`).clone();
+
+		// cleanup UI elements
+		content.find(".btn").remove();
+		content.find(".bg-primary").remove();
+
+		try {
+			let response = await fetch(`/Cashier/GenerateBill?tableid=${id}`);
+			let m = await response.json();
+
+			if (m.message === "Success") {
 				$("#billbody").html(content);
 
-			})
-			$("#calc").click(function () {
-				let a = $("#amount").val();
-				if (a && parseFloat(a) > 0) {
-					$("#trandet").removeClass("visually-hidden");
-				} else {
-					alert("Please put an amount");
-				}
-			});
+				setTimeout(() => {
+					window.print();
+				}, 300);
+			}
+		} catch (err) {
+			console.error("Error generating bill:", err);
+		}
+		});
+			// $("#calc").click(function () {
+			// 	let a = $("#amount").val();
+			// 	if (a && parseFloat(a) > 0) {
+			// 		$("#trandet").removeClass("visually-hidden");
+			// 	} else {
+			// 		alert("Please put an amount");
+			// 	}
+			// });
 			const input = document.getElementById("amount");
 			const keypad = document.getElementById("keypad");
 

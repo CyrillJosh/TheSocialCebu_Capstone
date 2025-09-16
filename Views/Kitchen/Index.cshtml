@@ -67,7 +67,7 @@
 												@foreach (var item in order.OrderItems.Where(x => x.Prod.SubcategoryId == subcat.SubcategoryId))
 												{
 													<tr id="@item.OrderItemId">
-														@if (item.OrderItemStatus.StatusName == "Pending")
+														@if (item.OrderItemStatus.OrderItemStatusId == 1)
 														{
 															<td colspan="2">
 																<div>
@@ -80,7 +80,7 @@
 															</td>
 														}
 
-														@if (item.OrderItemStatus.StatusName == "Preparing")
+														@if (item.OrderItemStatus.OrderItemStatusId == 2)
 														{
 															<td>
 																<div>
@@ -92,29 +92,17 @@
 															</td>
 															<td class="ps-4"><input type="checkbox" /> @item.OrderItemStatus.StatusName</td>
 														}
-														@if (item.OrderItemStatus.OrderItemStatusId == 3)
-														{
-															<td>
-																<div>
-																	<h5><del>@item.Prod.ProdName</del></h5>
-																</div>
-															</td>
-															<td>
-																<p id="qty" class="m-0">@item.Quantity</p>
-															</td>
-															<td class="ps-4"><input type="checkbox" disabled/> @item.OrderItemStatus.StatusName</td>
-														}
 													</tr>
 												}
 											}
 										</tbody>
 									</table>
 								</div>
-								@if (order.OrderStatus.StatusName == "Pending")
+								@if (order.OrderStatus.OrderStatusId == 1)
 								{
 									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 confirm" id="@order.OrderId">Confirm</button>
 								}
-								else if (order.OrderStatus.StatusName == "Confirmed")
+								else if (order.OrderStatus.OrderStatusId == 2)
 								{
 									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 serve" id="@order.OrderId">Ready to Serve</button>
 								}
@@ -139,7 +127,8 @@
 			})
 
 			$(".type").on("click", function () {
-				let status = $(this).text().trim();
+				let status = $(this).text().trim() == "Confirmed"? "Progress" : $(this).text().trim();
+
 				$(".Order").addClass("visually-hidden");
 				$(".Order." + status).removeClass("visually-hidden");
 				$(".OrderDetails").addClass("visually-hidden");
@@ -149,6 +138,11 @@
 				$(this).addClass("btn-yellow");
 			});
 
+			// $(".OrderDetails").on("click", function(){
+			// 	let id = $(this).attr("id")
+			// 	console.log($(`.Order #${id}`))
+			// 	$(`.Order #${id}`).focused = true;
+			// });
 
 			$(".confirm").on("click", function (){
 				let id = $(this).attr("id");

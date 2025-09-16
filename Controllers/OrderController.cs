@@ -133,7 +133,7 @@ namespace TheSocialCebu_Capstone.Controllers
             if(string.IsNullOrEmpty(tableid))
                 return Json(new {message = "Error" });
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
-            if(table == null || table.TableStatusId == 3)
+            if(table == null || table.TableStatusId >= 3)
             {
                 return Json(new {message = "Error cannot add new orders"});
             }
@@ -202,7 +202,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 OrderId = Guid.NewGuid().ToString(),
                 TableId = tableId,
                 CreatedAt = DateTime.Now,
-                OrderStatusId = 1, // Assuming 1 is the 'Pending' status ID
+                OrderStatusId = 1,
                 OrderItems = items
             };
 

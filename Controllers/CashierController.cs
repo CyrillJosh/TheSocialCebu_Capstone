@@ -15,7 +15,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult Index()
         {
-            var table = _context.Tables.Where(x => x.Orders.Any(y => y.OrderStatusId == 4)).ToList();
+            var table = _context.Tables.Where(x => x.Orders.Any(y => y.OrderStatusId >= 3)).ToList();
             var orderitems = _context.OrderItems.Include(x => x.Order).ThenInclude(x => x.Table).Include(x => x.Prod).ToList();
             var orders = _context.Orders.Include(x => x.Table).ToList();
             var vm = new List<BillingVM>();
@@ -47,16 +47,43 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public JsonResult PayBill(string tableid)
         {
-            var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
+            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
             if (table == null)
                 return Json(new { message = "Error" });
 
+            foreach(var o in table.Orders)
+            {
+                o.OrderStatusId = 5;
+            }
             table.TableStatusId = 1;
             _context.Update(table);
             _context.SaveChanges();
             return Json(new {message = "Success"});
         }
 
+        public JsonResult GenerateBIll(string tableid)
+            {
+            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
+            if (table == null)
+                return Json(new { message = "Error" });
+
+            foreach (var o in table.Orders)
+            {
+                o.OrderStatusId = 4;
+            }
+            table.TableStatusId = 4;
+            _context.Update(table);
+            _context.SaveChanges();
+            return Json(new { message = "Success"/*, orders =  table.Orders*/ });
+        }
+
+        public JsonResult CalculatePayment(string tableid, decimal amount) {
+            var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
+
+            var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
+            decimal am = (decimal)(total - amount);
+            return Json(new { message = "Success", amount = am });
+        }
         //public IActionResult PayBill(string tableid, string orderid)
         //{
         //    var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
