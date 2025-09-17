@@ -23,25 +23,30 @@ RoleName NVARCHAR(150) NOT NULL
 --Front Staff → Serve items, manage table delivery, assist customers.
 )
 
--- Person
-CREATE Table Person(
-PersonId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-RoleId NVARCHAR(50) NOT NULL,
-[Name] NVARCHAR(50) NOT NULL,
+-- Insert default roles (if not exists)
+INSERT INTO [Role] (RoleName) Values
+ ('Manager'), ('Cashier'), ('Kitchen Staff'), ('Front Staff')
+
+-- Employee
+CREATE Table Employee(
+EmployeeId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
+EmployeeName NVARCHAR(50) NOT NULL,
 BirthDate Date NOT NULL,
 HiredDate Date NOT NULL,
-[Status] BIT DEFAULT 1 Not NULL,
+[Status] BIT NOT NULL DEFAULT 1,
 Gender NVARCHAR(50) NOT NULL,
-FOREIGN KEY (RoleId) REFERENCES [Role](RoleId)
 )
 
 --Account
 CREATE Table Account(
 AccountId NVARCHAR(50) PRIMARY KEY DEFAULT CONVERT(NVARCHAR(50), NEWID()),
-PersonId NVARCHAR(50) NOT NULL,
-Username NVARCHAR(50) UNIQUE NOT NULL,
-[Password] NVARCHAR(50) NOT NULL,
-FOREIGN KEY (PersonId) REFERENCES Person(PersonId))
+EmployeeId NVARCHAR(50) NOT NULL,
+Username NVARCHAR(100) NOT NULL UNIQUE,
+PasswordHash NVARCHAR(MAX) NOT NULL,
+Salt NVARCHAR(10) NOT NULL,
+RoleId NVARCHAR(50) NOT NULL,
+FOREIGN KEY (EmployeeId) REFERENCES Employee(EmployeeId),
+FOREIGN KEY (RoleId) REFERENCES [Role](RoleId))
 
 --QR Integration
 --Location
@@ -52,9 +57,7 @@ LocationName nvarchar(50) UNIQUE NOT NULL
  INSERT INTO [Location] (LocationName)VALUES
  ('VIP'), ('Front'), ('Back'), ('Side')
 
-
-
--- Table Status Lookup Table (3NF)
+-- Table Status
 CREATE TABLE TableStatus (
     TableStatusId INT PRIMARY KEY IDENTITY,
     StatusName NVARCHAR(50) UNIQUE NOT NULL -- 'Available', 'Occupied', 'Billing', 'Payment'
@@ -445,7 +448,7 @@ CREATE TABLE Discounts(
     ApprovedAt DATETIME NULL,
     FOREIGN KEY (BillingId) REFERENCES Billing(BillingId),
     FOREIGN KEY (DiscountTypeId) REFERENCES DiscountType(DiscountTypeId),
-    FOREIGN KEY (ApprovedBy) REFERENCES Person(PersonId)
+    FOREIGN KEY (ApprovedBy) REFERENCES Employee(EmployeeId)
 )
 
 --Feedback & Marketing
