@@ -121,8 +121,24 @@
 										<p>₱@Convert.ToDecimal(t.Total).ToString("0.00")</p>
 									</div>
 									<div class="d-flex flex-row gap-2">
-										<button class="btn btn-yellow pay flex-fill" data-bs-toggle="modal" data-bs-target="#PayModal" id="@t.Table.TableId" @(t.Orders.All(x => x.OrderStatusId == 4) ? "" : "disabled")>Pay Bill</button>
-										<button class="btn btn-yellow bill flex-fill" data-bs-toggle="modal" data-bs-target="#BillModal" id="@t.Table.TableId" @(t.Orders.All(x => x.OrderStatusId == 4) ? "" : "disabled")>Generate Bill</button>
+										@if (t.Table.TableStatusId == 3) 
+										{
+											<button class="btn btn-yellow bill flex-fill"
+													data-bs-toggle="modal"
+													data-bs-target="#BillModal"
+													id="@t.Table.TableId">
+												Generate Bill
+											</button>
+										}
+										else if (t.Table.TableStatusId == 4) 
+										{
+											<button class="btn btn-yellow pay flex-fill"
+													data-bs-toggle="modal"
+													data-bs-target="#PayModal"
+													id="@t.Table.TableId">
+												Pay Bill
+											</button>
+										}
 									</div>
 								</div>
 							</div>
@@ -174,23 +190,36 @@
 							</div>
 							<button class="d-block mx-auto" id="calc">Pay now</button>
 							<div class="p-2 visually-hidden" id="trandet">
-								<p>Transaction Details</p>
+								<p class="fw-bold">Transaction Details</p>
 								<hr />
 								<div class="d-flex justify-content-between">
-									<p>Amount recieved</p>
-									<p id="amount"></p>
+									<p>Amount received</p>
+									<p id="receiptAmount"></p>
 								</div>
 								<div class="d-flex justify-content-between">
+									<p>Subtotal</p>
+									<p id="receiptSubtotal"></p>
+								</div>
+								<div class="d-flex justify-content-between">
+									<p>VAT (12%)</p>
+									<p id="receiptTax"></p>
+								</div>
+								<div class="d-flex justify-content-between">
+									<p>Service Charge (10%)</p>
+									<p id="receiptService"></p>
+								</div>
+								<div class="d-flex justify-content-between fw-bold">
 									<p>Total</p>
-									<p id="amount"></p>
+									<p id="receiptTotal"></p>
 								</div>
 								<hr />
-								<div class="d-flex justify-content-between">
+								<div class="d-flex justify-content-between fw-bold">
 									<p>Change</p>
-									<p id="change"></p>
+									<p id="receiptChange"></p>
 								</div>
-								<button class="d-block mx-auto">Print reciept</button>
+								<button class="d-block mx-auto btn btn-yellow mt-2" id="printReceipt">Print receipt</button>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -203,13 +232,75 @@
 	<script>
 		$(document).ready(function () {
 			$("#calc").click(function (){
-				let amount = parseFloat($("#amount").val())
-				let id = $(this).attr("data-id")
+				let amount = parseFloat($("#amount").val());
+				let id = $(this).attr("data-id");
+
+				if (isNaN(amount) || amount <= 0) {
+					alert("Please enter a valid amount");
+					return;
+				}
+
 				fetch(`/Cashier/CalculatePayment?tableid=${id}&amount=${amount}`)
 				.then(rawData => rawData.json())
 				.then(m => {
-					console.log(m)
+					if (m.message === "Success") {
+						// Fill receipt details
+						$("#receiptAmount").text("₱" + amount.toFixed(2));
+						$("#receiptSubtotal").text("₱" + m.subtotal.toFixed(2));
+						$("#receiptTax").text("₱" + m.tax.toFixed(2));
+						$("#receiptService").text("₱" + m.servicecharge.toFixed(2));
+						$("#receiptTotal").text("₱" + m.total.toFixed(2));
+						$("#receiptChange").text("₱" + m.amount.toFixed(2));
+
+						$("#trandet").removeClass("visually-hidden");
+					}
 				});
+			});
+
+			$(document).on("click", "#printReceipt", function () {
+				let id = $("#calc").attr("data-id"); // table ID
+				let amount = $("#receiptAmount").text();
+
+				fetch(`/Cashier/PayBill?tableid=${id}&amount=${amount}`, { method: "POST" })
+					.then(res => res.json())
+					.then(m => {
+						if (m.success) {
+							// Build receipt
+							let content = `
+								<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+									<h3>RECEIPT</h3>
+									<hr />
+									<div style="text-align:left">
+										${$("#DisplayBody").html()}
+										<hr />
+										<p>Subtotal: ${$("#receiptSubtotal").text()}</p>
+										<p>VAT (12%): ${$("#receiptTax").text()}</p>
+										<p>Service Charge: ${$("#receiptService").text()}</p>
+										<p class="fw-bold">Total: ${$("#receiptTotal").text()}</p>
+										<hr />
+										<p>Amount Received: ${$("#receiptAmount").text()}</p>
+										<p>Change: ${$("#receiptChange").text()}</p>
+									</div>
+									<hr />
+									<p>Thank you! Please come again.</p>
+								</div>
+							`;
+
+							$("#billbody").html(content);
+							$("#BillModal").modal("show");
+
+							setTimeout(() => {
+								window.print();
+								$("#BillModal").modal("hide");
+
+								// Remove paid table from UI
+								$("#" + id).remove();
+								$("#Details" + id).remove();
+							}, 300);
+						} else {
+							alert("Error: " + m.message);
+						}
+					});
 			});
 
 			$(".show").click(function () {
@@ -219,47 +310,103 @@
 			});
 
 
-			$(".pay").click(function (){
-				let id = $(this).attr("id")
-				$("#calc").attr("data-id", id);
-				$("#trandet").addClass("visually-hidden")
-				let content = $(`#Details${id}`).clone();
-				content.find(".btn").remove();
-				$("#DisplayBody").html(content);
-				$("#amount").val("")
+			// Generate Bill
+			$(document).on("click", ".bill", function () {
+				let tableId = $(this).attr("id");
 
-			})
-				$(".bill").click(async function () {
-		let id = $(this).attr("id");
-		let content = $(`#Details${id}`).clone();
+				fetch(`/Cashier/GenerateBill?tableid=${tableId}`)
+				.then(res => res.json())
+				.then(m => {
+					if (m.message === "Success") {
 
-		// cleanup UI elements
-		content.find(".btn").remove();
-		content.find(".bg-primary").remove();
+						// Grab the details table for this table
+						let rows = $(`#Details${tableId} tbody tr`).map(function () {
+							let cols = $(this).find("td");
+							return `<tr>
+										<td>${cols.eq(0).text()}</td>
+										<td class="text-center">${cols.eq(1).text()}</td>
+										<td class="text-end">${cols.eq(2).text()}</td>
+									</tr>`;
+						}).get().join("");
 
-		try {
-			let response = await fetch(`/Cashier/GenerateBill?tableid=${id}`);
-			let m = await response.json();
+						// Extract totals
+						let subtotal = $(`#Details${tableId}`).find("p:contains('Vat Sales')").next().text();
+						let vat = $(`#Details${tableId}`).find("p:contains('Vat amount')").next().text();
+						let service = $(`#Details${tableId}`).find("p:contains('Service Charge')").next().text();
+						let total = $(`#Details${tableId}`).find("p:contains('Total')").next().text();
 
-			if (m.message === "Success") {
-				$("#billbody").html(content);
+						// Build proper bill
+						let content = `
+							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+								<h3>THE SOCIAL CEBU</h3>
+								<p>Billing Statement</p>
+								<p>Table: ${tableId}</p>
+								<hr />
+								<table style="width:100%; font-size:12px; text-align:left">
+									<thead>
+										<tr>
+											<th style="text-align:left">Item</th>
+											<th style="text-align:center">Qty</th>
+											<th style="text-align:right">Price</th>
+										</tr>
+									</thead>
+									<tbody>
+										${rows}
+									</tbody>
+								</table>
+								<hr />
+								<div style="text-align:right">
+									<p>Vat Sales: ${subtotal}</p>
+									<p>Vat Amount: ${vat}</p>
+									<p>Service Charge: ${service}</p>
+									<p><strong>Total: ${total}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>
+						`;
 
-				setTimeout(() => {
-					window.print();
-				}, 300);
-			}
-		} catch (err) {
-			console.error("Error generating bill:", err);
-		}
-		});
-			// $("#calc").click(function () {
-			// 	let a = $("#amount").val();
-			// 	if (a && parseFloat(a) > 0) {
-			// 		$("#trandet").removeClass("visually-hidden");
-			// 	} else {
-			// 		alert("Please put an amount");
-			// 	}
-			// });
+						$("#billbody").html(content);
+						$("#BillModal").modal("show");
+
+						// Update UI button
+						let btn = $(`#${tableId}.bill`);
+						btn.removeClass("bill").addClass("pay");
+						btn.text("Pay Bill");
+						btn.attr("data-bs-target", "#PayModal");
+					} else {
+						alert("Error: " + (m.detail || "Unable to generate bill."));
+					}
+				});
+			});
+
+
+			// Pay Bill
+			$(document).on("click", ".pay", function () {
+				let id = $(this).attr("id");
+
+				$.post("/Cashier/PayBill", { tableid: id }, function (m) {
+					if (m.message === "Success") {
+							$("#PayModal").modal("hide");
+						// Remove the whole "Details" card
+
+						$(`#Details${id}`).fadeOut(300, function () {
+							$(this).remove();
+						});
+
+						// Also remove the "show" block on the left
+						$(`.show#${id}`).fadeOut(300, function () {
+							$(this).remove();
+						});
+
+						alert("✅ Payment successful! Table removed.");
+					}
+					else {
+						alert("❌ Error processing payment.");
+					}
+				});
+			});
 			const input = document.getElementById("amount");
 			const keypad = document.getElementById("keypad");
 
@@ -288,7 +435,6 @@
 				  }
 				}
 			})
-
 		});
 	</script>
 }

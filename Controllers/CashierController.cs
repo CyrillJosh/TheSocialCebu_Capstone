@@ -15,26 +15,43 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult Index()
         {
-            var table = _context.Tables.Where(x => x.Orders.Any(y => y.OrderStatusId >= 3)).ToList();
-            var orderitems = _context.OrderItems.Include(x => x.Order).ThenInclude(x => x.Table).Include(x => x.Prod).ToList();
-            var orders = _context.Orders.Include(x => x.Table).ToList();
+            // Only tables that requested a bill (TableStatusId == 3)
+            var tables = _context.Tables
+                .Where(x => x.TableStatusId == 3 || x.TableStatusId == 4)
+                .ToList();
+
+            var orderitems = _context.OrderItems
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Table)
+                .Include(x => x.Prod)
+                .ToList();
+
+            var orders = _context.Orders
+                .Include(x => x.Table)
+                .ToList();
+
             var vm = new List<BillingVM>();
-            foreach (var item in table)
+
+            foreach (var item in tables)
             {
-                decimal subtotal = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) / (decimal)1.12;
-                decimal tax = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) - subtotal;
-                decimal servicecharge = (decimal)orderitems.Sum(x => x.Quantity * x.Prod.Price) * (decimal)0.10;
+                var tableOrders = orderitems.Where(x => x.Order.TableId == item.TableId).ToList();
+
+                decimal temp = (decimal)tableOrders.Sum(x => x.Quantity * x.Prod.Price);
+                decimal subtotal = temp / 1.12m;
+                decimal tax = temp - subtotal;
+                decimal servicecharge = temp * 0.10m;
+
                 vm.Add(new BillingVM()
                 {
                     Table = item,
-                    OrderItems = orderitems.Where(x => x.Order.TableId == item.TableId)
-                    .GroupBy(x => x.ProdId)
-                    .Select(x => new OrderItem
-                    {
-                        ProdId = x.Key,
-                        Prod = x.First().Prod,
-                        Quantity = x.Sum(y => y.Quantity)
-                    }),
+                    OrderItems = tableOrders
+                        .GroupBy(x => x.ProdId)
+                        .Select(x => new OrderItem
+                        {
+                            ProdId = x.Key,
+                            Prod = x.First().Prod,
+                            Quantity = x.Sum(y => y.Quantity)
+                        }),
                     Subtotal = subtotal,
                     Tax = tax,
                     ServiceCharge = servicecharge,
@@ -42,80 +59,124 @@ namespace TheSocialCebu_Capstone.Controllers
                     Orders = orders.Where(x => x.TableId == item.TableId).ToList()
                 });
             }
+
             return View(vm);
         }
 
-        public JsonResult GenerateBill(string tableid){
-            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
-            if (table == null)
-                return Json(new { message = "Error" });
+        [HttpGet]
+        public JsonResult GenerateBill(string tableid)
+        {
+            var table = _context.Tables
+                .Include(t => t.Orders.Where(o => o.OrderStatusId == 4)) // only orders that requested bill
+                .ThenInclude(o => o.OrderItems)
+                .ThenInclude(oi => oi.Prod)
+                .FirstOrDefault(t => t.TableId == tableid);
 
-            decimal subtotal = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) / (decimal)1.12;
-            decimal tax = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) - subtotal;
-            decimal servicecharge = (decimal)Table.Orders.Sum(y => y.orderitems.Sum(x => x.Quantity * x.Prod.Price)) * (decimal)0.10;
-           
-            var bill = new Billing(){
-                BillingId = new GUID.NewGUID.ToString(),
-                Tableid = tableid,
-                DateTime = DateTime.Now(),
+            if (table == null || !table.Orders.Any())
+                return Json(new { message = "Error", detail = "No billable orders found." });
+
+            // Compute totals
+            decimal total = (decimal)table.Orders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * oi.Prod.Price));
+            decimal subtotal = total / 1.12m;
+            decimal tax = total - subtotal;
+            decimal servicecharge = total * 0.10m;
+            decimal grandTotal = subtotal + tax + servicecharge;
+
+            // Create new bill
+            var bill = new Billing
+            {
+                BillingId = Guid.NewGuid().ToString(),
+                TableId = tableid,
                 Subtotal = subtotal,
                 VatAmount = tax,
                 ServiceCharge = servicecharge,
-                GrandTotal = subtotal + tax + servicecharge,
-                
+                GrandTotal = grandTotal,
+                BillingTime = DateTime.Now
+            };
+
+            _context.Billings.Add(bill);
+
+            // Link all billable orders to this bill
+            foreach (var order in table.Orders)
+            {
+                var bo = new BillingOrder
+                {
+                    BillingId = bill.BillingId,
+                    OrderId = order.OrderId
+                };
+                _context.Add(bo);
+
+                // Mark orders as "Billed" if you have such a status (optional)
+                order.OrderStatusId = 4; // e.g. 4 = Billed / Waiting Payment
             }
 
-            return Json(new {message = "Success"})
-        }
-
-        public JsonResult PayBill(string tableid)
-        {
-            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
-            if (table == null)
-                return Json(new { message = "Error" });
-
-            foreach(var o in table.Orders)
-            {
-                o.OrderStatusId = 5;
-            }
-            table.TableStatusId = 1;
-            _context.Update(table);
-            _context.SaveChanges();
-            return Json(new {message = "Success"});
-        }
-
-        public JsonResult GenerateBIll(string tableid)
-            {
-            var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
-            if (table == null)
-                return Json(new { message = "Error" });
-
-            foreach (var o in table.Orders)
-            {
-                o.OrderStatusId = 4;
-            }
+            // Update table status (4 = Waiting for Payment)
             table.TableStatusId = 4;
-            _context.Update(table);
+
             _context.SaveChanges();
-            return Json(new { message = "Success"/*, orders =  table.Orders*/ });
+
+            return Json(new { message = "Success", billId = bill.BillingId });
         }
 
-        public JsonResult CalculatePayment(string tableid, decimal amount) {
-            var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
 
-            var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
-            decimal am = (decimal)(total - amount);
-            return Json(new { message = "Success", amount = am });
+        [HttpPost]
+        public IActionResult PayBill(string tableid, decimal amount)
+        {
+            var bill = _context.Billings
+                .Include(b => b.Table)
+                .Include(b => b.BillingOrders)
+                .ThenInclude(b => b.Order)
+                .FirstOrDefault(b => b.TableId == tableid && !b.Payments.Any());
+
+            if (bill == null)
+                return Json(new { success = false, message = "Bill not found or already paid" });
+
+            //Record payment
+            var payment = new Payment
+            {
+                BillingId = bill.BillingId,
+                AmountPaid = amount,
+                PaymentTime = DateTime.Now
+            };
+
+            //Close all orders under this bill
+            foreach (var order in bill.BillingOrders.Select(x => x.Order))
+            {
+                order.OrderStatusId = 5; //Completed
+            }
+
+            //Reset table to Available
+            bill.Table.TableStatusId = 1;
+
+            _context.Payments.Add(payment);
+            _context.SaveChanges();
+
+            return Json(new { success = true });
         }
-        //public IActionResult PayBill(string tableid, string orderid)
-        //{
-        //    var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
-        //    var order = 
-        //    var vm = new List<BillingVM>()
+
+
+        //public JsonResult GenerateBIll(string tableid)
         //    {
+        //    var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
+        //    if (table == null)
+        //        return Json(new { message = "Error" });
 
+        //    foreach (var o in table.Orders)
+        //    {
+        //        o.OrderStatusId = 4;
         //    }
-        //    return Json(new {content = vm });
+        //    table.TableStatusId = 4;
+        //    _context.Update(table);
+        //    _context.SaveChanges();
+        //    return Json(new { message = "Success"/*, orders =  table.Orders*/ });
+        //}
+
+        //public JsonResult CalculatePayment(string tableid, decimal amount) {
+        //    var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
+
+        //    var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
+        //    decimal am = (decimal)(total - amount);
+        //    return Json(new { message = "Success", amount = am });
         //}
     }
 }

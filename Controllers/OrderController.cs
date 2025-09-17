@@ -21,7 +21,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             HttpContext.Session.SetString("Table", id);
             var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
-            table.TableStatusId = 2;
+            table.TableStatusId = table.TableStatusId > 2 ? table.TableStatusId : 2;
             _context.Update(table);
             _context.SaveChanges();
             return RedirectToAction("Index","Home");
@@ -217,19 +217,29 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public JsonResult RequestBill(string tableid)
         {
-            if (string.IsNullOrEmpty(tableid) || !_context.Tables.Any(x => x.TableId == tableid))
-                return Json(new { message = "Error" });
-            var orders = _context.Orders.Where(x => x.TableId == tableid).ToList();
-            foreach (var order in orders)
-            {
-                order.OrderStatusId = 4;
-            }
-            var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
-            if (table == null)
-                return Json(new { message = "Error" });
+            if (string.IsNullOrEmpty(tableid))
+                return Json(new { message = "Error", details = "Invalid table id" });
 
-            table.TableStatusId = 3;
-            _context.UpdateRange(orders);
+            var table = _context.Tables
+                .Include(t => t.Orders)
+                .FirstOrDefault(x => x.TableId == tableid);
+
+            if (table == null)
+                return Json(new { message = "Error", details = "Table not found" });
+
+            if (!table.Orders.Any())
+                return Json(new { message = "Error", details = "No orders for this table" });
+
+            // Update order statuses
+            foreach (var order in table.Orders)
+            {
+                if (order.OrderStatusId < 4) 
+                    order.OrderStatusId = 4; 
+            }
+
+            // Update table status
+            table.TableStatusId = 3; 
+
             _context.Update(table);
             _context.SaveChanges();
 
