@@ -169,19 +169,24 @@
                 fetch(`/Order/Preview?id=${id}`)
                 .then(response => response.json())
                 .then(prod => {
-                    $("#qty").text("01")
-                    $(".set-body").empty()
-                    $(".set-header").empty()
-                    $(".set-price").empty()
-                    $("#instructions").val("")
+                    if(prod.success){
+                        $("#qty").text("01")
+                        $(".set-body").empty()
+                        $(".set-header").empty()
+                        $(".set-price").empty()
+                        $("#instructions").val("")
 
-                    $(".add-to-order").data("id",prod.prodId);
+                        $(".add-to-order").data("id",prod.prodId);
 
-                        $(".set-body").append(`<h2>${prod.prodName}</h2>`)
-                        $(".set-body").append(`<p>${prod.description}</p>`)
-                        $(".set-price").append(`<h2 id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
+                            $(".set-body").append(`<h2>${prod.prodName}</h2>`)
+                            $(".set-body").append(`<p>${prod.description}</p>`)
+                            $(".set-price").append(`<h2 id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
 
-                        $(".add-to-order").data("id", prod.prodId);
+                            $(".add-to-order").data("id", prod.prodId);
+                    }
+                    else{
+                        alert(m.message);
+                    }
                 })
             })
             //Add
@@ -219,14 +224,18 @@
                 fetch(`/Order/AddToCart?id=${id}&qty=${qty}&ins=${ins}`)
                 .then(rawData => rawData.json())
                 .then(data => {
-                    console.log(data)
-                    let pill = $(".pill")
-                    pill.empty()
-                    let count = data["orders"].length
-                    pill.append(`<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        ${count}
-                        <span class="visually-hidden">unread messages</span>
-                    </span>`)
+                    if(data.success){
+                        let pill = $(".pill")
+                        pill.empty()
+                        let count = data["orders"].length
+                        pill.append(`<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${count}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>`)
+                    }
+                    else{
+                        alert(data.message)
+					}
                 })
             })
         })

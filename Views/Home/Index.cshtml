@@ -94,7 +94,8 @@ radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69
 
                             <div class="bg-white position-relative h-100 rounded overflow-hidden shadow-sm d-flex">
                                 <img
-                                     alt="@cat.CategoryName"
+                                     src="/Images/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() +  ".png")"
+                                     alt="@cat.CategoryName.Trim()"
                                      class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
 
                                 <div class="position-absolute top-0 start-0 w-100 h-100" 

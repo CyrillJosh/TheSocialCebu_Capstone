@@ -83,13 +83,11 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Billing>(entity =>
         {
-            entity.HasKey(e => e.BillingId).HasName("PK__Billing__F1656DF30FD0F052");
+            entity.HasKey(e => e.BillingId).HasName("PK__Billing__F1656DF39B2CC6E2");
 
             entity.ToTable("Billing");
 
-            entity.Property(e => e.BillingId)
-                .HasMaxLength(50)
-                .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
+            entity.Property(e => e.BillingId).HasMaxLength(50);
             entity.Property(e => e.BillingTime)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -102,12 +100,12 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Table).WithMany(p => p.Billings)
                 .HasForeignKey(d => d.TableId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Billing__TableId__41EDCAC5");
+                .HasConstraintName("FK__Billing__TableId__24285DB4");
         });
 
         modelBuilder.Entity<BillingOrder>(entity =>
         {
-            entity.HasKey(e => e.BillingOrderId).HasName("PK__BillingO__48F8147A897D31EE");
+            entity.HasKey(e => e.BillingOrderId).HasName("PK__BillingO__48F8147A1352F71B");
 
             entity.ToTable("BillingOrder");
 
@@ -120,12 +118,12 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Billing).WithMany(p => p.BillingOrders)
                 .HasForeignKey(d => d.BillingId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__BillingOr__Billi__45BE5BA9");
+                .HasConstraintName("FK__BillingOr__Billi__2EA5EC27");
 
             entity.HasOne(d => d.Order).WithMany(p => p.BillingOrders)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__BillingOr__Order__46B27FE2");
+                .HasConstraintName("FK__BillingOr__Order__2F9A1060");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -155,7 +153,7 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDD6248F47A3");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDD62696CE5D");
 
             entity.ToTable("Feedback");
 
@@ -167,7 +165,7 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Billing).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.BillingId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__Billin__51300E55");
+                .HasConstraintName("FK__Feedback__Billin__28ED12D1");
         });
 
         modelBuilder.Entity<Location>(entity =>
@@ -269,21 +267,18 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A38CEF4CA2A");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A3857A5C7B7");
 
             entity.ToTable("Payment");
 
-            entity.Property(e => e.PaymentId)
-                .HasMaxLength(50)
-                .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
+            entity.Property(e => e.PaymentId).HasMaxLength(50);
             entity.Property(e => e.AmountPaid).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.BillingId).HasMaxLength(50);
             entity.Property(e => e.PaymentTime).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Billing).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.BillingId)
+            entity.HasOne(d => d.PaymentNavigation).WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(d => d.PaymentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Payment__Billing__4A8310C6");
+                .HasConstraintName("FK__Payment__Payment__2704CA5F");
         });
 
         modelBuilder.Entity<Person>(entity =>
@@ -323,7 +318,7 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Subcategory).WithMany(p => p.Products)
                 .HasForeignKey(d => d.SubcategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__Subcate__5DCAEF64");
+                .HasConstraintName("FK__Product__Subcate__634EBE90");
         });
 
         modelBuilder.Entity<Role>(entity =>

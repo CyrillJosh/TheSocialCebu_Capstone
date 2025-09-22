@@ -99,6 +99,8 @@
         </div> *@
     </div>
 </div> 
+@* Add modal for feedback *@
+
 
 @section Scripts{
     <script>
@@ -109,8 +111,7 @@
                     fetch(`/Order/RequestBill?tableid=${id}`)
                     .then(response => response.json())
                     .then(x => {
-                        console.log(x)
-                           alert(x.message)
+                         alert(x.message)
                     })
                })
         })

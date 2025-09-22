@@ -73,7 +73,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 .FirstOrDefault(t => t.TableId == tableid);
 
             if (table == null || !table.Orders.Any())
-                return Json(new { message = "Error", detail = "No billable orders found." });
+                return Json(new {success = false, message = "Error", detail = "No billable orders found." });
 
             // Compute totals
             decimal total = (decimal)table.Orders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * oi.Prod.Price));
@@ -91,7 +91,8 @@ namespace TheSocialCebu_Capstone.Controllers
                 VatAmount = tax,
                 ServiceCharge = servicecharge,
                 GrandTotal = grandTotal,
-                BillingTime = DateTime.Now
+                BillingTime = DateTime.Now,
+                Payment = null // No payment yet
             };
 
             _context.Billings.Add(bill);
@@ -115,28 +116,40 @@ namespace TheSocialCebu_Capstone.Controllers
 
             _context.SaveChanges();
 
-            return Json(new { message = "Success", billId = bill.BillingId });
+            return Json(new { success = true, message = "Success", billId = bill.BillingId });
         }
 
-
         [HttpPost]
-        public IActionResult PayBill(string tableid, decimal amount)
+        public JsonResult PayBill(string tableid, decimal amount)
         {
+            var bills = _context.Billings.ToList();
             var bill = _context.Billings
+                .Include(b => b.Payment)
                 .Include(b => b.Table)
                 .Include(b => b.BillingOrders)
                 .ThenInclude(b => b.Order)
-                .FirstOrDefault(b => b.TableId == tableid && !b.Payments.Any());
+                .ThenInclude(o => o.OrderItems)
+                .ThenInclude(oi => oi.Prod)
+                .FirstOrDefault(b => b.TableId == tableid); //No Payment yet
+            //var bill = _context.Billings
+            //    .Include(b => b.Table)
+            //    .Include(b => b.BillingOrders)
+            //    .ThenInclude(b => b.Order)
+            //    .FirstOrDefault(b => b.TableId == tableid && !b.Payments.Any());
 
-            if (bill == null)
-                return Json(new { success = false, message = "Bill not found or already paid" });
+            if (bill.Payment != null)
+                return Json(new { success = false, message = "Bill already paid" });
+
+            if (bill.GrandTotal > amount)
+                return Json(new { success = false, message = "Amount must be greater than the bill" });
 
             //Record payment
             var payment = new Payment
             {
-                BillingId = bill.BillingId,
+                PaymentId = bill.BillingId, //Use the same ID as BillingId
                 AmountPaid = amount,
-                PaymentTime = DateTime.Now
+                PaymentTime = DateTime.Now,
+                PaymentNavigation = bill
             };
 
             //Close all orders under this bill
@@ -151,32 +164,45 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Payments.Add(payment);
             _context.SaveChanges();
 
-            return Json(new { success = true });
+            return Json(new
+            {
+                success = true,
+                subtotal = bill.Subtotal,
+                tax = bill.VatAmount,
+                servicecharge = bill.ServiceCharge,
+                total = bill.GrandTotal,
+                change = amount - bill.GrandTotal,
+                payment = new
+                {
+                    id = payment.PaymentId,
+                    amountPaid = payment.AmountPaid,
+                    time = payment.PaymentTime
+                }
+            });
         }
 
+            //public JsonResult GenerateBIll(string tableid)
+            //    {
+            //    var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
+            //    if (table == null)
+            //        return Json(new { message = "Error" });
 
-        //public JsonResult GenerateBIll(string tableid)
-        //    {
-        //    var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
-        //    if (table == null)
-        //        return Json(new { message = "Error" });
+            //    foreach (var o in table.Orders)
+            //    {
+            //        o.OrderStatusId = 4;
+            //    }
+            //    table.TableStatusId = 4;
+            //    _context.Update(table);
+            //    _context.SaveChanges();
+            //    return Json(new { message = "Success"/*, orders =  table.Orders*/ });
+            //}
 
-        //    foreach (var o in table.Orders)
-        //    {
-        //        o.OrderStatusId = 4;
-        //    }
-        //    table.TableStatusId = 4;
-        //    _context.Update(table);
-        //    _context.SaveChanges();
-        //    return Json(new { message = "Success"/*, orders =  table.Orders*/ });
-        //}
+            //public JsonResult CalculatePayment(string tableid, decimal amount) {
+            //    var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
 
-        //public JsonResult CalculatePayment(string tableid, decimal amount) {
-        //    var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
-
-        //    var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
-        //    decimal am = (decimal)(total - amount);
-        //    return Json(new { message = "Success", amount = am });
-        //}
+            //    var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
+            //    decimal am = (decimal)(total - amount);
+            //    return Json(new { message = "Success", amount = am });
+            //}
     }
 }

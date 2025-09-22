@@ -64,14 +64,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 Availability = vm.Availability
             };
 
-            //Check for Image
-            if (vm.UploadImage != null)
-            {
-                using var ms = new MemoryStream();
-                await vm.UploadImage.CopyToAsync(ms);
-                product.ProdImage = ms.ToArray();
-            }
-
             //Add the new product
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -97,7 +89,6 @@ namespace TheSocialCebu_Capstone.Controllers
                 CategoryId = product.Subcategory.CategoryId,
                 SubcategoryId = product.SubcategoryId,
                 Availability = product.Availability,
-                ExistingImage = product.ProdImage,
                 Categories = Categories,
                 Subcategories = Subcategories
             };                  
@@ -127,14 +118,6 @@ namespace TheSocialCebu_Capstone.Controllers
             product.Price = vm.Price;
             product.SubcategoryId = vm.SubcategoryId;
             product.Availability = vm.Availability;
-
-            //image
-            if (vm.UploadImage != null)
-            {
-                using var ms = new MemoryStream();
-                await vm.UploadImage.CopyToAsync(ms);
-                product.ProdImage = ms.ToArray();
-            }
 
             //Update product
             _context.Products.Update(product);

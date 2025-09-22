@@ -15,8 +15,6 @@ public partial class Product
 
     public bool Availability { get; set; }
 
-    public byte[]? ProdImage { get; set; }
-
     public string SubcategoryId { get; set; } = null!;
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
