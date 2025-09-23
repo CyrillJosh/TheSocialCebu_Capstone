@@ -10,4 +10,6 @@ public partial class DiscountType
     public string DiscountName { get; set; } = null!;
 
     public decimal Percentage { get; set; }
+
+    public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
 }

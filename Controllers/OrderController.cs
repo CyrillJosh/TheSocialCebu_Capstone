@@ -72,7 +72,7 @@ namespace TheSocialCebu_Capstone.Controllers
                     .ThenInclude(x => x.Prod)
                 .Include(x => x.OrderItems)
                     .ThenInclude(x => x.OrderItemStatus)
-                .Where(x => x.TableId == tableId).ToList();
+                .Where(x => x.TableId == tableId && x.OrderStatusId < 5).ToList();
 
             return View(orders);
         }

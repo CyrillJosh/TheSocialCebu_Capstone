@@ -96,11 +96,15 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.Subtotal).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TableId).HasMaxLength(50);
             entity.Property(e => e.VatAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.DiscountId).HasMaxLength(50);
 
             entity.HasOne(d => d.Table).WithMany(p => p.Billings)
                 .HasForeignKey(d => d.TableId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Billing__TableId__24285DB4");
+            entity.HasOne(d => d.Discount).WithMany(p => p.Billings)
+                .HasForeignKey(d => d.DiscountId)
+                .HasConstraintName("FK__Billing__Discoun__6F7F8B4B");
         });
 
         modelBuilder.Entity<BillingOrder>(entity =>
@@ -267,7 +271,7 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A3857A5C7B7");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A3871161407");
 
             entity.ToTable("Payment");
 
@@ -278,7 +282,7 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.PaymentNavigation).WithOne(p => p.Payment)
                 .HasForeignKey<Payment>(d => d.PaymentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Payment__Payment__2704CA5F");
+                .HasConstraintName("FK__Payment__Payment__50FB042B");
         });
 
         modelBuilder.Entity<Person>(entity =>

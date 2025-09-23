@@ -155,6 +155,12 @@
 													id="@t.Table.TableId">
 												Pay Bill
 											</button>
+											<button class="btn btn-yellow flex-fill disc"
+													data-bs-toggle="modal"
+													data-bs-target="#DiscountModal"
+													id="@t.Table.TableId">
+												Apply Discount
+											</button>
 										}
 									</div>
 								</div>
@@ -167,7 +173,7 @@
 	</div>
 </div>
 <div class="modal fade" id="BillModal" tabindex="-1" aria-labelledby="BillModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 		<div class="modal-content border-secondary rounded">
 			<div class="flex-grow-1 p-2 d-flex justify-content-center overflow-y-auto" id="billbody">
 
@@ -179,7 +185,25 @@
 		</div>
 	</div>
 </div>
-
+<div class="modal fade" id="DiscountModal" tabindex="-1" aria-labelledby="DiscountModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content border-secondary rounded">
+			<div class="flex-grow-1 p-2 d-flex justify-content-center overflow-y-auto">
+				<select class="btn btn-yellow discount flex-fill" id="select">
+					<option value="">-- Select Discount --</option>
+					@foreach (var d in Model.SelectMany(x => x.DiscountTypes))
+					{
+						<option value="@d.DiscountTypeId">@d.DiscountName</option>
+					}
+				</select>
+			</div>
+			<div class="w-100 d-flex flex-row gap-2 px-5 py-2">
+				<button class="flex-fill btn btn-light shadow" data-bs-dismiss="modal" aria-label="Close">Back</button>
+				<button class="flex-fill btn btn-yellow printwd">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade" id="PayModal" tabindex="-1" aria-labelledby="PayModal" aria-hidden="true">
 	<div class="modal-dialog modal-xl modal-dialog-centered">
 		<div class="modal-content border-secondary rounded" style="height: 100vh;">
@@ -198,10 +222,15 @@
 						<div class="p-2 h-100">
 
 							<!-- Input -->
-							<input type="text" id="amount"
-								   class="form-control mb-2"
-								   placeholder="Place an amount"
-								   style="flex:0 0 40px; height: 5%" />
+							<div class="d-flex flex-row gap-2">
+								<input type="text" id="amount"
+									   class="form-control mb-2"
+									   placeholder="Place an amount"
+									   style="height: 5%" />
+								<button id="clear" class="btn btn-warning mb-2" style="height: 5%">
+									CLS
+								</button>
+							</div>
 
 							<!-- Keypad (3×4 grid) -->
 							<div id="keypad" class="d-grid mb-2 gap-1"
@@ -265,10 +294,35 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
+			$(".printwd").click(function (){
+				let id = $(this).attr("id");
+				let discountId = $("#select").val();
+				console.log(id, discountId)
+				if(discountId){
+					$("#DiscountModal").modal("hide")
+					Billing(id,discountId)
+				}
+				else{
+					alert("Please select a discount to apply");
+				}
+			})
+
+			$(".disc").click(function (){
+				let id = $(this).attr("id");
+				$(".printwd").attr("id",id)
+				$("#select").val("")
+			})
+
+			$("#clear").click(function (){
+				$("#amount").val("")
+			})
+
 			$("#calc").click(function (){
 				let amount = parseFloat($("#amount").val());
 				let id = $(this).attr("data-id");
 
+
+				// let disc = $
 				if (isNaN(amount) || amount <= 0) {
 					alert("Please enter a valid amount");
 					return;
@@ -279,7 +333,8 @@
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
 						tableid: id,
-						amount: amount
+						amount: amount,
+						discount: (disc == null? null: disc)
 					})
 				})
 				.then(rawData => rawData.json())
@@ -292,6 +347,66 @@
 						$("#receiptService").text("₱" + m.servicecharge.toFixed(2));
 						$("#receiptTotal").text("₱" + m.total.toFixed(2));
 						$("#receiptChange").text("₱" + m.change.toFixed(2));
+
+
+						let rows = $(`#Details${tableId} tbody tr`).map(function () {
+						let cols = $(this).find("td");
+						return `<tr>
+									<td>${cols.eq(0).text()}</td>
+									<td class="text-center">${cols.eq(1).text()}</td>
+									<td class="text-end">${cols.eq(2).text()}</td>
+								</tr>`;
+						}).get().join("");
+
+						// Build proper bill
+						let content = `
+							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+								<h3>THE SOCIAL CEBU</h3>
+								<p>Official Reciept</p>
+								<p>Table: ${tableId}</p>
+								<hr />
+								<table style="width:100%; font-size:12px; text-align:left">
+									<thead>
+										<tr>
+											<th style="text-align:left">Item</th>
+											<th style="text-align:center">Qty</th>
+											<th style="text-align:right">Price</th>
+										</tr>
+									</thead>
+									<tbody>
+										${rows}
+									</tbody>
+								</table>
+								<hr />
+								<div id="recadd" style="text-align:right">
+									<p>Vat Sales: ${m.subtotal.toFixed(2)}</p>
+									<p>Vat Amount: ${m.tax.toFixed(2)}</p>
+									<p>Service Charge: ${m.servicecharge.toFixed(2)}</p>
+									<p>Discount: ${m.discount.toFixed(2)}</p>
+									<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>
+						`;
+						 // subtotal = bill.Subtotal,
+							// tax = bill.VatAmount,
+							// servicecharge = bill.ServiceCharge,
+							// total = bill.GrandTotal,
+							// change = amount - bill.GrandTotal,
+							// payment = new
+							// {
+							// 	id = payment.PaymentId,
+							// 	amountPaid = payment.AmountPaid,
+							// 	time = payment.PaymentTime,
+							// 	discount = bill.Subtotal * payment.Discount.Percentage
+							// 	//discount = new {
+							// 	//    amount = discounted
+							// 	//}
+							// }
+						$("#DisplayBody").html(content);
+
 						$("#trandet").removeClass("visually-hidden");
 
 						//add to reciept
@@ -365,11 +480,15 @@
 			// Generate Bill
 			$(document).on("click", ".bill", function () {
 				let tableId = $(this).attr("id");
+				Billing(tableId)
+			})
 
-				fetch(`/Cashier/GenerateBill?tableid=${tableId}`)
+			function Billing(tableId, discountId = null) {
+				fetch(`/Cashier/GenerateBill?tableid=${tableId}&discountid=${discountId}`)
 				.then(res => res.json())
 				.then(m => {
 					if (m.success) {
+						console.log(m)
 						// Grab the details table for this table
 						let rows = $(`#Details${tableId} tbody tr`).map(function () {
 							let cols = $(this).find("td");
@@ -381,11 +500,6 @@
 						}).get().join("");
 
 						// Extract totals
-						let subtotal = $(`#Details${tableId}`).find("p:contains('Vat Sales')").next().text();
-						let vat = $(`#Details${tableId}`).find("p:contains('Vat amount')").next().text();
-						let service = $(`#Details${tableId}`).find("p:contains('Service Charge')").next().text();
-						let total = $(`#Details${tableId}`).find("p:contains('Total')").next().text();
-
 						// Build proper bill
 						let content = `
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
@@ -407,17 +521,28 @@
 								</table>
 								<hr />
 								<div style="text-align:right">
-									<p>Vat Sales: ${subtotal}</p>
-									<p>Vat Amount: ${vat}</p>
-									<p>Service Charge: ${service}</p>
-									<p><strong>Total: ${total}</strong></p>
+									<p>Vat Sales: ${m.bill.vatsales.toFixed(2)}</p>
+									<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
+									<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+
+						`;
+						if(m.discount != null){
+							content += `<p>Discount - ${m.discount.discountName} ${m.discount.percentage*100}%: ${m.discount.amount.toFixed(2)}</p>
+								<p><strong>Total: ${m.bill.total.toFixed(2)}</strong></p>
 								</div>
 								<hr />
 								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
 								<p>Thank you for dining with us!</p>
-							</div>
-						`;
-
+							</div>`
+						}else{
+							content += `									<p><strong>Total: ${m.bill.total.toFixed(2)}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>`
+						}
+						console.log(m)
 						$("#billbody").html(content);
 						$("#BillModal").modal("show");
 
@@ -430,92 +555,93 @@
 						alert("Error: " + (m.detail || "Unable to generate bill."));
 					}
 				});
-			});
+			};
 
 
 			// Pay Bill
 			$(document).on("click", ".pay", function () {
 				let tableId = $(this).attr("id");
+				fetch(`/Cashier/GetBill?tableid=${tableId}`)
+				.then(res => res.json())
+				.then(data => {
+					if (!data.success) {
+						alert(data.message || "Bill not found");
+						return;
+					}
 
-				// $.post("/Cashier/PayBill", { tableid: id }, function (m) {
-				// 	if (m.success) {
-				// Grab the details table for this table
-				let rows = $(`#Details${tableId} tbody tr`).map(function () {
-					let cols = $(this).find("td");
-					return `<tr>
-								<td>${cols.eq(0).text()}</td>
-								<td class="text-center">${cols.eq(1).text()}</td>
-								<td class="text-end">${cols.eq(2).text()}</td>
-							</tr>`;
-				}).get().join("");
+					const bill = data.bill;
+					// Grab the details table for this table
+					let rows = $(`#Details${tableId} tbody tr`).map(function () {
+						let cols = $(this).find("td");
+						return `<tr>
+									<td>${cols.eq(0).text()}</td>
+									<td class="text-center">${cols.eq(1).text()}</td>
+									<td class="text-end">${cols.eq(2).text()}</td>
+								</tr>`;
+					}).get().join
 
-				// Extract totals
-				let subtotal = $(`#Details${tableId}`).find("p:contains('Vat Sales')").next().text();
-				let vat = $(`#Details${tableId}`).find("p:contains('Vat amount')").next().text();
-				let service = $(`#Details${tableId}`).find("p:contains('Service Charge')").next().text();
-				let total = $(`#Details${tableId}`).find("p:contains('Total')").next().text();
-
-				// Build proper bill
-				let content = `
-					<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-						<h3>THE SOCIAL CEBU</h3>
-						<p>Official Reciept</p>
-						<p>Table: ${tableId}</p>
-						<hr />
-						<table style="width:100%; font-size:12px; text-align:left">
-							<thead>
-								<tr>
-									<th style="text-align:left">Item</th>
-									<th style="text-align:center">Qty</th>
-									<th style="text-align:right">Price</th>
-								</tr>
-							</thead>
-							<tbody>
-								${rows}
-							</tbody>
-						</table>
-						<hr />
-						<div id="recadd" style="text-align:right">
-							<p>Vat Sales: ${subtotal}</p>
-							<p>Vat Amount: ${vat}</p>
-							<p>Service Charge: ${service}</p>
-							<p><strong>Total: ${total}</strong></p>
+					// Build proper bill
+					let content = `
+						<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+							<h3>THE SOCIAL CEBU</h3>
+							<p>Official Reciept</p>
+							<p>Table: ${tableId}</p>
+							<hr />
+							<table style="width:100%; font-size:12px; text-align:left">
+								<thead>
+									<tr>
+										<th style="text-align:left">Item</th>
+										<th style="text-align:center">Qty</th>
+										<th style="text-align:right">Price</th>
+									</tr>
+								</thead>
+								<tbody>
+									${rows}
+								</tbody>
+							</table>
+							<hr />
+							<div id="recadd" style="text-align:right">
+								<p>Vat Sales: ${subtotal}</p>
+								<p>Vat Amount: ${vat}</p>
+								<p>Service Charge: ${service}</p>
+								<p><strong>Total: ${total}</strong></p>
+							</div>
+							<hr />
+							<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+							<p>Thank you for dining with us!</p>
 						</div>
-						<hr />
-						<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
-						<p>Thank you for dining with us!</p>
-					</div>
-				`;
+					`;
 
-				$("#DisplayBody").html(content);
-				$("#PayModal").modal("show");
-				$("#calc").removeAttr("data-id");
-				$("#calc").attr("data-id",tableId);
-				// // Update UI button
-				// let btn = $(`#${tableId}.bill`);
-				// btn.removeClass("bill").addClass("pay");
-				// btn.text("Pay Bill");
-				// btn.attr("data-bs-target", "#PayModal");
+					$("#DisplayBody").html(content);
+					$("#PayModal").modal("show");
+					$("#calc").removeAttr("data-id");
+					$("#calc").attr("data-id",tableId);
+					// // Update UI button
+					// let btn = $(`#${tableId}.bill`);
+					// btn.removeClass("bill").addClass("pay");
+					// btn.text("Pay Bill");
+					// btn.attr("data-bs-target", "#PayModal");
 
 
-				// $("#PayModal").modal("hide");
-				// // Remove the whole "Details" card
+					// $("#PayModal").modal("hide");
+					// // Remove the whole "Details" card
 
-				// $(`#Details${id}`).fadeOut(300, function () {
-				// 	$(this).remove();
-				// });
+					// $(`#Details${id}`).fadeOut(300, function () {
+					// 	$(this).remove();
+					// });
 
-				// // Also remove the "show" block on the left
-				// $(`.show#${id}`).fadeOut(300, function () {
-				// 	$(this).remove();
-				// });
+					// // Also remove the "show" block on the left
+					// $(`.show#${id}`).fadeOut(300, function () {
+					// 	$(this).remove();
+					// });
 
-				// alert("Payment successful! Table is now available for orders.");
-				// }
-				// else {
-				// 	alert("Error processing payment.");
-				// }
-				// });
+					// alert("Payment successful! Table is now available for orders.");
+					// }
+					// else {
+					// 	alert("Error processing payment.");
+					// }
+					// });
+				});
 			});
 			const input = document.getElementById("amount");
 			const keypad = document.getElementById("keypad");

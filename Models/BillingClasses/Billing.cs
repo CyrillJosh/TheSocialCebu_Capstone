@@ -19,6 +19,8 @@ public partial class Billing
 
     public decimal? GrandTotal { get; set; }
 
+    public string? DiscountId { get; set; }
+
     public virtual ICollection<BillingOrder> BillingOrders { get; set; } = new List<BillingOrder>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
@@ -26,4 +28,7 @@ public partial class Billing
     public virtual Payment? Payment { get; set; }
 
     public virtual Table Table { get; set; } = null!;
+
+    public virtual DiscountType Discount { get; set; } = null!;
+
 }

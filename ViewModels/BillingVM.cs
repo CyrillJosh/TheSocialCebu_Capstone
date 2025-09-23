@@ -12,5 +12,7 @@ namespace TheSocialCebu_Capstone.ViewModels
         public IEnumerable<OrderItem> OrderItems { get; set; }
 
         public IEnumerable<Order> Orders { get; set; }
+
+        public IEnumerable<DiscountType> DiscountTypes { get; set; }
     }
 }
