@@ -179,7 +179,8 @@ namespace TheSocialCebu_Capstone.Controllers
                 TableId = tableId,
                 CreatedAt = DateTime.Now,
                 OrderStatusId = 1,
-                OrderItems = items
+                OrderItems = items,
+                OrderNumber = _context.Orders.Count(x => x.TableId == tableId) + 1
             };
 
             _context.Orders.Add(order);
@@ -199,12 +200,12 @@ namespace TheSocialCebu_Capstone.Controllers
             var table = _context.Tables
                 .Include(t => t.Orders)
                 .FirstOrDefault(x => x.TableId == tableid);
-
+            if (table.TableStatusId == 3) 
+                return Json(new { success = false, message = "Error: Bill already requested"});
             if (table == null)
-                return Json(new { success = false, message = "Error", details = "Table not found" });
-
+                return Json(new { success = false, message = "Error: Table not found!"});
             if (!table.Orders.Any())
-                return Json(new { success = false, message = "Error", details = "No orders for this table" });
+                return Json(new { success = false, message = "Error: No orders available!"});
 
             // Update order statuses
             foreach (var order in table.Orders)
@@ -219,7 +220,7 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Update(table);
             _context.SaveChanges();
 
-            return Json(new { success = true, message = "Requesting" });
+            return Json(new { success = true, message = "Requesting bill"});
         }
 
         //

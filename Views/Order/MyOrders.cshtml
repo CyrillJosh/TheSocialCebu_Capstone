@@ -5,24 +5,27 @@
     ViewData["Title"] = "My Orders";
     string table = Context.Session.GetString("Table");
 }
-
-<div class="render-body vh-100 overflow-y-scroll bg-black">
-    <nav id="categoryNav"
-         class="nav flex-row bg-dark w-100 p-2 sticky-top"
-         style="height: 10vh; top: 0; z-index: 1020;">
-        <div class="w-100 mb-2" style="min-height: 20px">
-            <div class="d-flex flex-row flex-nowrap gap-0">
-                <a class="bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
-                    onclick="history.back()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
-                    </svg>
-                </a>
-            </div>
-            <h1 class="text-white position-absolute my-2 start-50 top-0 translate-middle-x">Orders</h1>
+<div class="vh-100 vw-100 d-flex flex-column"
+     style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
+    <header class="w-100 mb-2 d-flex justify-content-between p-2">
+        <!-- Back button -->
+        <div class="d-flex flex-row flex-nowrap gap-0 p-2">
+            <a class="bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+               href="/Home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                </svg>
+            </a>
         </div>
-    </nav>
-    <div class="p-3 pb-5 mb-5">
+        <!-- Title -->
+        <h1 class="text-light text-center m-0 p-0 align-self-center">My Orders</h1>
+
+        <!-- Cart -->
+        <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2 invisible" href="/Order/Cart">
+            <img src="~/Images/Cart.png" class="img-fluid" style="height: 30px;">
+        </a>
+    </header>
+    <main class="flex-grow-1 overflow-x-auto pb-5 d-flex flex-column flex-column orders p-2">
         @if (Model.Count() == 0)
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
@@ -39,81 +42,137 @@
         else
         {
             <div class="h-100 w-100 vstack gap-2">
-            @foreach (var order in Model)
-            {
-                <div class="card bg-dark p-2">
-                  <h5 class="text-white">Order</h5>
-                    <p class="text-white">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
-                    <table class="table text-white table-borderless bg-transparent">
-                        <thead class="bg-transparent">
-                            <tr class="bg-transparent">
-                                <th class="text-yellow bg-transparent">Qty</th>
-                                <th class="text-yellow bg-transparent">Item</th>
-                                <th class="text-yellow bg-transparent">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-transparent">
-                            @foreach (var item in order.OrderItems)
-                            {
-                                <tr></tr>
-                                <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
-                                    <td class="bg-transparent text-white">@item.Quantity</td>
-                                    <td class="bg-transparent text-white">@item.Prod.ProdName</td>
-                                    <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
+                @foreach (var order in Model)
+                {
+                    <div class="card bg-dark p-2">
+                        <h5 class="text-white">Order # @order.OrderNumber.ToString("0000")</h5>
+                        <p class="text-white">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+                        <table class="table text-white table-borderless bg-transparent">
+                            <thead class="bg-transparent">
+                                <tr class="bg-transparent">
+                                    <th class="text-yellow bg-transparent">Qty</th>
+                                    <th class="text-yellow bg-transparent">Item</th>
+                                    <th class="text-yellow bg-transparent">Status</th>
                                 </tr>
-                                @if (!string.IsNullOrEmpty(item.Instructions))
+                            </thead>
+                            <tbody class="bg-transparent">
+                                @foreach (var item in order.OrderItems)
                                 {
-                                    <tr>
-                                        <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
-                                            Notes: @item.Instructions
-                                        </td>
+                                    <tr></tr>
+                                    <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
+                                        <td class="bg-transparent text-white">@item.Quantity</td>
+                                        <td class="bg-transparent text-white">@item.Prod.ProdName</td>
+                                        <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
                                     </tr>
+                                    @if (!string.IsNullOrEmpty(item.Instructions))
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
+                                                Notes: @item.Instructions
+                                            </td>
+                                        </tr>
+                                    }
                                 }
-                            }
-                        </tbody>
-                    </table>
-                        <h4 class="text-white text-end fw-bold mt-4">
-                        Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
-                    </h4> 
-                </div>
-            }
+                            </tbody>
+                        </table>
+                        <h4 class="text-white text-end fw-bold">
+                            Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
+                        </h4>
+                    </div>
+                }
             </div>
         }
+    </main>
+    <!-- Bottom Navigation -->
+    <footer class="w-100">
+        @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
+        {
+            <button class="btn btn-yellow d-block mx-auto z-5 mb-3 px-5" id="Req" data-id="@table">Request Bill</button>
+        }
+        <div class=" border-top d-flex justify-content-evenly align-items-center text-white" style="background: #151515; min-height: 60px;">
+            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
+                <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px; filter: brightness(1) saturate(0%);" />
+                <small class="text-decoration-none text-white">Home</small>
+            </a>
+            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
+                <img src="/Images/Orders.png" class="img-fluid" style="max-height: 20px;" />
+                <small class="text-decoration-none text-white">Orders</small>
+            </a>
+        </div>
+    </footer>
+</div>
+<!-- FeedbackModal -->
+<div class="modal fade" id="FeedbackModal" tabindex="-1" aria-labelledby="FeedbackModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered p-2">
+        <div class="modal-content bg-dark">
+            <div class="modal-body d-flex flex-column">
+                <h1 class="text-white text-center mb-3">Requesting bill</h1>
+                <hr class="text-white" style="height: 2px" />
+                <h3 class="text-center text-white mt-2">How was your experience?</h3>
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                    @for(int i = 1; i<=5; i++ )
+                    {
+                        <button value="i" class="btn star m-0 p-0" style="pointer-events: none;">
+						    <img src="~/Images/Star.png" class="img-fluid" style="height: 40px; width: 40px" />
+                        </button>
+                    }
+                </div>
+                <hr class="text-white" style="height: 2px"/>
+                <div class="d-flex flex-column">
+					<h5 class="text-white">Want to hear from us?</h5>
+                    <p class="text-white">Get updates, promos, and invites straight to your inbox.</p>
+                    <input class="form-control bg-transparent border-2 text-white" id="email" type="email" placeholder="Enter your email here (optional)"/>
+                    <button class="btn btn-yellow rounded-pill submitfeedback mt-5">Submit</button>
+                    <button class="btn mt-2 text-white rounded-pill">Skip</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="position-fixed w-100 bg-black py-3 bottom-0 start-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
-    @if(Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
-    {
-        <button class="btn btn-warning d-block mx-auto z-5" id="Req"data-id="@table">Request Bill</button>
-    }
-        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
-            <img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(1) saturate(0%)" />
-            <p class="m-0  text-white">Home</p>
-        </a>
-        <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
-            <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" />
-            <p class="m-0 text-yellow">Orders</p>
-        </a>
-        @*         <div class="d-flex flex-column align-items-center w-25 text-center">
-            <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
-            <p class="m-0">Notifications</p>
-        </div> *@
-    </div>
-</div> 
-@* Add modal for feedback *@
-
-
+</div>
+<style>
+    input::placeholder {
+        color: white !important;
+        opacity: 1 !important;
+	}
+</style>
 @section Scripts{
     <script>
         $(document).ready(function () {
-               $("#Req").on("click", function () {
-                    let id = $(this).data("id");
+            $("#Req").on("click", function () {
+                let id = $(this).data("id");
 
-                    fetch(`/Order/RequestBill?tableid=${id}`)
-                    .then(response => response.json())
-                    .then(x => {
-                         alert(x.message)
-                    })
-               })
+                fetch(`/Order/RequestBill?tableid=${id}`)
+                .then(response => response.json())
+                .then(x => {
+                        if(x.success){
+                            $("#FeedbackModal").modal("show");
+                        }else{
+							alert(x.message);
+                        }
+
+                })
+            })
+
+            $(".submitfeedback").on("click", function(){
+                let email = $("#email").val();
+                let rating = $(".star.selected").length;
+                fetch(`/Market/SubmitFeedback`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: email, rating: rating })
+                })
+                .then(response => response.json())
+                .then(x => {
+                    if(x.success){
+                        alert("Thank you for your feedback!");
+                        window.location.href = "/Home";
+                    }else{
+                        alert(x.message);
+                    }
+                })
+			}))
         })
     </script>
 }
