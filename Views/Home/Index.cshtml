@@ -9,120 +9,96 @@
        ? new List<OrderItem>()
        : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-<div class="render-body d-flex flex-column overflow-hidden" style="background: /* linear-gradient(0deg, #FFFFFF, #FFFFFF), */
-radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);
-">
-    <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top"
-         style="height: 47%; top: 0; z-index: 1020;">
-         <div class="h-100 w-100 p-3">
-            <div class="w-100 mb-2">
-                <div class="d-flex flex-row flex-nowrap gap-0 align-items-center">
-                    <a class="visually-hidden bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center"
-                       href="/Order/Cart">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
-                        </svg>
-                    </a>
-                </div>
-            </div>
-            <div class="px-3 row">
+<div class="render-body d-flex flex-column vh-100 overflow-y-scroll"
+     style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
+
+    <!-- Top Nav -->
+    <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top" style="z-index: 1020;">
+        <div class="w-100">
+            <div class="px-3 row align-items-center">
                 <div class="col-7">
-                    <p class="text-light" style="font-family: sans-serif;
-                        font-weight: 700;
-                        font-size: 50px;
-                        line-height: 100%;
-                        letter-spacing: 0%;">
-                        THE SOCIAL
-                    </p>
-                    <p class="text-light" style="font-family: Amaranth;
-                        font-weight: 400;
-                        font-style: Italic;
-                        font-size: 18px;
-                        line-height: 100%;
-                        letter-spacing: 0%;">
-                        It’s not just food,<br />
-                        it’s the experience.
+                    <p class="text-light fw-bold display-6 m-0">THE SOCIAL</p>
+                    <p class="text-light fst-italic small">
+                        It’s not just food,<br />it’s the experience.
                     </p>
                 </div>
                 <div class="col-5 d-flex justify-content-center">
-                    <img class="logo" src="/images/The Social Logo.png" height="100" />
+                    <img class="logo img-fluid" src="/images/The Social Logo.png" style="max-height: 80px;" />
                 </div>
             </div>
-            <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3" style="min-height:40px">
+
+            <!-- Search + Cart -->
+            <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3">
                 <div class="flex-grow-1 d-flex px-3 py-2 border border-2 rounded-pill border-light text-light align-items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search m-0 p-0" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                    </svg>
-                    <input id="custom-search-input" type="text" placeholder="Search your favorite food" class="border-0 focus-none bg-transparent m-0 p-0 text-light flex-grow-1" />
+                    <i class="bi bi-search"></i>
+                    <input id="custom-search-input" type="text"
+                           placeholder="Search your favorite food"
+                           class="border-0 bg-transparent text-light flex-grow-1" />
                 </div>
-                <a class="text-decoration-none text-yellow m-0 p-0 rounded-1 gotocart position-relative"
-                   href="/Order/Cart">
-                    <img src="~/Images/Cart.png" height="30"/>
-                    <div class="pill">
-                        @if (orders.Count > 0)
-                        {
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                @orders.Count
-                                <span class="visually-hidden">unread messages</span>
-                            </span>
-                        }
-                    </div>
+                <a class="text-decoration-none text-yellow position-relative" href="/Order/Cart">
+                    <img src="~/Images/Cart.png" class="img-fluid" style="max-height: 28px;" />
+                    @if (orders.Count > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            @orders.Count
+                        </span>
+                    }
                 </a>
-            @* <div class="w-100 prod">
-                @foreach (var prod in Model.SelectMany(x => x.SubCategories)
-                                    .SelectMany(y => y.Products))
-                {
-                    <p>@prod.ProdName</p>
-                }
-            </div> *@
             </div>
-            <p class="text-light">Select by Category</p>
+            <p class="text-light mt-3">Select by Category</p>
         </div>
     </nav>
-   <div class="p-4 pt-0 pb-5 mb-5 overflow-y-scroll" style="height:53vh; scrollbar-width:thin; padding-bottom: 5rem !important">
-        <div class="row row-cols-2 categories">
-            @foreach(var cat in Model)
+
+    <!-- Categories (scrollable middle content) -->
+    <main class="flex-grow-1 overflow-auto px-3 pb-5"
+            style="min-height: 30vh">
+        <div class="row row-cols-2 g-3">
+            @foreach (var cat in Model)
             {
-                @if(cat.SubCategories.Select(x => x.Products) != null)
+                if (cat.SubCategories.Select(x => x.Products) != null)
                 {
-                    <div class="col my-3">
-                        <a class="text-decoration-none px-2 d-block"   
-                           style="height:150px;"                       
+                    <div class="col">
+                        <a class="text-decoration-none d-block"
                            asp-controller="Order"
                            asp-action="Menu"
                            asp-route-category="@cat.CategoryId">
 
-                            <div class="bg-white position-relative h-100 rounded overflow-hidden shadow-sm d-flex">
-                                <img
-                                     src="/Images/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() +  ".png")"
+                            <div class="bg-white position-relative rounded overflow-hidden shadow-sm"
+                                 style="aspect-ratio: 1/1;">
+                                <!-- Background image -->
+                                <img src="/Images/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")"
                                      alt="@cat.CategoryName.Trim()"
                                      class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
 
-                                <div class="position-absolute top-0 start-0 w-100 h-100" 
-                                     style="background: rgba(0,0,0,0.3);"></div>
+                                <!-- Dark overlay -->
+                                <div class="position-absolute top-0 start-0 w-100 h-100"
+                                     style="background: linear-gradient(0deg, #FFFFFF00, #010101); z-index:1;"></div>
 
-                                <h4 class="text-white text-center z-1 w-100 mt-1">
-                                    @cat.CategoryName.ToUpper()
-                                </h4>
+                                <!-- Category Name (always visible) -->
+                                <div class="position-absolute end-100 start-50 translate-middle text-center shadow w-100 px-2 pt-5 mt-2"
+                                     style="z-index:2;">
+                                    <h6 class="text-white fw-bold text-wrap">
+                                        @cat.CategoryName.ToUpper()
+                                    </h6>
+                                </div>
                             </div>
                         </a>
                     </div>
                 }
             }
         </div>
-        <div class="position-fixed w-100 bg-black py-3 bottom-0 start-0 d-flex justify-content-evenly align-items-center z-2 text-white border-top rounded-top-1" style="background: #151515;">
-            <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Home/Index">
-                <img src="/Images/Home.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(0) saturate(100%) invert(89%) sepia(90%) saturate(937%) hue-rotate(360deg) brightness(102%) contrast(103%)" />
-                <p class="m-0 text-yellow">Home</p>
-            </a>
-            <a class="text-decoration-none d-flex flex-column align-items-center w-25 text-center" href="/Order/MyOrders/@table">
-                <img src="/Images/Orders.png" height="20" width="20" class="d-block mx-auto" style="filter: brightness(1) saturate(0%)" />
-                <p class="m-0 text-white">Orders</p>
-            </a>
-    @*         <div class="d-flex flex-column align-items-center w-25 text-center">
-                <img src="/Images/Notifications.png" height="20" width="20" class="d-block mx-auto" />
-                <p class="m-0">Notifications</p>
-            </div> *@
-        </div>
-    </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer class="w-100 py-2 border-top d-flex justify-content-evenly align-items-center text-white"
+            style="background: #151515; min-height: 60px;">
+        <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
+            <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px; filter: brightness(0) invert(1);" />
+            <small class="text-yellow">Home</small>
+        </a>
+        <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
+            <img src="/Images/Orders.png" class="img-fluid" style="max-height: 20px; filter: brightness(1) saturate(0%);" />
+            <small class="text-decoration-none text-white">Orders</small>
+        </a>
+    </footer>
 </div>

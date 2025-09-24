@@ -100,7 +100,7 @@ namespace TheSocialCebu_Capstone.Controllers
                     ServiceCharge = Math.Round(servicecharge, 2),
                     GrandTotal = Math.Round(grandTotal, 2),
                     BillingTime = DateTime.Now,
-                    Payment = null
+                    Payment = null,
                 };
 
                 _context.Billings.Add(billing);
@@ -182,15 +182,24 @@ namespace TheSocialCebu_Capstone.Controllers
             if (bill == null)
                 return Json(new { success = false, message = "Bill not found" });
 
+            var vats = bill.Subtotal / 1.12m;
+            decimal? discountAmount = null;
+
+            if (bill.Discount != null)
+            {
+                discountAmount = Math.Round((decimal)(vats * bill.Discount.Percentage),2);
+            }
             var result = new
             {
                 bill.BillingId,
                 Discount = bill.Discount == null ? null : new
                 {
                     bill.Discount.DiscountName,
-                    bill.Discount.Percentage
+                    bill.Discount.Percentage,
+                    amount = discountAmount
                 },
                 bill.Subtotal,
+                vatSales = bill.Subtotal / 1.12m,
                 bill.VatAmount,
                 bill.ServiceCharge,
                 bill.GrandTotal,
@@ -216,7 +225,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 .ThenInclude(b => b.Order)
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(oi => oi.Prod)
-                .FirstOrDefault(b => b.TableId == tableid); //No Payment yet
+                .FirstOrDefault(b => b.TableId == tableid && b.Payment == null); //No Payment yet
             //var bill = _context.Billings
             //    .Include(b => b.Table)
             //    .Include(b => b.BillingOrders)
@@ -249,21 +258,34 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Payments.Add(payment);
             _context.SaveChanges();
 
+
+            var vats = bill.Subtotal / 1.12m;
+            decimal? discountAmount = null;
+
+            if (bill.DiscountId != null)
+            {
+                discountAmount = vats * bill.Discount.Percentage;
+            }
             return Json(new
             {
                 success = true,
-
+                vatSales = bill.Subtotal / 1.12m,
                 subtotal = bill.Subtotal,
                 tax = bill.VatAmount,
                 servicecharge = bill.ServiceCharge,
                 total = bill.GrandTotal,
                 change = amount - bill.GrandTotal,
+                discount = bill.Discount == null ? null : new
+                {
+                    bill.Discount.DiscountName,
+                    bill.Discount.Percentage,
+                    amount = discountAmount
+                },
                 payment = new
                 {
                     id = payment.PaymentId,
                     amountPaid = payment.AmountPaid,
                     time = payment.PaymentTime,
-                    discount = bill.Discount == null ? 0 : bill.Subtotal * bill.Discount.Percentage
                     //discount = new {
                     //    amount = discounted
                     //}

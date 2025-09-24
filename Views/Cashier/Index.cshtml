@@ -319,7 +319,7 @@
 
 			$("#calc").click(function (){
 				let amount = parseFloat($("#amount").val());
-				let id = $(this).attr("data-id");
+				let tableId = $(this).attr("data-id");
 
 
 				// let disc = $
@@ -332,14 +332,14 @@
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
-						tableid: id,
-						amount: amount,
-						discount: (disc == null? null: disc)
+						tableid: tableId,
+						amount: amount
 					})
 				})
 				.then(rawData => rawData.json())
 				.then(m => {
 					if (m.success) {
+						console.log(m)
 						//add to transac details
 						$("#receiptAmount").text("₱" + m.payment.amountPaid.toFixed(2));
 						$("#receiptSubtotal").text("₱" + m.subtotal.toFixed(2));
@@ -379,17 +379,28 @@
 								</table>
 								<hr />
 								<div id="recadd" style="text-align:right">
-									<p>Vat Sales: ${m.subtotal.toFixed(2)}</p>
+									<p>Subtotal: ${m.subtotal.toFixed(2)}</p>
+									<p>Vat Sales: ${m.vatSales.toFixed(2)}</p>
 									<p>Vat Amount: ${m.tax.toFixed(2)}</p>
 									<p>Service Charge: ${m.servicecharge.toFixed(2)}</p>
-									<p>Discount: ${m.discount.toFixed(2)}</p>
-									<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
+
+						`;
+						if(m.discount != null){
+							content += `<p>Discount - ${m.discount.discountName} ${m.discount.percentage*100}%: ${m.discount.amount.toFixed(2)}</p>
+								<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
 								</div>
 								<hr />
 								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
 								<p>Thank you for dining with us!</p>
-							</div>
-						`;
+							</div>`
+						}else{
+							content += `									<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>`
+						}
 						 // subtotal = bill.Subtotal,
 							// tax = bill.VatAmount,
 							// servicecharge = bill.ServiceCharge,
@@ -521,6 +532,7 @@
 								</table>
 								<hr />
 								<div style="text-align:right">
+									<p>Subtotal: ${m.bill.subtotal.toFixed(2)}</p>
 									<p>Vat Sales: ${m.bill.vatsales.toFixed(2)}</p>
 									<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
 									<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
@@ -572,45 +584,57 @@
 					const bill = data.bill;
 					// Grab the details table for this table
 					let rows = $(`#Details${tableId} tbody tr`).map(function () {
-						let cols = $(this).find("td");
-						return `<tr>
-									<td>${cols.eq(0).text()}</td>
-									<td class="text-center">${cols.eq(1).text()}</td>
-									<td class="text-end">${cols.eq(2).text()}</td>
-								</tr>`;
-					}).get().join
+							let cols = $(this).find("td");
+							return `<tr>
+										<td>${cols.eq(0).text()}</td>
+										<td class="text-center">${cols.eq(1).text()}</td>
+										<td class="text-end">${cols.eq(2).text()}</td>
+									</tr>`;
+						}).get().join("");
 
 					// Build proper bill
 					let content = `
-						<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-							<h3>THE SOCIAL CEBU</h3>
-							<p>Official Reciept</p>
-							<p>Table: ${tableId}</p>
-							<hr />
-							<table style="width:100%; font-size:12px; text-align:left">
-								<thead>
-									<tr>
-										<th style="text-align:left">Item</th>
-										<th style="text-align:center">Qty</th>
-										<th style="text-align:right">Price</th>
-									</tr>
-								</thead>
-								<tbody>
-									${rows}
-								</tbody>
-							</table>
-							<hr />
-							<div id="recadd" style="text-align:right">
-								<p>Vat Sales: ${subtotal}</p>
-								<p>Vat Amount: ${vat}</p>
-								<p>Service Charge: ${service}</p>
-								<p><strong>Total: ${total}</strong></p>
-							</div>
-							<hr />
-							<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
-							<p>Thank you for dining with us!</p>
-						</div>
-					`;
+							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+								<h3>THE SOCIAL CEBU</h3>
+								<p>Official Reciept</p>
+								<p>Table: ${tableId}</p>
+								<hr />
+								<table style="width:100%; font-size:12px; text-align:left">
+									<thead>
+										<tr>
+											<th style="text-align:left">Item</th>
+											<th style="text-align:center">Qty</th>
+											<th style="text-align:right">Price</th>
+										</tr>
+									</thead>
+									<tbody>
+										${rows}
+									</tbody>
+								</table>
+								<hr />
+								<div style="text-align:right">
+									<p>Subtotal: ${bill.subtotal.toFixed(2)}</p>
+									<p>Vat Sales: ${bill.vatSales.toFixed(2)}</p>
+									<p>Vat Amount: ${bill.vatAmount.toFixed(2)}</p>
+									<p>Service Charge: ${bill.serviceCharge.toFixed(2)}</p>
+
+						`;
+						if(bill.discount != null){
+							content += `<p>Discount - ${bill.discount.discountName} ${bill.discount.percentage*100}%: ${bill.discount.amount}</p>
+								<p><strong>Total: ${bill.grandTotal.toFixed(2)}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>`
+						}else{
+							content += `									<p><strong>Total: ${bill.grandTotal.toFixed(2)}</strong></p>
+								</div>
+								<hr />
+								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+								<p>Thank you for dining with us!</p>
+							</div>`
+						}
 
 					$("#DisplayBody").html(content);
 					$("#PayModal").modal("show");
