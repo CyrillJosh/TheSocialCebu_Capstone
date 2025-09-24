@@ -206,6 +206,7 @@ public partial class MyDBContext : DbContext
                 .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.TableId).HasMaxLength(50);
+            entity.Property(e => e.OrderNumber);
 
             entity.HasOne(d => d.OrderStatus).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.OrderStatusId)

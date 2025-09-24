@@ -20,6 +20,7 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Table(string id)
         {
             var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
+            if (table == null) return NotFound();
             if (table.TableStatusId == 5) return NotFound();
 
             HttpContext.Session.SetString("Table", id);

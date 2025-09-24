@@ -8,45 +8,14 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css"/>
     <link rel="stylesheet" href="~/TheSocialCebu_Capstone.styles.css" asp-append-version="true" />
-
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="row row-cols-sm-1 row-cols-lg-2 vh-100 vw-100 text-dark" style="margin-left:0 !important">
     @{
         var userId = Context.Session.GetString("_Id");
         var userRole = Context.Session.GetString("_Role");
     }
-
-    <div class="offcanvas offcanvas-start bg-gray text-white" tabindex="-1" id="sidebarMenu" style="width: 250px;">
-        <div class="offcanvas-header">
-            <a href="/" class="font-monospace fw-bold mb-4 d-flex align-items-center gap-2 text-white text-decoration-none">
-                <img class="logo" src="/images/The Social Logo.png" height="50" />
-                <h4 class="m-0">THE SOCIAL</h4>
-            </a>
-        </div>
-        <div class="offcanvas-body d-flex flex-column gap-2">
-            <a class="btn btn-dark w-100 text-start" asp-controller="Home" asp-action="Index">Home</a>
-            <a class="btn btn-dark w-100 text-start" asp-controller="Menu" asp-action="Index">Menu Management</a>
-            <a class="btn btn-dark w-100 text-start" asp-controller="Table" asp-action="Index">Table Management</a>
-
-            <a href="http://localhost:5021/Order/Table/cd69e8bc-ee35-4132-9768-8d4e198f9b8f">Order shortcut</a>
-            <a href="http://localhost:5021/Kitchen">Kitchen shortcut</a>
-            <a href="http://localhost:5021/Cashier">Cashier shortcut</a>
-            <label for="checkbox" class="btn btn-dark w-100 text-start mt-auto">
-                <input type="checkbox" id="checkbox" hidden /> Theme
-            </label>
-
-            @if (userId != null || userRole != null)
-            {
-                <a class="btn btn-dark w-100 text-start">Logout</a>
-            }
-            else
-            {
-                <a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Login">Login</a>
-            }
-        </div>
-    </div>
-
-    <div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 py-0 px-4" style="width: 250px;">
+@*     <div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 py-0 px-4" style="width: 250px;">
         <a href="/" class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
             <img class="logo" src="/images/The Social Logo.png" height="50" />
             <h4 class="m-0">THE SOCIAL</h4>
@@ -73,15 +42,15 @@
                 <a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Login">Login</a>
             }
         </div>
-    </div>
-    <div class="flex-grow-1 col pe-0 ps-0">
+    </div> *@
+    <div class="flex-grow-1 col pe-0 ps-0 position-relative">
         @RenderBody()
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/datatable.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

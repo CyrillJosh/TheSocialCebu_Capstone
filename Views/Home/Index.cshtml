@@ -9,12 +9,24 @@
        ? new List<OrderItem>()
        : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-<div class="render-body d-flex flex-column vh-100 overflow-y-scroll"
+<div class="d-flex flex-column vh-100 vw-100 overflow-y-scroll overflow-x-hidden"
      style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
 
     <!-- Top Nav -->
     <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top" style="z-index: 1020;">
-        <div class="w-100">
+        <div class="w-100 d-flex flex-column">
+            <!-- Cart -->
+            <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2" href="/Order/Cart">
+                <img src="~/Images/Cart.png" class="img-fluid" style="height: 30px;">
+                @if (orders.Count > 0)
+                {
+                    <span class="position-absolute top-0 mt-1 start-100 translate-middle badge rounded-pill bg-danger">
+                        @orders.Count()
+                        <span class="visually-hidden">Orders</span>
+                    </span>
+                }
+            </a>
+            <!-- Text Contents -->
             <div class="px-3 row align-items-center">
                 <div class="col-7">
                     <p class="text-light fw-bold display-6 m-0">THE SOCIAL</p>
@@ -26,9 +38,8 @@
                     <img class="logo img-fluid" src="/images/The Social Logo.png" style="max-height: 80px;" />
                 </div>
             </div>
-
             <!-- Search + Cart -->
-            <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3">
+            @* <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3">
                 <div class="flex-grow-1 d-flex px-3 py-2 border border-2 rounded-pill border-light text-light align-items-center gap-2">
                     <i class="bi bi-search"></i>
                     <input id="custom-search-input" type="text"
@@ -44,8 +55,8 @@
                         </span>
                     }
                 </a>
-            </div>
-            <p class="text-light mt-3">Select by Category</p>
+            </div> *@
+            <p class="text-light mt-3 px-3">Select by Category</p>
         </div>
     </nav>
 
@@ -66,7 +77,7 @@
                             <div class="bg-white position-relative rounded overflow-hidden shadow-sm"
                                  style="aspect-ratio: 1/1;">
                                 <!-- Background image -->
-                                <img src="/Images/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")"
+                                <img src="/Images/Categories/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")"
                                      alt="@cat.CategoryName.Trim()"
                                      class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
 
@@ -90,10 +101,10 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <footer class="w-100 py-2 border-top d-flex justify-content-evenly align-items-center text-white"
+    <footer class="w-100 border-top d-flex justify-content-evenly align-items-center text-white"
             style="background: #151515; min-height: 60px;">
         <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
-            <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px; filter: brightness(0) invert(1);" />
+            <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px;" />
             <small class="text-yellow">Home</small>
         </a>
         <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
