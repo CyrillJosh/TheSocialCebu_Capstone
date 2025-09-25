@@ -231,7 +231,8 @@ namespace TheSocialCebu_Capstone.Controllers
             //    .Include(b => b.BillingOrders)
             //    .ThenInclude(b => b.Order)
             //    .FirstOrDefault(b => b.TableId == tableid && !b.Payments.Any());
-
+            if(bill == null)
+                return Json(new { success = false, message = "Bill already paid" });
             if (bill.Payment != null)
                 return Json(new { success = false, message = "Bill already paid" });
 

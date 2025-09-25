@@ -158,18 +158,12 @@ public partial class MyDBContext : DbContext
         modelBuilder.Entity<Feedback>(entity =>
         {
             entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDD62696CE5D");
-
             entity.ToTable("Feedback");
 
+            entity.Property(e => e.DateCreated);
             entity.Property(e => e.FeedbackId)
                 .HasMaxLength(50)
                 .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
-            entity.Property(e => e.BillingId).HasMaxLength(50);
-
-            entity.HasOne(d => d.Billing).WithMany(p => p.Feedbacks)
-                .HasForeignKey(d => d.BillingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__Billin__28ED12D1");
         });
 
         modelBuilder.Entity<Location>(entity =>

@@ -87,16 +87,17 @@
     <footer class="w-100">
         @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
         {
-            <button class="btn btn-yellow d-block mx-auto z-5 mb-3 px-5" id="Req" data-id="@table">Request Bill</button>
+            <button class="btn btn-yellow d-block mx-auto z-5 my-3 px-5" id="Req" data-id="@table">Request Bill</button>
         }
-        <div class=" border-top d-flex justify-content-evenly align-items-center text-white" style="background: #151515; min-height: 60px;">
+        <div class="w-100 border-top d-flex justify-content-evenly align-items-center text-white pt-3"
+              style="background: #151515; min-height: 120px; padding-bottom: 10vh">
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
-                <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px; filter: brightness(1) saturate(0%);" />
-                <small class="text-decoration-none text-white">Home</small>
+                <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
+                <small class="text-white">Home</small>
             </a>
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
-                <img src="/Images/Orders.png" class="img-fluid" style="max-height: 20px;" />
-                <small class="text-decoration-none text-white">Orders</small>
+                <img src="/Images/Orders.png" class="img-fluid" style="max-height: 30px; " />
+                <small class="text-yellow">Orders</small>
             </a>
         </div>
     </footer>
@@ -112,18 +113,20 @@
                 <div class="d-flex justify-content-center gap-2 mb-2">
                     @for(int i = 1; i<=5; i++ )
                     {
-                        <button value="i" class="btn star m-0 p-0" style="pointer-events: none;">
-						    <img src="~/Images/Star.png" class="img-fluid" style="height: 40px; width: 40px" />
+                        <button type="button" value="@i" class="btn star m-0 p-0" data-rating="@i">
+                            <img src="~/Images/Star.png" class="img-fluid star-img" style="height: 40px; width: 40px; opacity: 0.5;" />
                         </button>
                     }
                 </div>
+                <input type="hidden" id="RatingValue" name="RatingValue" value="0" />
+
                 <hr class="text-white" style="height: 2px"/>
                 <div class="d-flex flex-column">
 					<h5 class="text-white">Want to hear from us?</h5>
                     <p class="text-white">Get updates, promos, and invites straight to your inbox.</p>
-                    <input class="form-control bg-transparent border-2 text-white" id="email" type="email" placeholder="Enter your email here (optional)"/>
+                    <input class="form-control bg-transparent border-2 text-white" value="" id="email" type="email" placeholder="Enter your email here (optional)"/>
                     <button class="btn btn-yellow rounded-pill submitfeedback mt-5">Submit</button>
-                    <button class="btn mt-2 text-white rounded-pill">Skip</button>
+                    <button class="btn mt-2 text-white rounded-pill" data-bs-dismiss="modal">Skip</button>
                 </div>
             </div>
         </div>
@@ -138,6 +141,21 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
+            $(".star").click(function () {
+                var rating = $(this).data("rating");
+                $("#RatingValue").val(rating);
+                $(".star-img").css("opacity", "0.5");
+                console.log(rating)
+                $(".star").each(function () {
+                    if ($(this).data("rating") <= rating) {
+                        $(this).find("img").attr("src","/Images/StarFilled.png");
+                    }
+                    else{
+                        $(this).find("img").attr("src","/Images/Star.png");
+
+                    }
+                });
+            });
             $("#Req").on("click", function () {
                 let id = $(this).data("id");
 
@@ -149,30 +167,23 @@
                         }else{
 							alert(x.message);
                         }
-
                 })
             })
 
             $(".submitfeedback").on("click", function(){
                 let email = $("#email").val();
-                let rating = $(".star.selected").length;
-                fetch(`/Market/SubmitFeedback`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email: email, rating: rating })
-                })
+                let rating = $("#RatingValue").val();
+                fetch(`/Marketing/Rate?rate=${rating}&email=${email}`)
                 .then(response => response.json())
                 .then(x => {
                     if(x.success){
                         alert("Thank you for your feedback!");
-                        window.location.href = "/Home";
+                        $("#FeedbackModal").modal("hide");
                     }else{
                         alert(x.message);
                     }
                 })
-			}))
+			})
         })
     </script>
 }

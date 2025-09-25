@@ -68,106 +68,104 @@
 		}
 }
 </style>
-<div class="render-body">
-	<div class="p-4">
-		<div class="row">
-			<div class="col-7 d-flex flex-column gap-2">
+<div class="vh-100 vw-100 p-4">
+	<div class="row h-100">
+		<div class="col-7 h-100">
+			<h1>Payment</h1>
+			<div class="d-flex gap-2 overflow-y-scroll h-100 pt-5 ps-3">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1)@* .Where(x => x.OrderItems.Count() > 0 && x.OrderItems.All(y => y.OrderItemStatusId > 2)) *@)
 				{
-					<div class="show focus-ring-success" id="@t.Table.TableId">
-						<div class="border border-1 shadow rounded-3 p-2 hstack gap-3 me-2">
-							<div class="p-2 px-3 bg-primary">
-								<h3>@t.Table.TableNumber</h3>
-							</div>
-							<div class="d-flex flex-column justify-content-center">
-								<p>@t.Table.TableId</p>
+					<div class="show" id="@t.Table.TableId" style="max-height: 100px">
+						<div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow">
+							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
+								<h3 class="text-white m-0 py-2 px-5">@t.Table.TableNumber</h3>
 							</div>
 						</div>
 					</div>
 				}
 			</div>
-			<div class="col-5">
-				@foreach(var t in Model.Where(x => x.OrderItems != null))
-				{
-					<div class="border border-1 shadow rounded-3 p-3 details visually-hidden" id="@("Details" + t.Table.TableId)">
-						<div>
-							<div class="p-2 hstack gap-3 me-2">
-								<div class="p-2 px-3 bg-primary">
-									<h3>@t.Table.TableNumber</h3>
-								</div>
-								<div class="d-flex flex-column justify-content-center">
-									<p class="m-0 fw-bold text-center">@t.Table.TableId</p>
-								</div>
+		</div>
+		<div class="col-5 h-100">
+			<h1>Details</h1>
+			<div class="d-flex pt-3">
+			@foreach(var t in Model.Where(x => x.OrderItems != null))
+			{
+				<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden" id="@("Details" + t.Table.TableId)">
+					<div>
+						<div class="p-2 hstack gap-3 me-2">
+							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
+								<h3 class="text-white m-0 py-2 px-5">@t.Table.TableNumber</h3>
 							</div>
-							<div class="w-100 overflow-y-auto" style="min-height: 300px">
-								<hr />
-								<table class="w-100">
-									<thead>
+						</div>
+						<div class="w-100 overflow-y-auto" style="min-height: 300px">
+							<hr />
+							<table class="w-100">
+								<thead>
+									<tr>
+										<th>Items</th>
+										<th>Qty</th>
+										<th>Price</th>
+									</tr>
+								</thead>
+								<tbody id="@("body" + t.Table.TableId)">
+									@foreach (var item in t.OrderItems)
+									{
 										<tr>
-											<th>Items</th>
-											<th>Qty</th>
-											<th>Price</th>
+											<td>@item.Prod.ProdName</td>
+											<td>@item.Quantity</td>
+											<td>₱@((item.Prod.Price * item.Quantity))</td>
 										</tr>
-									</thead>
-									<tbody id="@("body" + t.Table.TableId)">
-										@foreach (var item in t.OrderItems)
-										{
-											<tr>
-												<td>@item.Prod.ProdName</td>
-												<td>@item.Quantity</td>
-												<td>₱@((item.Prod.Price * item.Quantity))</td>
-											</tr>
-										}
-									</tbody>
-								</table>
-								<hr />
-								<div class="vstack">
-									<div class="d-flex justify-content-between align-items-center">
-										<p>Vat Sales</p>
-										<p>₱@Convert.ToDecimal(t.Subtotal).ToString("0.00")</p>
-									</div>
-									@* <div class="d-flex justify-content-between align-items-center">
-										<p>Discount</p>
-									</div> *@
-									<div class="d-flex justify-content-between align-items-center">
-										<p>Vat amount</p>
-										<p>₱@Convert.ToDecimal(t.Tax).ToString("0.00")</p>
-									</div>
-									<div class="d-flex justify-content-between align-items-center">
-										<p>Service Charge</p>
-										<p>₱@Convert.ToDecimal(t.ServiceCharge).ToString("0.00")</p>
-									</div>
-									<div class="d-flex justify-content-between align-items-center">
-										<p>Total</p>
-										<p>₱@Convert.ToDecimal(t.Total).ToString("0.00")</p>
-									</div>
-									<div class="d-flex flex-row gap-2">
-										@if (t.Table.TableStatusId == 3) 
-										{
-											<button class="btn btn-yellow bill flex-fill"
-													id="@t.Table.TableId">
-												Generate Bill
-											</button>
-										}
-										else if (t.Table.TableStatusId == 4) 
-										{
-											<button class="btn btn-yellow pay flex-fill"
-													id="@t.Table.TableId">
-												Pay Bill
-											</button>
-											<button class="btn btn-yellow flex-fill disc"
-													data-bs-toggle="modal"
-													data-bs-target="#DiscountModal"
-													id="@t.Table.TableId">
-												Apply Discount
-											</button>
-										}
-									</div>
+									}
+								</tbody>
+							</table>
+							<hr />
+							<div class="vstack">
+								<div class="d-flex justify-content-between align-items-center">
+									<p>Vat Sales</p>
+									<p>₱@Convert.ToDecimal(t.Subtotal).ToString("0.00")</p>
+								</div>
+								@* <div class="d-flex justify-content-between align-items-center">
+									<p>Discount</p>
+								</div> *@
+								<div class="d-flex justify-content-between align-items-center">
+									<p>Vat amount</p>
+									<p>₱@Convert.ToDecimal(t.Tax).ToString("0.00")</p>
+								</div>
+								<div class="d-flex justify-content-between align-items-center">
+									<p>Service Charge</p>
+									<p>₱@Convert.ToDecimal(t.ServiceCharge).ToString("0.00")</p>
+								</div>
+								<div class="d-flex justify-content-between align-items-center">
+									<p>Total</p>
+									<p>₱@Convert.ToDecimal(t.Total).ToString("0.00")</p>
+								</div>
+								<div class="d-flex flex-row gap-2">
+									@if (t.Table.TableStatusId == 3) 
+									{
+										<button class="btn btn-yellow bill flex-fill"
+												id="@t.Table.TableId">
+											Generate Bill
+										</button>
+									}
+									else if (t.Table.TableStatusId == 4) 
+									{
+										<button class="btn btn-yellow pay flex-fill"
+												id="@t.Table.TableId">
+											Pay Bill
+										</button>
+										<button class="btn btn-yellow flex-fill disc"
+												data-bs-toggle="modal"
+												data-bs-target="#DiscountModal"
+												id="@t.Table.TableId">
+											Apply Discount
+										</button>
+									}
 								</div>
 							</div>
 						</div>
 					</div>
-				}
+				</div>
+			}
 			</div>
 		</div>
 	</div>
@@ -180,7 +178,7 @@
 			</div>
 			<div class="w-100 d-flex flex-row gap-2 px-5 py-2">
 				<button class="flex-fill btn btn-light shadow" data-bs-dismiss="modal" aria-label="Close">Back</button>
-				<a class="flex-fill btn btn-yellow" href="javascript:window.print()">Print</a>
+				<a class="flex-fill btn btn-yellow printbill" href="javascript:window.print()">Print</a>
 			</div>
 		</div>
 	</div>
@@ -294,6 +292,13 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
+			$(".printbill").click(function() {
+				// Update UI button
+						let btn = $(`#${tableId}.bill`);
+						btn.removeClass("bill").addClass("pay");
+						btn.text("Pay Bill");
+						btn.attr("data-bs-target", "#PayModal");
+			});
 			$(".printwd").click(function (){
 				let id = $(this).attr("id");
 				let discountId = $("#select").val();
@@ -558,11 +563,6 @@
 						$("#billbody").html(content);
 						$("#BillModal").modal("show");
 
-						// Update UI button
-						let btn = $(`#${tableId}.bill`);
-						btn.removeClass("bill").addClass("pay");
-						btn.text("Pay Bill");
-						btn.attr("data-bs-target", "#PayModal");
 					} else {
 						alert("Error: " + (m.detail || "Unable to generate bill."));
 					}

@@ -9,7 +9,7 @@
        ? new List<OrderItem>()
        : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-<div class="d-flex flex-column vh-100 vw-100 overflow-y-scroll overflow-x-hidden"
+<div class="d-flex flex-column vh-100 vw-100 overflow-hidden"
      style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
 
     <!-- Top Nav -->
@@ -101,15 +101,17 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <footer class="w-100 border-top d-flex justify-content-evenly align-items-center text-white"
-            style="background: #151515; min-height: 60px;">
-        <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
-            <img src="/Images/Home.png" class="img-fluid" style="max-height: 20px;" />
-            <small class="text-yellow">Home</small>
-        </a>
-        <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
-            <img src="/Images/Orders.png" class="img-fluid" style="max-height: 20px; filter: brightness(1) saturate(0%);" />
-            <small class="text-decoration-none text-white">Orders</small>
-        </a>
+    <footer class="w-100 border-top pt-3"
+            style="background: #151515; min-height: 120px; padding-bottom: 10vh">
+        <div class="w-100 d-flex justify-content-evenly align-items-center text-white" style="background: #151515; min-height: 60px;">
+            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
+                <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px;"/>
+                <small class="text-yellow">Home</small>
+            </a>
+            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
+                <img src="/Images/Orders.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
+                <small class="text-decoration-none text-white">Orders</small>
+            </a>
+        </div>
     </footer>
 </div>

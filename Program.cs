@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Controllers;
 using TheSocialCebu_Capstone.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,11 @@ builder.Services.AddDbContext<MyDBContext>(options =>
         .EnableSensitiveDataLogging(),
     ServiceLifetime.Transient
 );
+
+builder.Services.AddTransient<MyDBContext>();
+builder.Services.AddTransient<OrderController>();
+builder.Services.AddTransient<CashierController>();
+builder.Services.AddTransient<KitchenController>();
 
 //Session service
 builder.Services.AddDistributedMemoryCache();
@@ -47,6 +53,7 @@ app.UseRouting();
 app.MapHub<ConnectorHub>("/connectorHub");
 
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",

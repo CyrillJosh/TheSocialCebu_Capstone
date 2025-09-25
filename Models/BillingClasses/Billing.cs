@@ -23,8 +23,6 @@ public partial class Billing
 
     public virtual ICollection<BillingOrder> BillingOrders { get; set; } = new List<BillingOrder>();
 
-    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
     public virtual Payment? Payment { get; set; }
 
     public virtual Table Table { get; set; } = null!;
