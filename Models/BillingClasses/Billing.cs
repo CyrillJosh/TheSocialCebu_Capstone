@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheSocialCebu_Capstone.Models.BillingClasses;
 
 namespace TheSocialCebu_Capstone.Models;
 
@@ -28,5 +29,6 @@ public partial class Billing
     public virtual Table Table { get; set; } = null!;
 
     public virtual DiscountType Discount { get; set; } = null!;
+    public virtual DiscountDetail? DiscountDetail { get; set; }
 
 }

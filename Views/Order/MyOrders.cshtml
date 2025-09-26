@@ -10,7 +10,7 @@
     <header class="w-100 mb-2 d-flex justify-content-between p-2">
         <!-- Back button -->
         <div class="d-flex flex-row flex-nowrap gap-0 p-2">
-            <a class="bg-yellow text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+            <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
                href="/Home">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
@@ -18,14 +18,14 @@
             </a>
         </div>
         <!-- Title -->
-        <h1 class="text-light text-center m-0 p-0 align-self-center">My Orders</h1>
+        <h1 class="text-white text-center m-0 p-0 align-self-center">My Orders</h1>
 
         <!-- Cart -->
         <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2 invisible" href="/Order/Cart">
             <img src="~/Images/Cart.png" class="img-fluid" style="height: 30px;">
         </a>
     </header>
-    <main class="flex-grow-1 overflow-x-auto pb-5 d-flex flex-column flex-column orders p-2">
+    <main class="flex-grow-1 overflow-x-auto pb-5 d-flex flex-column flex-column orders px-3">
         @if (Model.Count() == 0)
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
@@ -44,15 +44,15 @@
             <div class="h-100 w-100 vstack gap-2">
                 @foreach (var order in Model)
                 {
-                    <div class="card bg-dark p-2">
+                    <div class="card bg-secondary p-3">
                         <h5 class="text-white">Order # @order.OrderNumber.ToString("0000")</h5>
-                        <p class="text-white">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+                        <p class="text-white fst-italic">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
                         <table class="table text-white table-borderless bg-transparent">
                             <thead class="bg-transparent">
                                 <tr class="bg-transparent">
-                                    <th class="text-yellow bg-transparent">Qty</th>
-                                    <th class="text-yellow bg-transparent">Item</th>
-                                    <th class="text-yellow bg-transparent">Status</th>
+                                    <th class="text-primary bg-transparent fw-light">Qty</th>
+                                    <th class="text-primary bg-transparent fw-light">Item</th>
+                                    <th class="text-primary bg-transparent fw-light">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-transparent">
@@ -60,9 +60,9 @@
                                 {
                                     <tr></tr>
                                     <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
-                                        <td class="bg-transparent text-white">@item.Quantity</td>
-                                        <td class="bg-transparent text-white">@item.Prod.ProdName</td>
-                                        <td class="bg-transparent text-white">@item.OrderItemStatus.StatusName</td>
+                                        <td class="bg-transparent fw-bold text-white">@item.Quantity</td>
+                                        <td class="bg-transparent fw-bold text-white">@item.Prod.ProdName</td>
+                                        <td class="bg-transparent fw-bold text-white">@item.OrderItemStatus.StatusName</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
@@ -75,9 +75,6 @@
                                 }
                             </tbody>
                         </table>
-                        <h4 class="text-white text-end fw-bold">
-                            Total: @string.Format("₱ {0:N2}", order.OrderItems.Sum(oi => oi.Prod.Price * oi.Quantity))
-                        </h4>
                     </div>
                 }
             </div>
@@ -87,17 +84,17 @@
     <footer class="w-100">
         @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
         {
-            <button class="btn btn-yellow d-block mx-auto z-5 my-3 px-5" id="Req" data-id="@table">Request Bill</button>
+            <button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>
         }
-        <div class="w-100 border-top d-flex justify-content-evenly align-items-center text-white pt-3"
-              style="background: #151515; min-height: 120px; padding-bottom: 10vh">
+        <div class="w-100 border-top bg-secondary d-flex justify-content-evenly align-items-center text-white pt-3"
+              style="padding-bottom: 10vh">
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
                 <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
                 <small class="text-white">Home</small>
             </a>
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
                 <img src="/Images/Orders.png" class="img-fluid" style="max-height: 30px; " />
-                <small class="text-yellow">Orders</small>
+                <small class="text-primary">Orders</small>
             </a>
         </div>
     </footer>

@@ -40,14 +40,9 @@
                             <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.Category.CategoryName</td>
                             <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.SubcategoryName</td>
                             <td class="border-2 border-end-0 border-start-0 border-secondary">
-                                @if (item.Availability)
-                                {
-                                    <span class="badge bg-success px-3 py-2 w-100">Available</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger px-3 py-2 w-100">Unavailable</span>
-                                }
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input change p-0 m-0" type="checkbox" id="@item.ProdId" @(item.Availability ? "checked" : "")>
+                                </div>
                             </td>
                             <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
                                 <div>
@@ -97,8 +92,19 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+              $('.change').on('change', function (){
+                let id = $(this).attr('id');
+                fetch('/kitchen/UpdateMenu/' + id)
+                .then(response => response.json())
+                .then(m => {
+                    if(m.message == "Error"){
+                        alert("Error changing status");
+                        return;
+                    }
+                })
+            })
             $('#Table').DataTable({
-                pageLength: 10,
+                pageLength: 8,
                 lengthChange: false,
                 ordering: true,
                 info: true,

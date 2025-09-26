@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.BillingClasses;
 using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -53,7 +54,7 @@ namespace TheSocialCebu_Capstone.Controllers
                             ProdId = x.Key,
                             Prod = x.First().Prod,
                             Quantity = x.Sum(y => y.Quantity)
-                        }),
+                        }).ToList(),
                     Subtotal = subtotal,
                     Tax = tax,
                     ServiceCharge = servicecharge,
@@ -67,7 +68,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         [HttpGet]
-        public JsonResult GenerateBill(string tableid, string discountid = null)
+        public JsonResult GenerateBill(string tableid)
         {
             var table = _context.Tables
                 .Include(t => t.Billings)
@@ -80,63 +81,38 @@ namespace TheSocialCebu_Capstone.Controllers
             if (table == null || !table.Orders.Any())
                 return Json(new {success = false, message = "Error", detail = "No billable orders found." });
 
-            var disc = _context.DiscountTypes.FirstOrDefault(x => x.DiscountTypeId == discountid);
             Billing billing = new Billing();
 
-            if (disc == null)
-            {
-                var subtotal = (decimal)table.Orders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * oi.Prod.Price));
-                var vatsales = subtotal / 1.12m;
-                var tax = subtotal - vatsales;
-                var servicecharge = vatsales * 0.10m;
-                var grandTotal = vatsales + tax + servicecharge;
+            var subtotal = (decimal)table.Orders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * oi.Prod.Price));
+            var vatsales = subtotal / 1.12m;
+            var tax = subtotal - vatsales;
+            var servicecharge = vatsales * 0.10m;
+            var grandTotal = vatsales + tax + servicecharge;
 
-                billing = new Billing()
+            billing = new Billing()
+            {
+                BillingId = Guid.NewGuid().ToString(),
+                TableId = tableid,
+                Subtotal = Math.Round(subtotal,3),
+                VatAmount = Math.Round(tax,3),
+                ServiceCharge = Math.Round(servicecharge, 3),
+                GrandTotal = Math.Round(grandTotal, 3),
+                BillingTime = DateTime.Now,
+                Payment = null,
+            };
+
+            _context.Billings.Add(billing);
+
+            foreach (var order in table.Orders)
+            {
+                var bo = new BillingOrder
                 {
-                    BillingId = Guid.NewGuid().ToString(),
-                    TableId = tableid,
-                    Subtotal = Math.Round(subtotal,2),
-                    VatAmount = Math.Round(tax,2),
-                    ServiceCharge = Math.Round(servicecharge, 2),
-                    GrandTotal = Math.Round(grandTotal, 2),
-                    BillingTime = DateTime.Now,
-                    Payment = null,
+                    BillingId = billing.BillingId,
+                    OrderId = order.OrderId
                 };
-
-                _context.Billings.Add(billing);
-
-                foreach (var order in table.Orders)
-                {
-                    var bo = new BillingOrder
-                    {
-                        BillingId = billing.BillingId,
-                        OrderId = order.OrderId
-                    };
-                    _context.Add(bo);
-                    order.OrderStatusId = 4; // Billed
-                }
+                _context.Add(bo);
+                order.OrderStatusId = 4; // Billed
             }
-            else
-            {
-                billing = _context.Billings
-                    .Include(x => x.Payment)
-                    .FirstOrDefault(x => x.Payment == null && x.TableId == tableid);
-
-                var vatsales = Math.Round((decimal)(billing.Subtotal / 1.12m),2);
-                var tax = Math.Round((decimal)(billing.Subtotal - vatsales),2);
-                var discountedSubtotal = Math.Round((decimal)(vatsales - (vatsales * disc.Percentage)),2);
-                var servicecharge = Math.Round((decimal)(discountedSubtotal * 0.10m), 2);
-                var grandTotal = Math.Round((decimal)(discountedSubtotal + servicecharge), 2);
-
-                billing.ServiceCharge = Math.Round((decimal)servicecharge, 2);
-                billing.GrandTotal = Math.Round((decimal)grandTotal,2);
-                billing.BillingTime = DateTime.Now;
-                billing.DiscountId = disc.DiscountTypeId;
-                billing.Discount = disc;
-
-                _context.Update(billing);
-            }
-
 
             // Update table status (4 = Waiting for Payment)
             table.TableStatusId = 4;
@@ -144,12 +120,86 @@ namespace TheSocialCebu_Capstone.Controllers
 
             _context.SaveChanges();
             var vats = billing.Subtotal / 1.12m;
-            decimal? discountAmount = null;
 
-            if (disc != null)
+            return Json(new
             {
-                discountAmount = vats * disc.Percentage;
-            }
+                success = true,
+                message = "Success",
+                bill = new
+                {
+                    subtotal = Math.Round((decimal)billing.Subtotal,2),
+                    vatsales = Math.Round((decimal)vats, 2),
+                    vatamount = Math.Round((decimal)billing.VatAmount, 2),
+                    servicecharge = Math.Round((decimal)billing.ServiceCharge, 2),
+                    total = Math.Round((decimal)billing.GrandTotal, 2)
+                }
+            });
+        }
+        [HttpPost]
+        public JsonResult ApplyDiscount(string tableid, string discountid, int num, int applic)
+        {
+            var table = _context.Tables
+                  .Include(t => t.Billings)
+                  .ThenInclude(b => b.Payment)
+                  .Include(t => t.Orders.Where(o => o.OrderStatusId == 4)) // only orders that requested bill
+                  .ThenInclude(o => o.OrderItems)
+                  .ThenInclude(oi => oi.Prod)
+                  .FirstOrDefault(t => t.TableId == tableid);
+
+            if (table == null || !table.Orders.Any())
+                return Json(new { success = false, message = "Error: No billable orders found." });
+
+            var disc = _context.DiscountTypes.FirstOrDefault(x => x.DiscountTypeId == discountid);
+            if(disc == null)
+                return Json(new { success = false, message = "Error: Discount type not found." });
+
+
+            Billing billing = new Billing();
+            //get unpaid bill
+            billing = _context.Billings
+                   .Include(x => x.Payment)
+                   .FirstOrDefault(x => x.Payment == null && x.TableId == tableid);
+            //initialization
+            var subtotal = billing.Subtotal;
+            var numofcust = num;
+            var numdischold = applic;
+
+            //calculation
+            var vatexempt = (subtotal / numofcust)/1.12m;
+            var discountamount = vatexempt * disc.Percentage * numdischold;
+            var totaldisc = (vatexempt * numofcust) - discountamount;
+            var servicecharge = totaldisc * .10m;
+            var vatable = vatexempt * (numofcust - numdischold);
+            var vatamount = vatable * .12m;
+            var grandtotal = totaldisc + servicecharge + vatamount;
+            var vatexemptsale = (totaldisc - vatexempt) + servicecharge;
+            var totalsale = totaldisc + servicecharge;
+
+            //update bill
+            billing.VatAmount = Math.Round((decimal)vatamount,2);
+            billing.ServiceCharge = Math.Round((decimal)servicecharge,2);
+            billing.GrandTotal = Math.Round((decimal)grandtotal,2);
+            billing.DiscountId = discountid;
+            billing.BillingTime = DateTime.Now;
+
+            var DiscountDetails = new DiscountDetail()
+            {
+                DiscountDetailId = Guid.NewGuid().ToString(),
+                BillingId = billing.BillingId,
+                DiscountTypeId = disc.DiscountTypeId,
+                NumOfCustomer = numofcust,
+                NumOfDiscountHolder = numdischold,
+            };
+            
+            _context.DiscountDetails.Add(DiscountDetails);
+
+            //update db
+            _context.Update(billing);
+            _context.SaveChanges();
+
+            //initialization
+            var vats = billing.Subtotal / 1.12m;
+            decimal? discountAmount = vats * disc.Percentage;
 
             return Json(new
             {
@@ -159,28 +209,50 @@ namespace TheSocialCebu_Capstone.Controllers
                 {
                     disc.DiscountName,
                     disc.Percentage,
-                    amount = discountAmount
+                    amount = Math.Round((decimal)discountamount,2),
+                    numofcust,
+                    numdischold
                 },
                 bill = new
                 {
-                    subtotal = billing.Subtotal,
-                    vatsales = vats,
-                    vatamount = billing.VatAmount,
-                    servicecharge = billing.ServiceCharge,
-                    total = billing.GrandTotal
+                    subtotal,
+                    vatexempt,
+                    servicecharge,
+                    vatamount,
+                    totalsale
+                },
+                breakdown = new
+                {
+                    vatsales = Math.Round((decimal)vatable,2),
+                    vatexempt = Math.Round((decimal)vatexemptsale,2),
+                    grandtotal = Math.Round((decimal)grandtotal,2)
                 }
             });
         }
         [HttpGet]
         public JsonResult GetBill(string tableid)
         {
+            var bills = _context.Billings.Include(x=> x.Payment).ToList();
             var bill = _context.Billings
                .Include(b => b.Payment)
                .Include(b => b.Discount)
+               .Include(b => b.DiscountDetail)
                .FirstOrDefault(b => b.TableId == tableid && b.Payment == null);
 
             if (bill == null)
                 return Json(new { success = false, message = "Bill not found" });
+
+
+            //calculation
+            var vatexempt = (bill.Subtotal / bill.DiscountDetail.NumOfCustomer) / 1.12m;
+            var discountamount = vatexempt * bill.Discount.Percentage * bill.DiscountDetail.NumOfDiscountHolder;
+            var totaldisc = (vatexempt * bill.DiscountDetail.NumOfCustomer) - discountamount;
+            var servicecharge = totaldisc * .10m;
+            var vatable = vatexempt * (bill.DiscountDetail.NumOfCustomer - bill.DiscountDetail.NumOfDiscountHolder);
+            var vatamount = vatable * .12m;
+            var grandtotal = totaldisc + servicecharge + vatamount;
+            var vatexemptsale = (totaldisc - vatexempt) + servicecharge;
+            var totalsale = totaldisc + servicecharge;
 
             var vats = bill.Subtotal / 1.12m;
             decimal? discountAmount = null;
@@ -189,32 +261,36 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 discountAmount = Math.Round((decimal)(vats * bill.Discount.Percentage),2);
             }
-            var result = new
+            return Json(new
             {
-                bill.BillingId,
-                Discount = bill.Discount == null ? null : new
+                success = true,
+                message = "Success",
+                discount = bill.DiscountId == null ? null : new
                 {
                     bill.Discount.DiscountName,
                     bill.Discount.Percentage,
-                    amount = discountAmount
+                    amount = Math.Round((decimal)discountamount, 2),
+                    bill.DiscountDetail.NumOfCustomer,
+                    bill.DiscountDetail.NumOfDiscountHolder
                 },
-                bill.Subtotal,
-                vatSales = bill.Subtotal / 1.12m,
-                bill.VatAmount,
-                bill.ServiceCharge,
-                bill.GrandTotal,
-                Payment = bill.Payment == null ? null : new
+                bill = new
                 {
-                    bill.Payment.AmountPaid,
-                    bill.Payment.PaymentTime
+                    bill.Subtotal,
+                    vatexempt,
+                    servicecharge,
+                    vatamount,
+                    totalsale
+                },
+                breakdown = new
+                {
+                    vatsales = Math.Round((decimal)vatable, 2),
+                    vatexempt = Math.Round((decimal)vatexemptsale, 2),
+                    grandtotal = Math.Round((decimal)grandtotal, 2)
                 }
-            };
-
-            return Json(new { success = true, bill = result });
+            });
         }
-
         [HttpPost]
-        public JsonResult PayBill(string tableid, decimal amount, string discount = null)
+        public JsonResult PayBill(string tableid, decimal amount)
         {
             var bills = _context.Billings.ToList();
             var bill = _context.Billings
@@ -225,12 +301,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 .ThenInclude(b => b.Order)
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(oi => oi.Prod)
-                .FirstOrDefault(b => b.TableId == tableid && b.Payment == null); //No Payment yet
-            //var bill = _context.Billings
-            //    .Include(b => b.Table)
-            //    .Include(b => b.BillingOrders)
-            //    .ThenInclude(b => b.Order)
-            //    .FirstOrDefault(b => b.TableId == tableid && !b.Payments.Any());
+                .FirstOrDefault(b => b.TableId == tableid && b.Payment == null); 
             if(bill == null)
                 return Json(new { success = false, message = "Bill already paid" });
             if (bill.Payment != null)
@@ -293,29 +364,5 @@ namespace TheSocialCebu_Capstone.Controllers
                 }
             });
         }
-
-            //public JsonResult GenerateBIll(string tableid)
-            //    {
-            //    var table = _context.Tables.Include(x => x.Orders).FirstOrDefault(x => x.TableId == tableid);
-            //    if (table == null)
-            //        return Json(new { message = "Error" });
-
-            //    foreach (var o in table.Orders)
-            //    {
-            //        o.OrderStatusId = 4;
-            //    }
-            //    table.TableStatusId = 4;
-            //    _context.Update(table);
-            //    _context.SaveChanges();
-            //    return Json(new { message = "Success"/*, orders =  table.Orders*/ });
-            //}
-
-            //public JsonResult CalculatePayment(string tableid, decimal amount) {
-            //    var t = _context.Tables.Include(x => x.Orders).ThenInclude(x => x.OrderItems).ThenInclude(x => x.Prod).FirstOrDefault(x => x.TableId == tableid);
-
-            //    var total = t.Orders.Sum(x => x.OrderItems.Sum(y => y.Prod.Price * y.Quantity));
-            //    decimal am = (decimal)(total - amount);
-            //    return Json(new { message = "Success", amount = am });
-            //}
     }
 }

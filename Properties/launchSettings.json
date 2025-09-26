@@ -6,9 +6,10 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
+      "launchUrl": "http://thesocial.cebu",
       "dotnetRunMessages": true,
       "publishAllPorts": true,
-      "applicationUrl": "http://0.0.0.0:5021;",
+      "applicationUrl": "http://0.0.0.0:80",
       "hotReloadEnabled": true
     },
     "https": {
@@ -17,9 +18,10 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
+      "launchUrl": "http://thesocial.cebu",
       "publishAllPorts": true,
       "dotnetRunMessages": true,
-      "applicationUrl": "https://0.0.0.0:5021;http://0.0.0.0:7004;"
+      "applicationUrl": "https://0.0.0.0:443"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -33,7 +35,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50985/",
+      "applicationUrl": "http://0.0.0.0:50985/",
       "sslPort": 44316
     }
   }

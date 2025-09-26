@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.Models.BillingClasses;
 
 namespace TheSocialCebu_Capstone.Context;
 
@@ -23,7 +24,7 @@ public partial class MyDBContext : DbContext
     public virtual DbSet<BillingOrder> BillingOrders { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
-
+    public virtual DbSet<DiscountDetail> DiscountDetails { get; set; }
     public virtual DbSet<DiscountType> DiscountTypes { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
@@ -154,7 +155,26 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.DiscountName).HasMaxLength(100);
             entity.Property(e => e.Percentage).HasColumnType("decimal(5, 2)");
         });
+        modelBuilder.Entity<DiscountDetail>(entity =>
+        {
+            entity.HasKey(e => e.DiscountDetailId);
 
+            entity.ToTable("DiscountDetail");
+
+            entity.Property(e => e.DiscountDetailId).HasMaxLength(50);
+            entity.Property(e => e.BillingId).HasMaxLength(50);
+            entity.Property(e => e.DiscountTypeId).HasMaxLength(50);
+
+            entity.HasOne(d => d.Billing)
+                  .WithOne(p => p.DiscountDetail)
+                  .HasForeignKey<DiscountDetail>(d => d.BillingId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.DiscountType)
+                  .WithOne(p => p.DiscountDetail)
+                  .HasForeignKey<DiscountDetail>(d => d.DiscountTypeId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
         modelBuilder.Entity<Feedback>(entity =>
         {
             entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDD62696CE5D");
@@ -274,7 +294,8 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.AmountPaid).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PaymentTime).HasColumnType("datetime");
 
-            entity.HasOne(d => d.PaymentNavigation).WithOne(p => p.Payment)
+            entity.HasOne(d => d.PaymentNavigation)
+                .WithOne(p => p.Payment)
                 .HasForeignKey<Payment>(d => d.PaymentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Payment__Payment__50FB042B");

@@ -24,9 +24,18 @@ body {
     outline: none !important;
 }
 
-.nav-pills > li:hover {
-    filter: invert(1);
+#navigation > a:hover {
+    color: #000;
+    background: #fcef00;
+    border-color: #D6CB00;
 }
+
+#navigation > .btn-dark:not(:hover) {
+    color: #fff;
+    background: #212529;
+    border-color: #212529;
+}
+
 
 
 .left-navbar {
@@ -63,5 +72,67 @@ body {
 @media (max-width:700px) {
     .render-body {
         padding-left: 0px !important
+    }
+}
+
+@media print {
+    @page {
+        size: 80mm auto !important; /* thermal receipt width */
+        margin: 5mm !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+    /* Show only receipt areas */
+    #billbody, #billbody *,
+    #DisplayBody, #DisplayBody * {
+        visibility: visible;
+    }
+    /* Position and style both */
+    #billbody, #DisplayBody {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 80mm;
+        font-family: monospace, sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #000;
+        padding: 5px;
+    }
+    /* Reset modal/frame styling */
+    .modal,
+    .modal-dialog,
+    .modal-content,
+    .modal-body {
+        all: unset !important;
+    }
+    /* Table styling */
+    #billbody table,
+    #DisplayBody table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #billbody th, #billbody td,
+    #DisplayBody th, #DisplayBody td {
+        padding: 2px 0;
+    }
+
+    #billbody th, #DisplayBody th {
+        font-weight: bold;
+    }
+    /* Receipt text align helpers */
+    .text-center {
+        text-align: center !important;
+    }
+
+    .text-end {
+        text-align: right !important;
+    }
+
+    .text-left {
+        text-align: left !important;
     }
 }

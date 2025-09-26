@@ -3,24 +3,58 @@
 	ViewData["Title"] = "Kitchen";
 }
 @model List<Order>
-<div class="vh-100 vw-100">
+<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 py-0 px-4" style="width: 250px;">
+	@{
+		var userId = Context.Session.GetString("_Id");
+		var userRole = Context.Session.GetString("_Role");
+	}
+	<a href="/" class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
+		<img class="logo" src="/images/The Social Logo.png" height="50" />
+		<h4 class="m-0">THE SOCIAL</h4>
+	</a>
+	<div class="offcanvas-body d-flex flex-column gap-2 mt-5" id="navigation">
+		<a class="btn btn-dark w-100 text-start" asp-controller="Home" asp-action="Index">Home</a>
+
+		<a class="btn btn-primary w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
+		<a class="btn btn-dark w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Menu Management</a>
+
+
+		@* <a href="http://localhost:5021/Order/Table/cd69e8bc-ee35-4132-9768-8d4e198f9b8f">Order shortcut</a>
+        <a href="http://localhost:5021/Kitchen">Kitchen shortcut</a>
+        <a href="http://localhost:5021/Cashier">Cashier shortcut</a>
+        *@
+		<label for="theme" class="btn btn-dark w-100 text-start mt-auto">
+            <input type="checkbox" id="theme" hidden /> Theme
+        </label> 
+
+		@if (userId != null || userRole != null)
+		{
+			<a class="btn btn-dark w-100 text-start">Logout</a>
+		}
+		else
+		{
+			<a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Login">Login</a>
+		}
+	</div>
+</div>
+<div class="render-body vh-100 text-dark">
 	<div class="p-4 h-100 ">
 		<div class="row h-100">
 			<div class="col-8 h-100">
 				<h1>Orders</h1>
-				<button class="btn btn-light type">Confirmed</button>
-				<button class="btn btn-yellow type">Pending</button>
-				<div class="w-100 h-100 pt-2">
-					<div class="d-flex flex-column overflow-y-scroll h-100 gap-3 p-1">
+				<button class="btn btn-secondary type" value="Confirm">To serve</button>
+				<button class="btn btn-primary type" value="Pending">To accept</button>
+				<div class="w-100 pt-2">
+					<div class="d-flex flex-column overflow-y-scroll" id="orderNums" style="min-height: 80vh;max-height: 81vh">
 						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
 							<button class="focus-ring focus-ring-success focus border border-1 rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
-								<div class="p-2 px-3 bg-primary">
-									<h3>@order.Table.TableNumber</h3>
+								<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+									<h3 class="m-0 p-0 fw-bold">@order.Table.TableNumber</h3>
 								</div>
-								<div class="d-flex flex-column justify-content-center">
+								<div class="d-flex flex-column justify-content-center text-start">
 									<p class="m-0 fw-bold">Order #: @order.OrderNumber.ToString("00000")</p>
-									<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+									<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
 								</div>
 							</button>
 						}
@@ -36,12 +70,12 @@
 						<div class="border border-1 shadow rounded-3 p-3 visually-hidden OrderDetails" id="@order.OrderId">
 							<div>
 								<div class="p-2 hstack gap-3 me-2">
-									<div class="p-2 px-3 bg-primary">
-										<h3>@order.Table.TableNumber</h3>
+									<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+										<h3 class="m-0 p-0 fw-bold">@order.Table.TableNumber</h3>
 									</div>
-									<div class="d-flex flex-column justify-content-center">
+									<div class="d-flex flex-column justify-content-center text-start">
 										<p class="m-0 fw-bold">Order #: @order.OrderNumber.ToString("00000")</p>
-										<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("T").ToUpper()</p>
+										<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
 									</div>
 								</div>
 								<div class="w-100 overflow-y-auto" style="min-height: 300px">
@@ -98,13 +132,14 @@
 										</tbody>
 									</table>
 								</div>
+								<hr />
 								@if (order.OrderStatus.OrderStatusId == 1)
 								{
-									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 confirm" id="@order.OrderId">Confirm</button>
+									<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 confirm" id="@order.OrderId">Confirm</button>
 								}
 								else if (order.OrderStatus.OrderStatusId == 2)
 								{
-									<button class="text-center d-block mx-auto mt-auto btn btn-yellow shadow px-5 serve" id="@order.OrderId">Ready to Serve</button>
+									<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 serve" id="@order.OrderId">Ready to Serve</button>
 								}
 							</div>
 						</div>
@@ -127,15 +162,15 @@
 			})
 
 			$(".type").on("click", function () {
-				let status = $(this).text().trim() == "Confirmed"? "Progress" : $(this).text().trim();
-
+				let status = $(this).val();
+				console.log(status)
 				$(".Order").addClass("visually-hidden");
-				$(".Order." + status).removeClass("visually-hidden");
+				$(".Order." + status == "To Accept" ? "Confirmed" : "Progress").removeClass("visually-hidden");
 				$(".OrderDetails").addClass("visually-hidden");
 
-				$(".type").addClass("btn-light");
-				$(this).removeClass("btn-light")
-				$(this).addClass("btn-yellow");
+				$(".type").addClass("btn-secondary");
+				$(this).removeClass("btn-secondary")
+				$(this).addClass("btn-primary");
 			});
 
 			// $(".OrderDetails").on("click", function(){
@@ -146,15 +181,6 @@
 
 			$(".confirm").on("click", function (){
 				let id = $(this).attr("id");
-				// const orderitems = $(`#body${id}`).children()
-				// let items = [];
-				// orderitems.each(function(){
-				// 	let checkbox = $(this).children().last().children().first();
-				// 	if(checkbox.is(":checked")){
-				// 		items.push($(this).attr("id"))
-				// 	}
-				// })
-
 				fetch(`/Kitchen/ConfirmOrder?orderid=${id}`)
 				.then(response => response.json())
 				.then(confirm => {
@@ -182,7 +208,8 @@
 				.then(confirm => {
 					console.log(confirm)
 					if(confirm.message == "Success"){
-						window.location.reload();
+						$(this).parent().parent().remove()
+						$("#orderNums").find(`div button #${id}`).parent.remove()
 					}
 				})
 			})

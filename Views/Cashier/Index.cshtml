@@ -4,76 +4,12 @@
 	ViewData["Title"] = "Cashier";
 }
 @model List<BillingVM>
-
-<style>
-	@@media print {
-    @@page {
-        size: 80mm auto !important;   /* thermal receipt width */
-        margin: 5mm !important;
-    }
-
-    body * {
-        visibility: hidden;
-    }
-		/* Show only receipt areas */
-		#billbody, #billbody *,
-		#DisplayBody, #DisplayBody * {
-			visibility: visible;
-		}
-		/* Position and style both */
-		#billbody, #DisplayBody {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 80mm;
-			font-family: monospace, sans-serif;
-			font-size: 12px;
-			line-height: 1.4;
-			color: #000;
-			padding: 5px;
-		}
-		/* Reset modal/frame styling */
-		.modal,
-		.modal-dialog,
-		.modal-content,
-		.modal-body {
-			all: unset !important;
-		}
-		/* Table styling */
-		#billbody table,
-		#DisplayBody table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-
-		#billbody th, #billbody td,
-		#DisplayBody th, #DisplayBody td {
-			padding: 2px 0;
-		}
-
-		#billbody th, #DisplayBody th {
-			font-weight: bold;
-		}
-		/* Receipt text align helpers */
-		.text-center {
-			text-align: center !important;
-		}
-
-		.text-end {
-			text-align: right !important;
-		}
-
-		.text-left {
-			text-align: left !important;
-		}
-}
-</style>
 <div class="vh-100 vw-100 p-4">
 	<div class="row h-100">
 		<div class="col-7 h-100">
 			<h1>Payment</h1>
 			<div class="d-flex gap-2 overflow-y-scroll h-100 pt-5 ps-3">
-				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1)@* .Where(x => x.OrderItems.Count() > 0 && x.OrderItems.All(y => y.OrderItemStatusId > 2)) *@)
+				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 				{
 					<div class="show" id="@t.Table.TableId" style="max-height: 100px">
 						<div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow">
@@ -88,7 +24,7 @@
 		<div class="col-5 h-100">
 			<h1>Details</h1>
 			<div class="d-flex pt-3">
-			@foreach(var t in Model.Where(x => x.OrderItems != null))
+			@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 			{
 				<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden" id="@("Details" + t.Table.TableId)">
 					<div>
@@ -97,7 +33,7 @@
 								<h3 class="text-white m-0 py-2 px-5">@t.Table.TableNumber</h3>
 							</div>
 						</div>
-						<div class="w-100 overflow-y-auto" style="min-height: 300px">
+						<div class="w-100 overflow-y-auto d-flex flex-column" style="min-height: 300px">
 							<hr />
 							<table class="w-100">
 								<thead>
@@ -119,14 +55,14 @@
 								</tbody>
 							</table>
 							<hr />
-							<div class="vstack">
-								<div class="d-flex justify-content-between align-items-center">
+							<div class="vstack h-auto">
+								@* <div class="d-flex justify-content-between align-items-center">
 									<p>Vat Sales</p>
 									<p>₱@Convert.ToDecimal(t.Subtotal).ToString("0.00")</p>
 								</div>
-								@* <div class="d-flex justify-content-between align-items-center">
+								<div class="d-flex justify-content-between align-items-center">
 									<p>Discount</p>
-								</div> *@
+								</div> 
 								<div class="d-flex justify-content-between align-items-center">
 									<p>Vat amount</p>
 									<p>₱@Convert.ToDecimal(t.Tax).ToString("0.00")</p>
@@ -138,8 +74,8 @@
 								<div class="d-flex justify-content-between align-items-center">
 									<p>Total</p>
 									<p>₱@Convert.ToDecimal(t.Total).ToString("0.00")</p>
-								</div>
-								<div class="d-flex flex-row gap-2">
+								</div> *@
+									<div class="d-flex flex-row gap-2  mt-auto">
 									@if (t.Table.TableStatusId == 3) 
 									{
 										<button class="btn btn-yellow bill flex-fill"
@@ -186,14 +122,16 @@
 <div class="modal fade" id="DiscountModal" tabindex="-1" aria-labelledby="DiscountModal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content border-secondary rounded">
-			<div class="flex-grow-1 p-2 d-flex justify-content-center overflow-y-auto">
-				<select class="btn btn-yellow discount flex-fill" id="select">
-					<option value="">-- Select Discount --</option>
+			<div class="flex-grow-1 p-2 d-flex flex-column gap-2 justify-content-center overflow-y-auto form-control">
+				<select class="discount flex-fill form-select" id="select">
+					<option value="">Select Discount Type</option>
 					@foreach (var d in Model.SelectMany(x => x.DiscountTypes))
 					{
 						<option value="@d.DiscountTypeId">@d.DiscountName</option>
 					}
 				</select>
+				<input type="number" value="1" id="nump" class="form-control intonly" placeholder="Number of people" />
+				<input type="number" value="1" id="appl" class="form-control intonly" placeholder="Number of persons applicable" />
 			</div>
 			<div class="w-100 d-flex flex-row gap-2 px-5 py-2">
 				<button class="flex-fill btn btn-light shadow" data-bs-dismiss="modal" aria-label="Close">Back</button>
@@ -224,7 +162,8 @@
 								<input type="text" id="amount"
 									   class="form-control mb-2"
 									   placeholder="Place an amount"
-									   style="height: 5%" />
+									   style="height: 5%"
+									   autocomplete="off" />
 								<button id="clear" class="btn btn-warning mb-2" style="height: 5%">
 									CLS
 								</button>
@@ -300,12 +239,83 @@
 						btn.attr("data-bs-target", "#PayModal");
 			});
 			$(".printwd").click(function (){
-				let id = $(this).attr("id");
+				let tableId = $(this).attr("id");
 				let discountId = $("#select").val();
-				console.log(id, discountId)
+				let nump = $("#nump").val();
+				let appl = $("#appl").val();
 				if(discountId){
 					$("#DiscountModal").modal("hide")
-					Billing(id,discountId)
+					fetch('/Cashier/ApplyDiscount', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: new URLSearchParams({
+						tableid: tableId,
+						discountid: discountId,
+						num: nump,
+						applic: appl
+					})
+				})
+				.then(rawData => rawData.json())
+				.then(m => {
+					if (m.success) {
+						let rows = $(`#Details${tableId} tbody tr`).map(function () {
+						let cols = $(this).find("td");
+						return `<tr>
+									<td>${cols.eq(0).text()}</td>
+									<td class="text-center">${cols.eq(1).text()}</td>
+									<td class="text-end">${cols.eq(2).text()}</td>
+								</tr>`;
+					}).get().join("");
+
+					// Build proper bill
+					let content = `
+						<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+							<h3>THE SOCIAL CEBU</h3>
+							<p>Billing Statement</p>
+							<p>Table: ${tableId}</p>
+							<hr />
+							<table style="width:100%; font-size:12px; text-align:left">
+								<thead>
+									<tr>
+										<th style="text-align:left">Item</th>
+										<th style="text-align:center">Qty</th>
+										<th style="text-align:right">Price</th>
+									</tr>
+								</thead>
+								<tbody>
+									${rows}
+								</tbody>
+							</table>
+							<hr />
+							<div style="text-align:right">
+								<p>Subtotal: ${m.bill.subtotal.toFixed(2)}</p>
+								<hr/>
+
+								<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+								<p>${m.discount.discountName} discount: -${m.discount.amount.toFixed(2)}</p>
+								<h5><strong>Total: ${m.breakdown.grandtotal.toFixed(2)}</strong></h5>
+								<hr />
+								<p>Vat Sales: ${m.breakdown.vatsales.toFixed(2)}</p>
+								<p>Vat Exempt Sale: ${m.breakdown.vatexempt.toFixed(2)}</p>
+								<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+								<p>Total Sale: ${m.bill.totalsale.toFixed(2)}</p>
+								<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
+								<p>Amount due : ${m.breakdown.grandtotal.toFixed(2)}</p>
+
+							</div>
+							<hr />
+
+
+							<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+							<p>Thank you for dining with us!</p>
+						</div>`
+						$("#billbody").html(content);
+						$("#BillModal").modal("show");
+					}
+					else{
+						alert(m.message)
+					}
+				})
 				}
 				else{
 					alert("Please select a discount to apply");
@@ -391,7 +401,7 @@
 
 						`;
 						if(m.discount != null){
-							content += `<p>Discount - ${m.discount.discountName} ${m.discount.percentage*100}%: ${m.discount.amount.toFixed(2)}</p>
+							content += `<p>${m.discount.discountName} discount ${m.discount.percentage*100}%: - ${m.discount.amount.toFixed(2)}</p>
 								<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
 								</div>
 								<hr />
@@ -406,21 +416,6 @@
 								<p>Thank you for dining with us!</p>
 							</div>`
 						}
-						 // subtotal = bill.Subtotal,
-							// tax = bill.VatAmount,
-							// servicecharge = bill.ServiceCharge,
-							// total = bill.GrandTotal,
-							// change = amount - bill.GrandTotal,
-							// payment = new
-							// {
-							// 	id = payment.PaymentId,
-							// 	amountPaid = payment.AmountPaid,
-							// 	time = payment.PaymentTime,
-							// 	discount = bill.Subtotal * payment.Discount.Percentage
-							// 	//discount = new {
-							// 	//    amount = discounted
-							// 	//}
-							// }
 						$("#DisplayBody").html(content);
 
 						$("#trandet").removeClass("visually-hidden");
@@ -441,50 +436,7 @@
 			$(document).on("click", "#printReceipt", function () {
 				window.print()
 			});
-			// 	let id = $("#calc").attr("data-id"); // table ID
-			// 	let amount = $("#receiptAmount").text();
-
-			// 	fetch(`/Cashier/PayBill?tableid=${id}&amount=${amount}`, { method: "POST" })
-			// 		.then(res => res.json())
-			// 		.then(m => {
-			// 			if (m.success) {
-			// 				// Build receipt
-			// 				let content = `
-			// 					<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-			// 						<h3>RECEIPT</h3>
-			// 						<hr />
-			// 						<div style="text-align:left">
-			// 							${$("#DisplayBody").html()}
-			// 							<hr />
-			// 							<p>Subtotal: ${$("#receiptSubtotal").text()}</p>
-			// 							<p>VAT (12%): ${$("#receiptTax").text()}</p>
-			// 							<p>Service Charge: ${$("#receiptService").text()}</p>
-			// 							<p class="fw-bold">Total: ${$("#receiptTotal").text()}</p>
-			// 							<hr />
-			// 							<p>Amount Received: ${$("#receiptAmount").text()}</p>
-			// 							<p>Change: ${$("#receiptChange").text()}</p>
-			// 						</div>
-			// 						<hr />
-			// 						<p>Thank you! Please come again.</p>
-			// 					</div>
-			// 				`;
-
-			// 				$("#billbody").html(content);
-			// 				$("#BillModal").modal("show");
-
-			// 				setTimeout(() => {
-			// 					window.print();
-			// 					$("#BillModal").modal("hide");
-
-			// 					// Remove paid table from UI
-			// 					$("#" + id).remove();
-			// 					$("#Details" + id).remove();
-			// 				}, 300);
-			// 			} else {
-			// 				alert("Error: " + m.message);
-			// 			}
-			// 		});
-			// });
+			
 
 			$(".show").click(function () {
 				let id = $(this).attr("id");
@@ -569,21 +521,21 @@
 				});
 			};
 
-
+			$('#PayModal').on('shown.bs.modal', function () {
+				$("#amount").trigger('focus');
+			});
 			// Pay Bill
 			$(document).on("click", ".pay", function () {
 				let tableId = $(this).attr("id");
 				fetch(`/Cashier/GetBill?tableid=${tableId}`)
 				.then(res => res.json())
-				.then(data => {
-					if (!data.success) {
-						alert(data.message || "Bill not found");
+				.then(m => {
+					if (!m.success) {
+						alert(m.message || "Bill not found");
 						return;
 					}
-
-					const bill = data.bill;
 					// Grab the details table for this table
-					let rows = $(`#Details${tableId} tbody tr`).map(function () {
+						let rows = $(`#Details${tableId} tbody tr`).map(function () {
 							let cols = $(this).find("td");
 							return `<tr>
 										<td>${cols.eq(0).text()}</td>
@@ -592,50 +544,53 @@
 									</tr>`;
 						}).get().join("");
 
-					// Build proper bill
-					let content = `
+						// Build proper bill
+						let content = `
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-								<h3>THE SOCIAL CEBU</h3>
-								<p>Official Reciept</p>
-								<p>Table: ${tableId}</p>
-								<hr />
-								<table style="width:100%; font-size:12px; text-align:left">
-									<thead>
-										<tr>
-											<th style="text-align:left">Item</th>
-											<th style="text-align:center">Qty</th>
-											<th style="text-align:right">Price</th>
-										</tr>
-									</thead>
-									<tbody>
-										${rows}
-									</tbody>
-								</table>
-								<hr />
-								<div style="text-align:right">
-									<p>Subtotal: ${bill.subtotal.toFixed(2)}</p>
-									<p>Vat Sales: ${bill.vatSales.toFixed(2)}</p>
-									<p>Vat Amount: ${bill.vatAmount.toFixed(2)}</p>
-									<p>Service Charge: ${bill.serviceCharge.toFixed(2)}</p>
+							<h3>THE SOCIAL CEBU</h3>
+							<p>Billing Statement</p>
+							<p>Table: ${tableId}</p>
+							<hr />
+							<table style="width:100%; font-size:12px; text-align:left">
+								<thead>
+									<tr>
+										<th style="text-align:left">Item</th>
+										<th style="text-align:center">Qty</th>
+										<th style="text-align:right">Price</th>
+									</tr>
+								</thead>
+								<tbody>
+									${rows}
+								</tbody>
+							</table>
+							<hr />
+							<div style="text-align:right">
+								<p>Subtotal: ${m.bill.subtotal.toFixed(2)}</p>
+								<hr/>
 
+								<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
 						`;
-						if(bill.discount != null){
-							content += `<p>Discount - ${bill.discount.discountName} ${bill.discount.percentage*100}%: ${bill.discount.amount}</p>
-								<p><strong>Total: ${bill.grandTotal.toFixed(2)}</strong></p>
-								</div>
-								<hr />
-								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
-								<p>Thank you for dining with us!</p>
-							</div>`
-						}else{
-							content += `									<p><strong>Total: ${bill.grandTotal.toFixed(2)}</strong></p>
-								</div>
-								<hr />
-								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
-								<p>Thank you for dining with us!</p>
-							</div>`
+						if(m.discount != null){
+							content += `<p>${m.discount.discountName} discount: -${m.discount.amount.toFixed(2)}</p>`
 						}
 
+						content += `
+								<h5><strong>Total: ${m.breakdown.grandtotal.toFixed(2)}</strong></h5>
+								<hr />
+								<p>Vat Sales: ${m.breakdown.vatsales.toFixed(2)}</p>
+								<p>Vat Exempt Sale: ${m.breakdown.vatexempt.toFixed(2)}</p>
+								<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+								<p>Total Sale: ${m.bill.totalsale.toFixed(2)}</p>
+								<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
+								<p>Amount due : ${m.breakdown.grandtotal.toFixed(2)}</p>
+
+							</div>
+							<hr />
+
+
+							<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+							<p>Thank you for dining with us!</p>
+							</div>`;
 					$("#DisplayBody").html(content);
 					$("#PayModal").modal("show");
 					$("#calc").removeAttr("data-id");
@@ -667,6 +622,21 @@
 					// });
 				});
 			});
+			$(document).on("keydown input change", ".intonly", function(e) {
+				// Block invalid keys on keydown
+				console.log(e, ["e", "E", "+", "-", "."].includes(e.key))
+				if (e.type === "keydown" && ["e", "E", "+", "-", "."].includes(e.key)) {
+					e.preventDefault();
+					return;
+				}
+
+				// Clean input on input/change
+				let val = $(this).val().replace(/[^0-9]/g, "");
+				// Prevent negative (just digits only)
+				if (val === "") val = "";
+				$(this).val(val);
+			});
+
 			const input = document.getElementById("amount");
 			const keypad = document.getElementById("keypad");
 

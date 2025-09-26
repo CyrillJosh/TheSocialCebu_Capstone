@@ -9,13 +9,47 @@
        ? new List<OrderItem>()
        : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
+@section Links{
+    @foreach(var c in Model)
+    {
+        <link rel="preload" href="~/Images/Categories/@(c.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")" as="image" />
+    }
+    @foreach (var c in Model.SelectMany(x => x.SubCategories))
+    {
+        <link rel="prefetch" href="~/Images/Subcategories/@(c.SubcategoryName.Trim().Replace(" ", "").Replace("&","").Replace("/","").ToLower() + ".png")" as="image" />
+    }
+}
+<style>
+    #food-search:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Search input container */
+    #search-div {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Dropdown results */
+    #search-dropdown {
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
 <div class="d-flex flex-column vh-100 vw-100 overflow-hidden"
      style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
 
     <!-- Top Nav -->
     <nav class="nav flex-row bg-transparent w-100 p-2 sticky-top" style="z-index: 1020;">
         <div class="w-100 d-flex flex-column">
-            <!-- Cart -->
+           @*  <!-- Cart -->
             <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2" href="/Order/Cart">
                 <img src="~/Images/Cart.png" class="img-fluid" style="height: 30px;">
                 @if (orders.Count > 0)
@@ -25,12 +59,12 @@
                         <span class="visually-hidden">Orders</span>
                     </span>
                 }
-            </a>
+            </a> *@
             <!-- Text Contents -->
             <div class="px-3 row align-items-center">
                 <div class="col-7">
-                    <p class="text-light fw-bold display-6 m-0">THE SOCIAL</p>
-                    <p class="text-light fst-italic small">
+                    <p class="text-white fw-bold display-6 m-0">THE SOCIAL</p>
+                    <p class="text-white fst-italic small">
                         It’s not just food,<br />it’s the experience.
                     </p>
                 </div>
@@ -38,16 +72,32 @@
                     <img class="logo img-fluid" src="/images/The Social Logo.png" style="max-height: 80px;" />
                 </div>
             </div>
-            <!-- Search + Cart -->
-            @* <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3">
-                <div class="flex-grow-1 d-flex px-3 py-2 border border-2 rounded-pill border-light text-light align-items-center gap-2">
-                    <i class="bi bi-search"></i>
-                    <input id="custom-search-input" type="text"
-                           placeholder="Search your favorite food"
-                           class="border-0 bg-transparent text-light flex-grow-1" />
+            <!-- Search and Cart -->
+            <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3 position-relative">
+                <!-- Search input -->
+                <div class="flex-grow-1 d-flex border border-2 rounded-pill border-white text-white align-items-center gap-2 position-relative">
+                    <div class="h-100 w-100 py-2 px-3 d-flex" id="search-div">
+                        <i class="bi bi-search"></i>
+                        <input id="food-search" type="text"
+                               placeholder="Search your favorite food"
+                               class="border-0 bg-transparent text-white flex-grow-1" autocomplete="off" />
+                    </div>
+
+                    <!-- Dropdown for search results -->
+                    <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-2 border-white shadow overflow-auto"
+                         style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
+                        @foreach (var i in Model.SelectMany(x=> x.SubCategories).SelectMany(x => x.Products))
+                        {
+                            <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
+                                @i.ProdName
+                            </div>
+                        }
+                    </div>
                 </div>
+
+                <!-- Cart -->
                 <a class="text-decoration-none text-yellow position-relative" href="/Order/Cart">
-                    <img src="~/Images/Cart.png" class="img-fluid" style="max-height: 28px;" />
+                    <img src="~/Images/Cart.png" class="img-fluid" style="max-height: 40px;" />
                     @if (orders.Count > 0)
                     {
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -55,8 +105,10 @@
                         </span>
                     }
                 </a>
-            </div> *@
-            <p class="text-light mt-3 px-3">Select by Category</p>
+            </div>
+
+
+            <p class="text-white mt-3 px-3">Select by Category</p>
         </div>
     </nav>
 
@@ -74,7 +126,7 @@
                            asp-action="Menu"
                            asp-route-category="@cat.CategoryId">
 
-                            <div class="bg-white position-relative rounded overflow-hidden shadow-sm"
+                            <div class="position-relative rounded overflow-hidden shadow-sm"
                                  style="aspect-ratio: 1/1;">
                                 <!-- Background image -->
                                 <img src="/Images/Categories/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")"
@@ -83,12 +135,14 @@
 
                                 <!-- Dark overlay -->
                                 <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(0deg, #FFFFFF00, #010101); z-index:1;"></div>
+                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0)); z-index:1;"></div>
+
 
                                 <!-- Category Name (always visible) -->
-                                <div class="position-absolute end-100 start-50 translate-middle text-center shadow w-100 px-2 pt-5 mt-2"
+                                <div class="position-absolute top-0 start-50 translate-middle text-center w-100 px-2 pt-5 mt-2"
                                      style="z-index:2;">
-                                    <h6 class="text-white fw-bold text-wrap">
+                                    <h6 class="text-white fw-bold text-wrap"
+                                        style="text-shadow: 0 2px 4px rgba(0,0,0,0.7);">
                                         @cat.CategoryName.ToUpper()
                                     </h6>
                                 </div>
@@ -101,12 +155,12 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <footer class="w-100 border-top pt-3"
-            style="background: #151515; min-height: 120px; padding-bottom: 10vh">
-        <div class="w-100 d-flex justify-content-evenly align-items-center text-white" style="background: #151515; min-height: 60px;">
+    <footer class="w-100 border-top pt-3 bg-secondary"
+            style="padding-bottom: 10vh">
+        <div class="w-100 d-flex justify-content-evenly align-items-center text-white" style="min-height: 60px;">
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
                 <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px;"/>
-                <small class="text-yellow">Home</small>
+                <small class="text-primary">Home</small>
             </a>
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
                 <img src="/Images/Orders.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
@@ -115,3 +169,59 @@
         </div>
     </footer>
 </div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function() {
+            const searchInput = $("#food-search");
+            const dropdown = $("#search-dropdown");
+
+            // Hide dropdown initially
+            dropdown.hide();
+
+            searchInput.on("input", function () {
+                const query = $(this).val().toLowerCase();
+
+                let hasMatch = false;
+                dropdown.children(".search-item").each(function () {
+                    const name = $(this).text().toLowerCase();
+                    if(name.includes(query)) {
+                        $(this).show();
+                        hasMatch = true;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                // Remove previous "no results" message
+                dropdown.children(".no-results").remove();
+				console.log(hasMatch);
+
+                if(!hasMatch){
+                    dropdown.append('<div class="p-2 text-white no-results">No results found</div>');
+                }
+
+                // Ensure dropdown is visible
+                if(query.length > 0) {
+                    dropdown.show();
+                    dropdown.css("min-height", "40px"); // ensures "no results" is visible
+                } else {
+                    dropdown.hide();
+                }
+            });
+            // Click a result to trigger offcanvas
+            dropdown.on("click", ".search-item", function() {
+                const id = $(this).data("id");
+                $(".add-product[data-id='"+id+"']").trigger("click"); // triggers your existing offcanvas
+                dropdown.hide();
+                searchInput.val("");
+            });
+
+            // Hide dropdown when clicking outside
+            $(document).click(function(e) {
+                if(!$(e.target).closest("#food-search, #search-dropdown").length){
+                    dropdown.hide();
+                }
+            });
+        });
+    </script>
+}
