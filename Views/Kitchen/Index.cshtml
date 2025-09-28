@@ -3,18 +3,20 @@
 	ViewData["Title"] = "Kitchen";
 }
 @model List<Order>
-<div class="render-body vh-100 w-100 text-dark overflow-y-auto">
+<div class="render-body vh-100 w-100 text-dark">
 	<div class="p-4 h-100 w-100">
 		<div class="row h-100 w-100">
-			<div class="col-sm-12 col-md-8 col-lg-8 h-100">
+			<div class="col-sm-12 col-md-8 col-lg-8 h-100 d-flex flex-column">
 				<h1>Orders</h1>
-				<button class="btn btn-secondary type" value="Confirm">To serve</button>
-				<button class="btn btn-primary type" value="Pending">To accept</button>
-				<div class="w-100 pt-2">
-					<div class="d-flex flex-column overflow-y-auto h-auto gap-1" id="orderNums" @* style="min-height: 30vh;max-height: 81vh" *@>
+				<div>
+					<button class="btn btn-secondary type" value="Progress">To Serve</button>
+					<button class="btn btn-primary type" value="Pending">To Accept</button>
+				</div>
+				<div class="w-100 mt-3 flex-grow-1 overflow-y-auto">
+					<div class="d-flex flex-column gap-1" id="orderNums" @* style="min-height: 30vh;max-height: 81vh" *@>
 						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
-							<button class="focus-ring focus-ring-success focus border border-1 rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
+							<button class="border border-1 rounded-3 visually-hidden bg-body-secondary p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
 								<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
 									<h3 class="m-0 p-0 fw-bold">@order.Table.TableNumber</h3>
 								</div>
@@ -27,13 +29,13 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4 col-sm-12 col-lg-4 h-100 bg-light">
+			<div class="col-md-4 col-sm-12 col-lg-4 h-100 border-start">
 				<h1>Order Details</h1>
-				<div id="OrderDetails">
+					<div id="OrderDetails">
 					<p>Select an order to view details</p>
 					@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 					{
-						<div class="border border-1 shadow rounded-3 p-3 w-100 visually-hidden OrderDetails" id="@order.OrderId">
+						<div class="border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="@order.OrderId">
 							<div>
 								<div class="p-2 hstack gap-3 me-2">
 									<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
@@ -119,10 +121,92 @@
 @section Scripts {
 	<script>
 		$(document).ready( function () {
+			window.connection.on("NewOrder", function(order) {
+				console.log(order);
+
+				// Format order number and time
+				const orderNumberFormatted = order.orderNumber.toString().padStart(5, "0");
+				const createdAt = new Date(order.createdAt);
+				const timeFormatted = createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
+				// Build order button (left column)
+				const numcontent = `
+					<button class="border border-1 rounded-3 visually-hidden bg-body-secondary p-2 hstack gap-3 me-2 Order ${order.orderStatus.StatusName}" id="${order.orderId}">
+						<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+							<h3 class="m-0 p-0 fw-bold">${order.Table.TableNumber}</h3>
+						</div>
+						<div class="d-flex flex-column justify-content-center text-start">
+							<p class="m-0 fw-bold">Order #: ${orderNumberFormatted}</p>
+							<p class="m-0">${timeFormatted}</p>
+						</div>
+					</button>`;
+
+				// Build order details (right column)
+				const subcategories = [...new Set(order.OrderItems.map(i => i.Prod.Subcategory.SubcategoryName))]
+					.map(subcatName => {
+						const items = order.OrderItems.filter(i => i.Prod.Subcategory.SubcategoryName === subcatName);
+
+						let rows = `<tr><td colspan="3"><div><hr/><p>${subcatName}</p></div></td></tr>`;
+						rows += items.map(item => {
+							if (item.OrderItemStatus.OrderItemStatusId === 1) {
+								return `<tr id="${item.OrderItemId}">
+									<td colspan="2">
+										<div>
+											<h5>${item.Prod.ProdName}</h5>
+											<p class="fst-italic">${item.Instructions}</p>
+										</div>
+									</td>
+									<td><p class="m-0">${item.Quantity}</p></td>
+								</tr>`;
+							} else {
+								return `<tr id="${item.OrderItemId}">
+									<td><h5>${item.Prod.ProdName}</h5></td>
+									<td><p class="m-0">${item.Quantity}</p></td>
+									<td class="ps-4"><input type="checkbox"/> ${item.OrderItemStatus.StatusName}</td>
+								</tr>`;
+							}
+						}).join('');
+
+						return rows;
+					}).join('');
+
+				const detcontent = `
+					<div class="border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="${order.orderId}">
+						<div>
+							<div class="p-2 hstack gap-3 me-2">
+								<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+									<h3 class="m-0 p-0 fw-bold">${order.Table.TableNumber}</h3>
+								</div>
+								<div class="d-flex flex-column justify-content-center text-start">
+									<p class="m-0 fw-bold">Order #: ${orderNumberFormatted}</p>
+									<p class="m-0">${timeFormatted}</p>
+								</div>
+							</div>
+							<div class="w-100 overflow-y-auto" style="min-height: 300px">
+								<table class="w-100">
+									<thead><tr><th></th><th></th><th></th></tr></thead>
+									<tbody id="body${order.orderId}">${subcategories}</tbody>
+								</table>
+							</div>
+							<hr/>
+							${order.OrderStatus.OrderStatusId === 1
+								? `<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 confirm" id="${order.orderId}">Confirm</button>`
+								: order.OrderStatus.OrderStatusId === 2
+									? `<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 serve" id="${order.orderId}">Ready to Serve</button>`
+									: ''}
+						</div>
+					</div>`;
+
+				$("#orderNums").append(numcontent);
+				$("#OrderDetails").append(detcontent);
+			});
+
+
 			$(".Order." + "Pending").removeClass("visually-hidden");
 
 			$(".Order").on("click", function () {
 				let id = $(this).attr("id");
+				console.log(id)
 				$(".OrderDetails").addClass("visually-hidden");
 				$("#" + id + ".OrderDetails").removeClass("visually-hidden");
 			})
@@ -131,7 +215,7 @@
 				let status = $(this).val();
 				console.log(status)
 				$(".Order").addClass("visually-hidden");
-				$(".Order." + status == "To Accept" ? "Confirmed" : "Progress").removeClass("visually-hidden");
+				$(".Order." + status).removeClass("visually-hidden");
 				$(".OrderDetails").addClass("visually-hidden");
 
 				$(".type").addClass("btn-secondary");

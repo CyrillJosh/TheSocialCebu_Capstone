@@ -19,10 +19,10 @@ builder.Services.AddDbContext<MyDBContext>(options =>
     ServiceLifetime.Transient
 );
 
-builder.Services.AddTransient<MyDBContext>();
-builder.Services.AddTransient<OrderController>();
-builder.Services.AddTransient<CashierController>();
-builder.Services.AddTransient<KitchenController>();
+//builder.Services.AddTransient<MyDBContext>();
+//builder.Services.AddTransient<OrderController>();
+//builder.Services.AddTransient<CashierController>();
+//builder.Services.AddTransient<KitchenController>();
 
 //Session service
 builder.Services.AddDistributedMemoryCache();

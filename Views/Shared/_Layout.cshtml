@@ -8,12 +8,24 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css"/>
     <link rel="stylesheet" href="~/TheSocialCebu_Capstone.styles.css" asp-append-version="true" />
+	<script>
+		(function() {
+		  const savedTheme = localStorage.getItem("theme") || "light";
+		  document.documentElement.setAttribute("data-bs-theme", savedTheme);
+		})();
+	</script>
+	<style>
+		.btn:focus {
+			box-shadow: none !important;
+		}
+	</style>
     @await RenderSectionAsync("Links", required: false)
 </head>
 <body class="row row-cols-sm-1 row-cols-lg-2 vh-100 vw-100 text-black" style="margin-left:0 !important">
 	@{
-		var userId = Context.Session.GetString("_Id");
+		// var userId = Context.Session.GetString("_Id");
 		// var userRole = Context.Session.GetString("_Role");
+		var userId = "1";
 		var userRole = "Admin";
 
 		var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
@@ -21,7 +33,7 @@
 	}
 	@if(userId != null && userRole != null)
 	{
-		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 py-0 px-4" style="width: 250px;">
+		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 px-4" style="width: 250px;">
 			<div class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
 				<img class="logo" src="/images/The Social Logo.png" height="50" />
 				<h4 class="m-0">THE SOCIAL</h4>
@@ -30,10 +42,10 @@
 				@if (userRole == "Admin")
 				{
 					<a class="btn @(currentController == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Menu" asp-action="Index">Menu Management</a>
-					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="User" asp-action="Index">Table Management</a>
+					<a class="btn @(currentController == "Table" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Table" asp-action="Index">Table Management</a>
 					<a class="btn @(currentController == "Cashier" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Cashier" asp-action="Index">Billing Management</a>
 					<a class="btn @(currentController == "Kitchen" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
-					<a class="btn @(currentController == "Employee" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Employee" asp-action="Index">Employee Management</a>
+					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="User" asp-action="Index">Employee Management</a>
 				}
 				else if (userRole == "Kitchen")
 				{
@@ -42,7 +54,7 @@
 				}
 				else if (userRole == "Cashier")
 				{
-					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Casheir" asp-action="Index">Billing Management</a>
+					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Cashier" asp-action="Index">Billing Management</a>
 					<a class="btn @(currentAction == "CompletedBills" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Casheir" asp-action="CompletedBills">Completed bills</a>
 				}
 
@@ -55,7 +67,7 @@
 					<input type="checkbox" id="theme" hidden /> Theme
 				</label>
 
-				@if (userId != null || userRole != null)
+				@if (userId != null && userRole != null)
 				{
 					<a class="btn btn-dark w-100 text-start">Logout</a>
 				}
@@ -74,24 +86,33 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/datatable.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-    <script>
-        $("#theme").on("click", function() {
-			localStorage.setItem("theme", $("html").attr("data-bs-theme") === "dark" ? "light" : "dark")
-            $("html").attr("data-bs-theme", $("html").attr("data-bs-theme") === "dark" ? "light" : "dark")
-        })
-        $(document).ready(function () {
-            let theme = localStorage.getItem("theme");
+	<script src="~/js/signalR.js"></script>
 
-            if (theme) {
-                // If a theme is saved, apply it
-                $("html").attr("data-bs-theme", theme);
-            } else {
-                // If no theme is saved yet, default to light
-                localStorage.setItem("theme", "light");
-                $("html").attr("data-bs-theme", "light");
-            }
-        });
-    </script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const html = document.documentElement;
+			const themeBtn = document.getElementById("theme");
+
+			themeBtn.addEventListener("click", function () {
+				const currentTheme = html.getAttribute("data-bs-theme");
+				const newTheme = currentTheme === "dark" ? "light" : "dark";
+				html.setAttribute("data-bs-theme", newTheme);
+				localStorage.setItem("theme", newTheme);
+			});
+
+			window.connection = new signalR.HubConnectionBuilder()
+				.withUrl("/connectorHub")
+				.withAutomaticReconnect()
+				.build();
+
+			// Start the connection once
+			window.connection.start()
+				.then(() => console.log("SignalR connected"))
+				.catch(err => console.error("SignalR connection error:", err));
+		});
+	</script>
+    @await RenderSectionAsync("Scripts", required: false)
+	
+
 </body>
 </html>

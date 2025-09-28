@@ -114,7 +114,8 @@
     @foreach (var subcat in Model.Where(x => x.Products.Any()))
     {
             <section id="@subcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
-                     class="mt-3 px-2 text-white text-center d-flex flex-column gap-2">
+                     class="mt-3 px-2 text-white text-center d-flex flex-column gap-2"
+                     data-id="@subcat.SubcategoryId">
             <h1>@subcat.SubcategoryName</h1>
             @foreach (var item in subcat.Products)
             {
@@ -195,6 +196,34 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            window.connection.on("NewProduct", function (prod) {
+                console.log(prod)
+                // Format price
+                let priceFormatted = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(prod.price);
+
+                // Build product card HTML
+                let content = `
+                <div id="${prod.prodId}" class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded-3"
+                     style="background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 0%, rgba(115, 115, 115, 0.1) 100%);">
+                    <button class="add-product px-3 py-3 w-100 h-100 m-0 bg-transparent border-0"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasBottom"
+                            data-id="${prod.prodId}">
+                        <div class="d-flex justify-content-between align-items-center text-white">
+                            <p class="mb-0 text-start">${prod.prodName.toUpperCase()}</p>
+                            <span>${priceFormatted}</span>
+                        </div>
+                    </button>
+                </div>`;
+
+                // Find subcategory section using jQuery
+                let $subcatSection = $(`section[data-id='${prod.subcategoryId}']`);
+                if ($subcatSection.length) {
+                    $subcatSection.append(content);
+                } else {
+                    console.warn("Subcategory section not found for ID:", prod.subcategoryId);
+                }
+            });
             const searchInput = $("#food-search");
             const dropdown = $("#search-dropdown");
 
@@ -216,7 +245,6 @@
                 });
                 // Remove previous "no results" message
                 dropdown.children(".no-results").remove();
-                console.log(hasMatch);
 
                 if(!hasMatch){
                     dropdown.append('<div class="p-2 ps-4 text-white bg-transparent no-results">No results found</div>');
@@ -259,7 +287,6 @@
                     heightsArray.forEach(height => {
                         totalPreviousHeight += height;
                     });
-                    console.log($("#subcat a span"))
                     if(top-50 < totalPreviousHeight && top+50 > totalPreviousHeight){
                         $("#subcat a span").removeClass("bg-white")
                         $("#subcat a span").addClass("bg-gray")
@@ -288,7 +315,6 @@
                     }
                     scrollPosition += $(this).outerHeight(true);
                 });
-                console.log(scrollPosition)
                 container.animate({
                     scrollTop: scrollPosition
                 }, 500);

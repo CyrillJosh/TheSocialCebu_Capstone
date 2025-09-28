@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Hubs;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 
@@ -10,13 +12,15 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Database
         private readonly MyDBContext _context;
+        private readonly IHubContext<ConnectorHub> _hub;
         private List<Category> Categories;
         private List<SubCategory> Subcategories;
 
         //Constructor
-        public MenuController(MyDBContext context)
+        public MenuController(MyDBContext context, IHubContext<ConnectorHub> hub)
         {
             _context = context;
+            _hub = hub;
         }
 
         //List of products
@@ -67,7 +71,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Add the new product
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-
+            await _hub.Clients.All.SendAsync("NewProduct", product);
             //Return to Index
             return RedirectToAction("Index");
         }
@@ -122,7 +126,7 @@ namespace TheSocialCebu_Capstone.Controllers
             //Update product
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
-
+            await _hub.Clients.All.SendAsync("UpdateProduct", product);
             //Return to Index
             return RedirectToAction("Index");
         }

@@ -9,7 +9,7 @@
       "launchUrl": "http://thesocial.cebu",
       "dotnetRunMessages": true,
       "publishAllPorts": true,
-      "applicationUrl": "http://0.0.0.0:80",
+      "applicationUrl": "http://0.0.0.0:80;http://localhost:80;http://thesocial.cebu:80",
       "hotReloadEnabled": true
     },
     "https": {
@@ -21,7 +21,7 @@
       "launchUrl": "http://thesocial.cebu",
       "publishAllPorts": true,
       "dotnetRunMessages": true,
-      "applicationUrl": "https://0.0.0.0:443"
+      "applicationUrl": "https://0.0.0.0:443;https://localhost:443;https://thesocial.cebu:443"
     },
     "IIS Express": {
       "commandName": "IISExpress",

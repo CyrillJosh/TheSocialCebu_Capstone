@@ -8,7 +8,8 @@
 <div class="container-fluid px-5 py-3 vh-100 overflow-y-scroll render-body">
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-dark">Add New Product</h3>
+            <h1 class="text-dark fw-bold">ADD NEW PRODUCT</h1>
+
             <div>
                 <button type="submit" form="productForm" class="btn btn-success btn-yellow fw-bold me-2 px-4">Save</button>
                 <a asp-action="Index" class="btn btn-secondary btn-danger px-4">Cancel</a>
@@ -17,41 +18,48 @@
 
         <form asp-action="Create" enctype="multipart/form-data" id="productForm">
             <div class="mb-3">
-                <input asp-for="ProdName" placeholder="Product Name" class="form-control border-secondary" />
+                <input asp-for="ProdName" placeholder="Product Name" class="form-control border-secondary bg-body-secondary" />
                 <span asp-validation-for="ProdName" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control border-secondary"></textarea>
+                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control border-secondary bg-body-secondary"></textarea>
             </div>
 
             <div class="mb-3">
-                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control border-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
+                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control border-secondary bg-body-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
                 <span asp-validation-for="Price" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories.Select(x => new SelectListItem {Text = x.CategoryName, Value = x.CategoryId})">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary bg-body-secondary" asp-items="Model.Categories.Select(x => new SelectListItem { Text = x.CategoryName, Value = x.CategoryId })">
                     <option value="">-- Select a Category --</option>
                 </select>
-                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                <span asp-validation-for="CategoryId" class="text-danger small bg-body-secondary"></span>
             </div>
 
              <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories.Select(x => new SelectListItem {Value = x.SubcategoryId, Text = x.SubcategoryName})">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary bg-body-secondary" asp-items="Model.Subcategories.Select(x => new SelectListItem { Value = x.SubcategoryId, Text = x.SubcategoryName })">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>
             </div>
 
-            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
+            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center bg-body-secondary">
                 <label class="d-block text-dark">Status</label>
-                <div>
-                    <input type="radio" class="btn-check" name="Availability" id="availabilityTrue" value="true" autocomplete="off" checked>
-                    <label class="btn btn-outline-success px-3 rounded-pill py-0" for="availabilityTrue">Available</label>
+                <div class="btn-group" role="group" aria-label="Stock status">
+                    <input type="radio"
+                           class="btn-check"
+                           name="Availability"
+                           id="availabilityTrue"
+                           value="true"
+                           autocomplete="off" @(Model.Availability ? "checked" : "")>
+                    <label class="btn btn-outline-success" for="availabilityTrue">Available</label>
 
-                    <input type="radio" class="btn-check" name="Availability" id="availabilityFalse" value="false" autocomplete="off">
-                    <label class="btn btn-outline-danger px-3 rounded-pill py-0 ms-5" for="availabilityFalse">Unvailable</label>
+                    <input type="radio" class="btn-check"
+                           name="Availability" id="availabilityFalse"
+                           value="false" autocomplete="off" @(Model.Availability == false ? "checked" : "")>
+                    <label class="btn btn-outline-danger" for="availabilityFalse">unvailable</label>
                 </div>
             </div>
         </form>

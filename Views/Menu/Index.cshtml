@@ -4,24 +4,24 @@
 @{
     ViewData["Title"] = "Product List";
 }
-<div class="vh-100 vw-100">
-    <div class="container-fluid vh-100 p-4 overflow-y-scroll">
+<div class="render-body vh-100 vw-100">
+    <div class="h-100 w-100 p-4 d-flex flex-column">
         <div class="d-flex justify-content-evenly align-items-center mb-4">
-            <h2 class="text-dark fw-semibold">Products</h2>
+            <h1 class="text-dark fw-bold">PRODUCTS</h1>
             <div class="row h-50 input-group gap-2 m-2 d-flex justify-content-end">
-                <div class="border border-2 rounded-pill border-dark px-2 py-1 col-xl-4 col-md-12 d-flex align-items-center gap-1">
+                <div class="border border-2 rounded-pill text-dark border-dark px-2 py-1 col-xl-4 col-md-12 d-flex align-items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search m-0 p-0" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
                     <input id="custom-search-input" type="text" placeholder="Search" class="border-0 focus-none bg-transparent m-0 p-0" />
                 </div>
             </div>
-            <a asp-action="Create" style="min-width:12rem" class="btn btn-yellow px-4 rounded-pill py-1">+ New Product</a>
+            <a asp-action="Create" style="min-width:12rem" class="btn btn-primary px-4 rounded-pill py-1">+ New Product</a>
         </div>
 
-        <div class="table-responsive">
-            <table id="Table" class="table table-hover align-middle rounded table-separate border-spacing-y-5">
-                <thead class="mb-5">
+        <div class="flex-grow-1 overflow-auto table-responsive">
+            <table id="Table" class="table table-hover align-middle rounded table-separate ">
+                <thead class="sticky-top">
                     <tr>
                         <th class="col">Name</th>
                         <th class="col">Price</th>
@@ -34,17 +34,17 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr class="bg-gray">
-                            <td class="border-2 border-end-0 border-secondary rounded-start">@item.ProdName</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary text-start">@item.Price.ToString("₱0.00")</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.Category.CategoryName</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.SubcategoryName</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary">
+                        <tr>
+                            <td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary">@item.ProdName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary">@item.Price.ToString("₱0.00")</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@item.Subcategory.Category.CategoryName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@item.Subcategory.SubcategoryName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input change p-0 m-0" type="checkbox" id="@item.ProdId" @(item.Availability ? "checked" : "")>
                                 </div>
                             </td>
-                            <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
+                            <td class="border-2 border-start-0 border-secondary bg-body rounded-end bg-body-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
                                 <div>
                                     <a asp-action="Edit" asp-route-id="@item.ProdId" class="btn btn-sm btn-outline-primary border-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -89,6 +89,11 @@
         </div>
     </div>
 </form>
+<style>
+    .dataTables_scroll-foot {
+        display: none !important;
+    }
+</style>
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -104,27 +109,20 @@
                 })
             })
             $('#Table').DataTable({
-                pageLength: 8,
+                paging: false,
+                searching: true,
+                info: false,
+                pageLength: 10,
                 lengthChange: false,
                 ordering: true,
-                info: true,
+                dom: 'lrtip',
+                columnDefs: [
+                    { targets: 'no-sort', orderable: false }
+                ],
                 language: {
                     search: "",
-                    searchPlaceholder: "Search Products",
-                },
-                 dom: 'lrtip',
-                    columnDefs: [
-                    { targets: 'no-sort', orderable: false },
-                    {
-                        targets:  2,
-                        render: function (data, type, row) {
-                            if(type === 'sort' || type === 'type') {
-                                return parseFloat(data.replace(/[^0-9.\-]+/g,"")) || 0;
-                            }
-                            return data;
-                        }
-                    }
-                ]
+                    searchPlaceholder: "Search Tables",
+                }
             });
 
             $(document).on('click', '.DeleteProduct', function () {
@@ -146,21 +144,6 @@
             $('#Table').on('draw.dt', function () {
                 $('th:eq(0)').removeClass('sorting sorting_asc sorting_desc').off();
             });
-
-            let img = $('.dt-column-title').filter(function () {
-                return $(this).text().trim() === "Image";
-            }).parent();
-
-            img.children().last().remove();
-
-            let price = $('.dt-column-title').filter(function () {
-                return $(this).text().trim() === "Price";
-            }).parent();
-
-            let sort = price.children().first();
-            sort.children().first().remove();
-            price.append(sort);
-            price.children().last().addClass("text-start");
         });
     </script>
 }

@@ -10,7 +10,8 @@
         <form asp-action="Edit" enctype="multipart/form-data" id="productForm">
             <input asp-for="ProdId" hidden />
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="mb-0">Edit Product</h3>
+                <h1 class="text-dark fw-bold">EDIT PRODUCT</h1>
+
                 <div>
                     <button type="submit" class="btn btn-success btn-yellow fw-bold me-2 px-4">Save Changes</button>
                     <a asp-action="Index" class="btn btn-danger px-4">Cancel</a>
@@ -18,34 +19,34 @@
             </div>
 
             <div class="mb-3">
-                <input asp-for="ProdName" placeholder="Product Name" class="form-control border-secondary" />
+                <input asp-for="ProdName" placeholder="Product Name" class="form-control border-secondary bg-body-secondary" />
                 <span asp-validation-for="ProdName" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control border-secondary"></textarea>
+                <textarea asp-for="Description" placeholder="Description" rows="3" class="form-control border-secondary bg-body-secondary"></textarea>
             </div>
 
             <div class="mb-3">
-                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control border-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
+                <input id="priceInput" asp-for="Price" type="number" step="any" placeholder="Price" class="form-control border-secondary bg-body-secondary" value="@(Model.Price == 0 ? "" : Model.Price.ToString("0.00"))">
                 <span asp-validation-for="Price" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary" asp-items="Model.Categories.Select(s => new SelectListItem { Value = s.CategoryId.ToString(), Text = s.CategoryName, })">
+                <select id="categoryDropdown" asp-for="CategoryId" class="form-select border-secondary bg-body-secondary" asp-items="Model.Categories.Select(s => new SelectListItem { Value = s.CategoryId.ToString(), Text = s.CategoryName, })">
                     <option value="">-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
-                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary" asp-items="Model.Subcategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName})">
+                <select id="subcategoryDropdown" asp-for="SubcategoryId" class="form-select border-secondary bg-body-secondary" asp-items="Model.Subcategories.Select(s => new SelectListItem { Value = s.SubcategoryId.ToString(), Text = s.SubcategoryName })">
                     <option value="">-- Select a Subcategory --</option>
                 </select>
                 <span asp-validation-for="SubcategoryId" class="text-danger small"></span>
             </div>
 
-            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center">
+            <div class="mb-3 border border-1 border-secondary rounded-2 p-2 d-flex gap-5 align-items-center bg-body-secondary">
                 <label class="d-block text-dark">Status</label>
                 <div class="btn-group" role="group" aria-label="Stock status">
                     <input type="radio" 
@@ -59,7 +60,7 @@
                     <input type="radio" class="btn-check" 
                             name="Availability" id="availabilityFalse" 
                             value="false" autocomplete="off" @(Model.Availability == false ? "checked" : "")>
-                    <label class="btn btn-outline-warning" for="availabilityFalse">unvailable</label>
+                    <label class="btn btn-outline-danger" for="availabilityFalse">unvailable</label>
                 </div>
             </div>
         </form>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Hubs;
 using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -8,10 +10,11 @@ namespace TheSocialCebu_Capstone.Controllers
     public class KitchenController : Controller
     {
         private readonly MyDBContext _context;
-
-        public KitchenController(MyDBContext context)
+        private readonly IHubContext<ConnectorHub> _hub;
+        public KitchenController(MyDBContext context, IHubContext<ConnectorHub> hub)
         {
             _context = context;
+            _hub = hub;
         }
 
         public IActionResult Index()
@@ -49,6 +52,8 @@ namespace TheSocialCebu_Capstone.Controllers
             order.OrderStatusId = 2; // Set to 'In Progress'
             _context.Update(order);
             _context.SaveChanges();
+
+            _hub.Clients.All.SendAsync("UpdateOrderStatus", order);
 
             return Json(new { message = "Success" });
         }

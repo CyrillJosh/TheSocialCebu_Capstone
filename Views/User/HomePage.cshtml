@@ -4,54 +4,55 @@
 @{
     ViewData["Title"] = "User Management";
 }
+<div class="render-body">
+    <div class="p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0 fw-bold text-primary">User Management</h2>
+            <a asp-controller="User" asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Create User
+            </a>
+        </div>
 
-<div class="container py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0 fw-bold text-primary">User Management</h2>
-        <a asp-controller="User" asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Create User
-        </a>
-    </div>
-
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Date hired</th>
-                    <th style="width: 150px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var person in Model)
-                {
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered">
+                <thead class="table-light">
                     <tr>
-                        <td>@person.PersonId</td>
-                        <td>@person.Name</td>
-                        <td>@person.Account.Username</td>
-                        <td>••••••••</td>
-                        <td>@person.HiredDate.ToString("yyyy-MM-dd")</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                <a asp-controller="User" asp-action="Update" asp-route-id="@person.PersonId"
-                                   class="btn btn-sm btn-outline-primary px-3">
-                                    <i class="bi bi-pencil-square">Edit</i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger px-3 DeleteModalButton"
-                                        data-id="@person.PersonId" data-bs-toggle="modal" data-bs-target="#DeleteModal">
-                                    <i class="bi bi-trash">Delete</i>
-                                </button>
-                            </div>
-                        </td>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Date hired</th>
+                        <th style="width: 150px;">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var person in Model)
+                    {
+                        <tr>
+                            <td>@person.PersonId</td>
+                            <td>@person.Name</td>
+                            <td>@person.Account.Username</td>
+                            <td>••••••••</td>
+                            <td>@person.HiredDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a asp-controller="User" asp-action="Update" asp-route-id="@person.PersonId"
+                                       class="btn btn-sm btn-outline-primary px-3">
+                                        <i class="bi bi-pencil-square">Edit</i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger px-3 DeleteModalButton"
+                                            data-id="@person.PersonId" data-bs-toggle="modal" data-bs-target="#DeleteModal">
+                                        <i class="bi bi-trash">Delete</i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -101,5 +102,34 @@
                 }
             });
         });
+
+         $('#Table').DataTable({
+                scrollY: 'calc(100vh - 200px)', // adjust 200px to account for header/search/buttons
+                scrollCollapse: true,
+                paging: false, // optional if you want no pagination
+                searching: true, // keep built-in search
+                info: false, // hide "Showing 1 of X"
+                pageLength: 10,
+                lengthChange: false,
+                ordering: true,
+                info: true,
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search Products",
+                },
+                 dom: 'lrtip',
+                    columnDefs: [
+                    { targets: 'no-sort', orderable: false },
+                    {
+                        targets:  2,
+                        render: function (data, type, row) {
+                            if(type === 'sort' || type === 'type') {
+                                return parseFloat(data.replace(/[^0-9.\-]+/g,"")) || 0;
+                            }
+                            return data;
+                        }
+                    }
+                ]
+            });
     </script>
 }

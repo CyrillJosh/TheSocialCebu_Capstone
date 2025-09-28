@@ -50,8 +50,25 @@ namespace Menu.Controllers
 
             return RedirectToAction("Index","Menu");
         }
+
+        public IActionResult HomePage()
+        {
+            List<Person> people = _context.People.Include(p => p.Account).ToList();
+            return View(people);
+        }
+
         //CreateProcess
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var vm = new PersonVM
+            {
+                Roles = _context.Roles.ToList()
+            };
+            return View(vm);
+        }
         [Auth("Manager")]
+        [HttpPost]
         public IActionResult Create(Person person)
         {
             if (!ModelState.IsValid) return View(person);

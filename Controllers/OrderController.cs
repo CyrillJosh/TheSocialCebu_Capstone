@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Hubs;
 using TheSocialCebu_Capstone.Models;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -10,11 +12,12 @@ namespace TheSocialCebu_Capstone.Controllers
     {
         //Fields
         private readonly MyDBContext _context;
-        private List<Category> Categories;
-        private List<SubCategory> Subcategories;
-        public OrderController(MyDBContext context)
+        private readonly IHubContext<ConnectorHub> _hub;
+
+        public OrderController(MyDBContext context, IHubContext<ConnectorHub> hub)
         {
             _context = context;
+            _hub = hub;
         }
         //Set session
         public IActionResult Table(string id)
@@ -28,6 +31,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             _context.Update(table);
             _context.SaveChanges();
+
             return RedirectToAction("Index","Home");
         }
 
@@ -151,9 +155,8 @@ namespace TheSocialCebu_Capstone.Controllers
             return Json(new { success = true, orders, message = "Success" });
         }
 
-        public JsonResult ConfirmCart()
+        public async Task<JsonResult> ConfirmCart(string tableId)
         {
-            var tableId = HttpContext.Session.GetString("Table");
             if (tableId == null)
             {
                 return Json(new { success = false, message = "Error: No active session found." });
@@ -186,6 +189,36 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Orders.Add(order);
             HttpContext.Session.Remove("Orders");
             _context.SaveChanges();
+
+            var orderDto = new
+            {
+                order.OrderId,
+                order.OrderNumber,
+                order.CreatedAt,
+                Table = new
+                {
+                    order.Table.TableNumber
+                },
+                OrderStatus = new
+                {
+                    order.OrderStatusId,
+                    StatusName = "To Accept" // or fetch from your context if needed
+                },
+                OrderItems = order.OrderItems.Select(x => new
+                {
+                    x.OrderItemId,
+                    x.Quantity,
+                    Instructions = x.Instructions ?? "",
+                    Prod = new
+                    {
+                        x.Prod.ProdName,
+                        Subcategory = new { x.Prod.SubcategoryId, x.Prod.Subcategory.SubcategoryName }
+                    },
+                    OrderItemStatus = new { x.OrderItemStatusId, StatusName = x.OrderItemStatus.StatusName }
+                }).ToList()
+            };
+
+            await _hub.Clients.All.SendAsync("NewOrder", orderDto);
 
             return Json(new { success = true, message = "Success" });
         }
@@ -240,12 +273,6 @@ namespace TheSocialCebu_Capstone.Controllers
         private void SaveCart(List<OrderItem> orders)
         {
             HttpContext.Session.SetString("Orders", JsonSerializer.Serialize(orders));
-        }
-
-        private void PopulateCategories()
-        {
-            Categories = _context.Categories.ToList();
-            Subcategories = _context.SubCategories.Include(x => x.Category).ToList();
         }
     }
 }
