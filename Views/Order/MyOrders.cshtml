@@ -146,13 +146,15 @@
                 let allServed = true;
 
                 $(".stat").each(function () {
+                    console.log($(this).text().trim())
                     if ($(this).text().trim() !== "Served") {
                         allServed = false;
                         return false; // exit the loop early
                     }
                 });
-
-                $(".foot").prepend(`<button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>`)
+                if(allServed){
+                    $(".foot").prepend(`<button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>`)
+                }
                 return allServed;
             }
             $(".star").click(function () {

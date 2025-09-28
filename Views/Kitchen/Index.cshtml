@@ -82,7 +82,7 @@
 															</td>
 														}
 
-														@if (item.OrderItemStatus.OrderItemStatusId == 2)
+														@if (item.OrderItemStatus.OrderItemStatusId >= 2)
 														{
 															<td>
 																<div>
@@ -92,7 +92,7 @@
 															<td>
 																<p id="qty" class="m-0">@item.Quantity</p>
 															</td>
-															<td class="ps-4"><input type="checkbox" /> @item.OrderItemStatus.StatusName</td>
+															<td class="ps-4"><input type="checkbox" @(item.OrderItemStatusId == 3 ? "disabled checked": "")/> @item.OrderItemStatus.StatusName</td>
 														}
 													</tr>
 												}

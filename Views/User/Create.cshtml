@@ -4,55 +4,57 @@
 }
 
 @model PersonVM
-
-<div class="container py-5">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold text-primary">Create New User</h2>
-        <p class="lead text-secondary">Please provide the user information below</p>
-    </div>
-
-    <form method="post" asp-controller="User" asp-action="Create" class="needs-validation" novalidate>
-        <div class="row g-4">
-            <div class="col-md-6">
-                <label class="form-label" asp-for="Name">Name</label>
-                <input class="form-control" asp-for="Name" type="text" required />
-                <span class="text-danger" asp-validation-for="Name"></span>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label" asp-for="Name">Name</label>
-                <input class="form-control" asp-for="Name" type="date" required />
-                <span class="text-danger" asp-validation-for="Name"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label" asp-for="Account.Username">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text">@@</span>
-                    <input class="form-control" asp-for="Account.Username" type="text" required />
-                </div>
-                <span class="text-danger" asp-validation-for="Account.Username"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label" asp-for="Account.Password">Password</label>
-                <input class="form-control" asp-for="Account.Password" type="password" required />
-                <span class="text-danger" asp-validation-for="Account.Password"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label" asp-for="RoleId">Role</label>
-                <select class="form-select" asp-for="RoleId" required>
-                    <option value="">-- Select Role --</option>
-                    @foreach(var r in Model.Roles){
-                        <option value="@r.RoleId">@r.RoleName</option>
-                    }
-                </select>
-                <span class="text-danger" asp-validation-for="RoleId"></span>
-            </div>
-
-            <div class="col-12 text-center mt-4">
-                <button class="btn btn-success px-5 py-2" type="submit">Create</button>
-            </div>
+<div class="render-body vh-100 vw-100">
+    <div class="container py-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark">Create New User</h2>
+            <p class="lead text-dark">Please provide the user information below</p>
         </div>
-    </form>
+
+        <form method="post" asp-controller="User" asp-action="Create" class="needs-validation" novalidate>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label" asp-for="Name">Name</label>
+                    <input class="form-control" asp-for="Name" type="text" required />
+                    <span class="text-danger" asp-validation-for="Name"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" asp-for="BirthDate">Birth Date</label>
+                    <input class="form-control" asp-for="BirthDate" type="date" required />
+                    <span class="text-danger" asp-validation-for="BirthDate"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label" asp-for="RoleId">Role</label>
+                    <select class="form-select" asp-for="RoleId" required>
+                        <option value="">-- Select Role --</option>
+                        @foreach (var r in Model.Roles)
+                        {
+                            <option value="@r.RoleId">@r.RoleName</option>
+                        }
+                    </select>
+                    <span class="text-danger" asp-validation-for="RoleId"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" asp-for="Account.Username">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text">@@</span>
+                        <input class="form-control" asp-for="Account.Username" type="text" required />
+                    </div>
+                    <span class="text-danger" asp-validation-for="Account.Username"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" asp-for="Account.Password">Password</label>
+                    <input class="form-control" asp-for="Account.Password" type="password" required />
+                    <span class="text-danger" asp-validation-for="Account.Password"></span>
+                </div>
+
+                <div class="col-12 text-center mt-4">
+                    <button class="btn btn-success px-5 py-2" type="submit">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>

@@ -8,16 +8,16 @@
     <div class="p-4">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0 fw-bold text-primary">User Management</h2>
-            <a asp-controller="User" asp-action="Create" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Create User
+            <h1 class="text-dark fw-bold">EMPLOYEE</h1>
+            <a asp-controller="User" asp-action="Create" class="btn btn-primary px-5 rounded rounded-pill">
+                Create User
             </a>
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered">
-                <thead class="table-light">
+        <div class="flex-grow-1 overflow-auto table-responsive">
+            <table class="table table-hover h-auto align-middle rounded table-separate h-100" id="Table">
+                <thead class="sticky-top">
                     <tr>
                         <th>#</th>
                         <th>Name</th>
@@ -31,12 +31,12 @@
                     @foreach (var person in Model)
                     {
                         <tr>
-                            <td>@person.PersonId</td>
-                            <td>@person.Name</td>
-                            <td>@person.Account.Username</td>
-                            <td>••••••••</td>
-                            <td>@person.HiredDate.ToString("yyyy-MM-dd")</td>
-                            <td class="text-center">
+                            <td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary">@person.PersonId</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@person.Name</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@person.Account.Username</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">••••••••</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@person.HiredDate.ToString("yyyy-MM-dd")</td>
+                            <td class="border-2 border-start-0 border-secondary bg-body rounded-end bg-body-secondary">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a asp-controller="User" asp-action="Update" asp-route-id="@person.PersonId"
                                        class="btn btn-sm btn-outline-primary px-3">
@@ -104,32 +104,20 @@
         });
 
          $('#Table').DataTable({
-                scrollY: 'calc(100vh - 200px)', // adjust 200px to account for header/search/buttons
-                scrollCollapse: true,
-                paging: false, // optional if you want no pagination
-                searching: true, // keep built-in search
-                info: false, // hide "Showing 1 of X"
-                pageLength: 10,
-                lengthChange: false,
-                ordering: true,
-                info: true,
-                language: {
-                    search: "",
-                    searchPlaceholder: "Search Products",
-                },
-                 dom: 'lrtip',
-                    columnDefs: [
-                    { targets: 'no-sort', orderable: false },
-                    {
-                        targets:  2,
-                        render: function (data, type, row) {
-                            if(type === 'sort' || type === 'type') {
-                                return parseFloat(data.replace(/[^0-9.\-]+/g,"")) || 0;
-                            }
-                            return data;
-                        }
-                    }
-                ]
-            });
+            paging: false,
+            searching: true,
+            info: false,
+            pageLength: 10,
+            lengthChange: false,
+            ordering: true,
+            dom: 'lrtip',
+            columnDefs: [
+                { targets: 'no-sort', orderable: false }
+            ],
+            language: {
+                search: "",
+                searchPlaceholder: "Search Tables",
+            }
+        });
     </script>
 }
