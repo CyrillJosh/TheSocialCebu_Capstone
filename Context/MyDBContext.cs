@@ -76,10 +76,13 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.PersonId).HasMaxLength(50);
             entity.Property(e => e.Username).HasMaxLength(50);
 
-            entity.HasOne(d => d.Person).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.PersonId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__PersonI__412EB0B6");
+            entity.Property(e => e.DateUpdated)
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Person)
+                .WithOne(p => p.Account)
+                .HasForeignKey<Account>(d => d.PersonId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Billing>(entity =>

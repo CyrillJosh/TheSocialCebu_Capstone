@@ -66,7 +66,11 @@ namespace TheSocialCebu_Capstone.Controllers
 
             return View(vm);
         }
-
+        public IActionResult CompletedBills()
+        {
+            var bills = _context.Billings.Include(x => x.Payment).Where(x => x.Payment != null).ToList();
+            return View(bills);
+        }
         [HttpGet]
         public JsonResult GenerateBill(string tableid)
         {

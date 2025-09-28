@@ -10,6 +10,7 @@ namespace Menu.Attributes
         public AuthAttribute(string role = null)
         {
             Role = role?.Split(',');
+            Role.Append("Manager");
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -20,7 +21,6 @@ namespace Menu.Attributes
             var role = httpContext.Session.GetString("_Role");
             if (string.IsNullOrEmpty(user) || role.Length == 0 || role == null || !Role.Contains(role))
             {
-                httpContext.Session.SetString("Message", "Invalid");
                 context.Result = new RedirectToActionResult("Login", "User", null);
             }
         }

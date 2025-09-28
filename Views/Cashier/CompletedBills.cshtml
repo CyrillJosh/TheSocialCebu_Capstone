@@ -1,0 +1,67 @@
+﻿@using TheSocialCebu_Capstone.Models
+@{
+	ViewData["Title"] = "Completed Bills";
+}
+@model List<Billing>
+<div class="render-body vh-100 vw-100">
+	<div class="row h-100 p-4">
+		<div class="col-7 h-100">
+			<h1>Bills</h1>
+			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
+				@foreach(var b in Model)
+				{
+					<div class="show" id="@b.BillingId" style="max-height: 100px">
+						<div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow">
+							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
+								<h3 class="text-white m-0 py-2 px-5">@b.BillingId</h3>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+		@foreach(var b in Model)
+		{
+			<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+				<h3>THE SOCIAL CEBU</h3>
+				<p>Billing Statement</p>
+				<p>Table: ${tableId}</p>
+				<hr />
+				<table style="width:100%; font-size:12px; text-align:left">
+					<thead>
+						<tr>
+							<th style="text-align:left">Item</th>
+							<th style="text-align:center">Qty</th>
+							<th style="text-align:right">Price</th>
+						</tr>
+					</thead>
+					<tbody>
+						${rows}
+					</tbody>
+				</table>
+				<hr />
+				<div style="text-align:right">
+					<p>Subtotal: ${m.bill.subtotal.toFixed(2)}</p>
+					<hr />
+
+					<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+					<p>${m.discount.discountName} discount: -${m.discount.amount.toFixed(2)}</p>
+					<h5><strong>Total: ${m.breakdown.grandtotal.toFixed(2)}</strong></h5>
+					<hr />
+					<p>Vat Sales: ${m.breakdown.vatsales.toFixed(2)}</p>
+					<p>Vat Exempt Sale: ${m.breakdown.vatexempt.toFixed(2)}</p>
+					<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
+					<p>Total Sale: ${m.bill.totalsale.toFixed(2)}</p>
+					<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
+					<p>Amount due : ${m.breakdown.grandtotal.toFixed(2)}</p>
+
+				</div>
+				<hr />
+
+
+				<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
+				<p>Thank you for dining with us!</p>
+			</div>
+		}
+	</div>
+</div>

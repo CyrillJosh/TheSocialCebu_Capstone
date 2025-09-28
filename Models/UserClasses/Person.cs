@@ -11,15 +11,15 @@ public partial class Person
 
     public string Name { get; set; } = null!;
 
-    public DateOnly BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
 
-    public DateOnly HiredDate { get; set; }
+    public DateTime HiredDate { get; set; }
 
     public bool Status { get; set; }
 
     public string Gender { get; set; } = null!;
 
-    public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
+    public virtual Account Account { get; set; } = null!;
 
     public virtual Role Role { get; set; } = null!;
 }

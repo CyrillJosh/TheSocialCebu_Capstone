@@ -46,57 +46,68 @@ namespace Menu.Controllers
 
             //Set Session String
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
-            //HttpContext.Session.SetString("_Role", userRole);
+            HttpContext.Session.SetString("_Role", userRole);
 
             return RedirectToAction("Index","Menu");
         }
+        //CreateProcess
+        [Auth("Manager")]
+        public IActionResult Create(Person person)
+        {
+            if (!ModelState.IsValid) return View(person);
 
-        ////HomePage
-        //public IActionResult HomePage()
-        //{
-        //    return View();
-        //}
-        ////Create
-        //[HttpGet]
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
+            person.HiredDate = DateTime.Now;
+            person.Account.Password = BCrypt.Net.BCrypt.HashPassword(person.Account.Password);
+            _context.People.Add(person);
+            _context.SaveChanges();
 
-        ////CreateProcess
-        //public IActionResult Create()
-        //{
-        //    return RedirectToAction("Index");
-        //}
-        ////Update
-        //[HttpGet]
-        //public IActionResult Update()
-        //{
+            return RedirectToAction("Index");
+        }
+        //Update
+        [HttpGet]
+        [Auth("Manager")]
+        public IActionResult Update(string id)
+        {
+            Person person = _context.People.Include(p => p.Account).FirstOrDefault(x => x.PersonId == id);
 
-        //    return View();
-        //}
-        ////Update Process
-        //[Auth("Admin,Manager")]
-        //public IActionResult Update()
-        //{
+            return View(person);
+        }
+        //Update Process
+        [Auth("Manager")]
+        public IActionResult Update(Person person)
+        {
+            //Validate
+            if (!ModelState.IsValid)
+            {
+                return View(person);
+            }
 
-        //    return RedirectToAction("Index");
-        //}
-        ////Delete Process
-        //public IActionResult Delete(int id)
-        //{
-        //    return Json(new { success = true, message = "Record successfully removed!" });
-        //}
+            person.Account.DateUpdated = DateTime.Now;
 
-        //[HttpPost]
-        //public IActionResult Logout()
-        //{
-        //    HttpContext.Session.Clear(); // clears all session data
-        //    return RedirectToAction("Login", "User");
-        //}
+            _context.Update(person);
+            _context.SaveChanges();
 
-        //
-        //Custom Methods
-        //
+            return RedirectToAction("Index");
+        }
+        //Delete Process
+        [Auth("Manager")]
+        public IActionResult Delete(string id)
+        {
+            Person person = _context.People.Include(p => p.Account).FirstOrDefault(x => x.PersonId == id);
+
+            if (person is null) return Json(new { success = false, message = "Error! Record not found please try again" });
+
+            _context.Remove(person);
+            _context.SaveChanges();
+
+            return Json(new { success = true, message = "Record successfully removed!" });
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // clears all session data
+            return RedirectToAction("Login", "User");
+        }
     }
 }

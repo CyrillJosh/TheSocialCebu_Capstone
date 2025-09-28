@@ -44,30 +44,29 @@
             <div class="h-100 w-100 vstack gap-2">
                 @foreach (var order in Model)
                 {
-                    <div class="card bg-secondary p-3">
+                    <div class="card bg-secondary p-3 rounded-3">
                         <h5 class="text-white">Order # @order.OrderNumber.ToString("0000")</h5>
                         <p class="text-white fst-italic">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
-                        <table class="table text-white table-borderless bg-transparent">
-                            <thead class="bg-transparent">
-                                <tr class="bg-transparent">
-                                    <th class="text-primary bg-transparent fw-light">Qty</th>
-                                    <th class="text-primary bg-transparent fw-light">Item</th>
-                                    <th class="text-primary bg-transparent fw-light">Status</th>
+                        <table class="text-white table-borderless w-100">
+                            <thead>
+                                <tr>
+                                    <th class="text-primary fw-light" style="width:10%">Qty</th>
+                                    <th class="text-primary fw-light" style="width:60%">Item</th>
+                                    <th class="text-primary fw-light" style="width:30%">Status</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-transparent">
+                            <tbody>
                                 @foreach (var item in order.OrderItems)
                                 {
-                                    <tr></tr>
                                     <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
-                                        <td class="bg-transparent fw-bold text-white">@item.Quantity</td>
-                                        <td class="bg-transparent fw-bold text-white">@item.Prod.ProdName</td>
-                                        <td class="bg-transparent fw-bold text-white">@item.OrderItemStatus.StatusName</td>
+                                        <td class="fw-bold py-2">@item.Quantity</td>
+                                        <td class="fw-bold">@item.Prod.ProdName</td>
+                                        <td class="fw-bold" id="@item.OrderItemId">@item.OrderItemStatus.StatusName</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
                                         <tr>
-                                            <td colspan="5" class="fst-italic" style="font-size: 0.8rem;">
+                                            <td colspan="3" class="fst-italic" style="font-size:0.8rem;">
                                                 Notes: @item.Instructions
                                             </td>
                                         </tr>

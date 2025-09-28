@@ -1,0 +1,38 @@
+﻿@using TheSocialCebu_Capstone.Models
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Uer Management";
+}
+
+@model Person
+
+<div>
+    <form method="post" asp-controller="User" asp-action="Update" class="has-validation" novalidate>
+        <!-- HIDDEN -->
+        <input asp-for="PersonId" hidden />
+        <input asp-for="Account.AccountId" hidden />
+        <div class="row g-3">
+            <div class="col-6">
+                <label class="form-label" asp-for="Name">Name</label>
+                <input class="form-control" asp-for="Name" type="text" required />
+                <span class="text-danger" asp-validation-for="Name"></span>
+            </div>
+            <div class="col-6">
+                <label class="form-label" asp-for="Account.Username">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text">@@</span>
+                    <input class="form-control" asp-for="Account.Username" type="text" required />
+                </div>
+                <span class="text-danger" asp-validation-for="Account.Username"></span>
+            </div>
+            <div class="col-6">
+                <label class="form-label" asp-for="Account.Password">Password</label>
+                <input class="form-control" asp-for="Account.Password" type="password" required />
+                <span class="text-danger" asp-validation-for="Account.Password"></span>
+            </div>
+            <button class="btn btn-success col-12 my-5" type="submit">Create</button>
+        </div>
+    </form>
+</div>

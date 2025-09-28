@@ -207,9 +207,10 @@
                 fetch(`/Order/ConfirmCart?id=${tableId}`)
                 .then(rawData => rawData.json())
                 .then(data => {
-                    alert(data.message)
-                    $(".order-body").empty()
-                    $(".total").text("0.00")
+                    if(data.success){
+                        alert(data.message)
+                        window.location.reload()
+					}
                 })
             })
 

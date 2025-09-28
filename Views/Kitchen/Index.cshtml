@@ -3,49 +3,15 @@
 	ViewData["Title"] = "Kitchen";
 }
 @model List<Order>
-<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 py-0 px-4" style="width: 250px;">
-	@{
-		var userId = Context.Session.GetString("_Id");
-		var userRole = Context.Session.GetString("_Role");
-	}
-	<a href="/" class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
-		<img class="logo" src="/images/The Social Logo.png" height="50" />
-		<h4 class="m-0">THE SOCIAL</h4>
-	</a>
-	<div class="offcanvas-body d-flex flex-column gap-2 mt-5" id="navigation">
-		<a class="btn btn-dark w-100 text-start" asp-controller="Home" asp-action="Index">Home</a>
-
-		<a class="btn btn-primary w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
-		<a class="btn btn-dark w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Menu Management</a>
-
-
-		@* <a href="http://localhost:5021/Order/Table/cd69e8bc-ee35-4132-9768-8d4e198f9b8f">Order shortcut</a>
-        <a href="http://localhost:5021/Kitchen">Kitchen shortcut</a>
-        <a href="http://localhost:5021/Cashier">Cashier shortcut</a>
-        *@
-		<label for="theme" class="btn btn-dark w-100 text-start mt-auto">
-            <input type="checkbox" id="theme" hidden /> Theme
-        </label> 
-
-		@if (userId != null || userRole != null)
-		{
-			<a class="btn btn-dark w-100 text-start">Logout</a>
-		}
-		else
-		{
-			<a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Login">Login</a>
-		}
-	</div>
-</div>
-<div class="render-body vh-100 text-dark">
-	<div class="p-4 h-100 ">
-		<div class="row h-100">
-			<div class="col-8 h-100">
+<div class="render-body vh-100 w-100 text-dark overflow-y-auto">
+	<div class="p-4 h-100 w-100">
+		<div class="row h-100 w-100">
+			<div class="col-sm-12 col-md-8 col-lg-8 h-100">
 				<h1>Orders</h1>
 				<button class="btn btn-secondary type" value="Confirm">To serve</button>
 				<button class="btn btn-primary type" value="Pending">To accept</button>
 				<div class="w-100 pt-2">
-					<div class="d-flex flex-column overflow-y-scroll" id="orderNums" style="min-height: 80vh;max-height: 81vh">
+					<div class="d-flex flex-column overflow-y-auto h-auto gap-1" id="orderNums" @* style="min-height: 30vh;max-height: 81vh" *@>
 						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
 							<button class="focus-ring focus-ring-success focus border border-1 rounded-3 visually-hidden p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
@@ -61,13 +27,13 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-4 h-100">
+			<div class="col-md-4 col-sm-12 col-lg-4 h-100 bg-light">
 				<h1>Order Details</h1>
 				<div id="OrderDetails">
 					<p>Select an order to view details</p>
 					@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 					{
-						<div class="border border-1 shadow rounded-3 p-3 visually-hidden OrderDetails" id="@order.OrderId">
+						<div class="border border-1 shadow rounded-3 p-3 w-100 visually-hidden OrderDetails" id="@order.OrderId">
 							<div>
 								<div class="p-2 hstack gap-3 me-2">
 									<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">

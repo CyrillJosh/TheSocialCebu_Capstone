@@ -4,11 +4,11 @@
 	ViewData["Title"] = "Cashier";
 }
 @model List<BillingVM>
-<div class="vh-100 vw-100 p-4">
-	<div class="row h-100">
+<div class="render-body vh-100">
+	<div class="row h-100 p-4">
 		<div class="col-7 h-100">
 			<h1>Payment</h1>
-			<div class="d-flex gap-2 overflow-y-scroll h-100 pt-5 ps-3">
+			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 				{
 					<div class="show" id="@t.Table.TableId" style="max-height: 100px">
