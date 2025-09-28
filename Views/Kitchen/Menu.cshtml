@@ -4,27 +4,27 @@
     ViewData["Title"] = "Product List";
 }
 
-<div class="render-body vh-100">
-    <div class="container-fluid vh-100 p-4 overflow-y-scroll">
+<div class="render-body vh-100 vw-100">
+    <div class="h-100 w-100 p-4 d-flex flex-column">
         <div class="d-flex justify-content-evenly align-items-center mb-4">
-            <h2 class="text-dark fw-semibold">Products</h2>
+            <h1 class="text-dark fw-bold">PRODUCTS</h1>
             <div class="row h-50 input-group gap-2 m-2 d-flex justify-content-end">
-                <div class="border border-2 rounded-pill border-dark px-2 py-1 col-xl-4 col-md-12 d-flex align-items-center gap-1">
+                <div class="border border-2 rounded-pill text-dark border-dark px-2 py-1 col-xl-4 col-md-12 d-flex align-items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search m-0 p-0" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
                     <input id="custom-search-input" type="text" placeholder="Search" class="border-0 focus-none bg-transparent m-0 p-0" />
                 </div>
             </div>
-            @* <button id="mv">Make all Available</button> *@
-            <a asp-action="Create" style="min-width:12rem" class="btn btn-yellow px-4 rounded-pill py-1">+ New Product</a>
+            <a asp-action="Create" style="min-width:12rem" class="btn btn-primary px-4 rounded-pill py-1">+ New Product</a>
         </div>
 
-        <div class="table-responsive">
-            <table id="Table" class="table table-hover align-middle rounded table-separate border-spacing-y-5">
-                <thead class="mb-5">
+        <div class="flex-grow-1 overflow-auto table-responsive">
+            <table id="Table" class="table table-hover align-middle rounded table-separate ">
+                <thead class="sticky-top">
                     <tr>
                         <th class="col">Name</th>
+                        <th class="col">Price</th>
                         <th class="col">Category</th>
                         <th class="col">Subcategory</th>
                         <th class="col">Availability</th>
@@ -33,28 +33,16 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr class="bg-gray">
-                            <td class="border-2 border-end-0 border-secondary rounded-start">@item.ProdName</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.Category.CategoryName</td>
-                            <td class="border-2 border-end-0 border-start-0 border-secondary">@item.Subcategory.SubcategoryName</td>
-                            <td class="border-2 border-start-0 border-secondary rounded-end">
+                        <tr>
+                            <td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary">@item.ProdName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary">@item.Price.ToString("₱0.00")</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@item.Subcategory.Category.CategoryName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@item.Subcategory.SubcategoryName</td>
+                            <td class="border-2 border-start-0 border-secondary bg-body-secondary rounded-end">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input change p-0 m-0" type="checkbox" id="@item.ProdId" @(item.Availability ? "checked" : "")>
                                 </div>
-                               @*  @if (item.Availability)
-                                {
-                                    <span class="badge bg-success px-3 py-2 w-100">Available</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger px-3 py-2 w-100">Unavailable</span>
-                                } *@
                             </td>
-                            @* <td class="border-2 border-start-0 border-secondary" style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
-                                <div>
-                                    <button class="btn btn-yellow change" id="@item.ProdId">Change status</button>
-                                </div>
-                            </td> *@
                         </tr>
                     }
                 </tbody>
@@ -62,74 +50,62 @@
         </div>
     </div>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<form asp-action="Delete" method="post">
-    <div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="DeleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-secondary rounded">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="DeleteModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete <strong id="Item"></strong>?
-                </div>
-                <input type="hidden" name="id" id="DeleteIdInput" />
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger px-4">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('.change').on('change', function (){
-				let id = $(this).attr('id');
+            window.connection.on("UpdateProductStatus", function (prodid, prodstat) {
+                 if(!prodstat){
+                    $(`#${prodid}`).prop("checked", false);
+                 }
+                 else{
+                    $(`#${prodid}`).prop("checked", true);
+                 }
+            });
+
+            $('.change').on('change', function () {
+                const checkbox = $(this);
+                const id = checkbox.attr("id");
+                const previousState = checkbox.prop("checked"); // save current state
+
                 fetch('/kitchen/UpdateMenu/' + id)
-                .then(response => response.json())
-                .then(m => {
-                    if(m.message == "Error"){
-                        alert("Error changing status");
-                        return;
-                    }
-                })
-            })
+                    .then(response => response.json())
+                    .then(m => {
+                        if (m.message === "Error") {
+                            alert("Error changing status");
+                            // revert checkbox to previous state
+                            checkbox.prop("checked", !previousState);
+                            return;
+                        }
+
+                        // Optional: sync checkbox with server's actual availability
+                        if (typeof m.availability !== "undefined") {
+                            checkbox.prop("checked", m.availability);
+                        }
+                    })
+                    .catch(err => {
+                        alert("Network error");
+                        // revert checkbox on network failure
+                        checkbox.prop("checked", !previousState);
+                        console.error(err);
+                    });
+            });
 
 
             $('#Table').DataTable({
-                pageLength: 8,
+                paging: false,
+                searching: true,
+                info: false,
+                pageLength: 10,
                 lengthChange: false,
                 ordering: true,
-                info: true,
+                dom: 'lrtip',
+                columnDefs: [
+                    { targets: 'no-sort', orderable: false }
+                ],
                 language: {
                     search: "",
-                    searchPlaceholder: "Search Products",
-                },
-                 dom: 'lrtip',
-                    columnDefs: [
-                    { targets: 'no-sort', orderable: false },
-                    {
-                        targets:  2,
-                        render: function (data, type, row) {
-                            if(type === 'sort' || type === 'type') {
-                                return parseFloat(data.replace(/[^0-9.\-]+/g,"")) || 0;
-                            }
-                            return data;
-                        }
-                    }
-                ]
-            });
-
-            $(document).on('click', '.DeleteProduct', function () {
-                const productId = $(this).data("id");
-                const productName = $(this).data("name");
-
-                $('#Item').text(productName);
-                $('#DeleteIdInput').val(productId);
+                    searchPlaceholder: "Search Tables",
+                }
             });
 
             $('#custom-search-input').on("input", function () {
@@ -144,20 +120,6 @@
                 $('th:eq(0)').removeClass('sorting sorting_asc sorting_desc').off();
             });
 
-            let img = $('.dt-column-title').filter(function () {
-                return $(this).text().trim() === "Image";
-            }).parent();
-
-            img.children().last().remove();
-
-            let price = $('.dt-column-title').filter(function () {
-                return $(this).text().trim() === "Price";
-            }).parent();
-
-            let sort = price.children().first();
-            sort.children().first().remove();
-            price.append(sort);
-            price.children().last().addClass("text-start");
         });
     </script>
 }

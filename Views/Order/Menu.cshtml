@@ -119,7 +119,7 @@
             <h1>@subcat.SubcategoryName</h1>
             @foreach (var item in subcat.Products)
             {
-                <div id="@item.ProdId" class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3"
+                <div id="@item.ProdId" class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3 @(item.Availability? "" : "visually-hidden")"
                      style="background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 0%, rgba(115, 115, 115, 0.1) 100%);">
                     <button class="add-product px-3 py-3 w-100 h-100 m-0 bg-transparent border-0"
                             data-bs-toggle="offcanvas"
@@ -224,6 +224,17 @@
                     console.warn("Subcategory section not found for ID:", prod.subcategoryId);
                 }
             });
+
+             window.connection.on("UpdateProductStatus", function (prodid, prodstat) {
+                 if(!prodstat){
+                    $(`#${prodid}`).removeClass("visually-hidden");
+                 }
+                 else{
+                    $(`#${prodid}`).addClass("visually-hidden");
+                 }
+            });
+
+
             const searchInput = $("#food-search");
             const dropdown = $("#search-dropdown");
 

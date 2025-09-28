@@ -29,6 +29,12 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(products);
         }
 
+        public IActionResult Orders()
+        {
+            var orders = _context.Orders.Include(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).ThenInclude(x => x.Subcategory).Include(x => x.OrderItems).OrderBy(x => x.CreatedAt).Where(x => x.OrderStatusId >= 3).ToList();
+            return View(orders);
+        }
+
         public IActionResult UpdateMenu(string id)
         {
             var prod = _context.Products.FirstOrDefault(x => x.ProdId == id);
@@ -37,6 +43,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 prod.Availability = !prod.Availability;
                 _context.Update(prod);
                 _context.SaveChanges();
+                _hub.Clients.All.SendAsync("UpdateProductStatus", prod.ProdId, prod.Availability);
                 return Json(new { message = "Success" });
             }
             return Json(new { message = "Error" });
@@ -52,8 +59,10 @@ namespace TheSocialCebu_Capstone.Controllers
             order.OrderStatusId = 2; // Set to 'In Progress'
             _context.Update(order);
             _context.SaveChanges();
-
-            _hub.Clients.All.SendAsync("UpdateOrderStatus", order);
+            foreach(var item in order.OrderItems)
+            {
+                _hub.Clients.All.SendAsync("UpdateOrderStatus", item.OrderItemId, "Preparing");
+            }
 
             return Json(new { message = "Success" });
         }
@@ -86,6 +95,11 @@ namespace TheSocialCebu_Capstone.Controllers
             }
             _context.Update(order);
             _context.SaveChanges();
+            foreach (var item in updateItems)
+            {
+                _hub.Clients.All.SendAsync("UpdateOrderStatus", item.OrderItemId, "Served");
+            }
+
             return Json(new { message = "Success" });
         }
     }

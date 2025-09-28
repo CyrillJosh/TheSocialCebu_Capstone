@@ -97,17 +97,41 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-              $('.change').on('change', function (){
-                let id = $(this).attr('id');
+             window.connection.on("UpdateProductStatus", function (prodid, prodstat) {
+                 if(!prodstat){
+                    $(`#${prodid}`).prop("checked", false);
+                 }
+                 else{
+                    $(`#${prodid}`).prop("checked", true);
+                 }
+            });
+              $('.change').on('change', function () {
+                const checkbox = $(this);
+                const id = checkbox.attr("id");
+                const previousState = checkbox.prop("checked"); // save current state
+
                 fetch('/kitchen/UpdateMenu/' + id)
-                .then(response => response.json())
-                .then(m => {
-                    if(m.message == "Error"){
-                        alert("Error changing status");
-                        return;
-                    }
-                })
-            })
+                    .then(response => response.json())
+                    .then(m => {
+                        if (m.message === "Error") {
+                            alert("Error changing status");
+                            // revert checkbox to previous state
+                            checkbox.prop("checked", !previousState);
+                            return;
+                        }
+
+                        // Optional: sync checkbox with server's actual availability
+                        if (typeof m.availability !== "undefined") {
+                            checkbox.prop("checked", m.availability);
+                        }
+                    })
+                    .catch(err => {
+                        alert("Network error");
+                        // revert checkbox on network failure
+                        checkbox.prop("checked", !previousState);
+                        console.error(err);
+                    });
+            });
             $('#Table').DataTable({
                 paging: false,
                 searching: true,

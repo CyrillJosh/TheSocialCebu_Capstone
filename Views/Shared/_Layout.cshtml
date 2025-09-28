@@ -31,9 +31,9 @@
 		var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 		var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 	}
-	@if(userId != null && userRole != null)
+	@if (userId != null && userRole != null && !(currentController == "Home" || currentController == "Order"))
 	{
-		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 z-3 px-4" style="width: 250px;">
+		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 px-4" style="width: 250px; z-index: 9999">
 			<div class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
 				<img class="logo" src="/images/The Social Logo.png" height="50" />
 				<h4 class="m-0">THE SOCIAL</h4>
@@ -51,6 +51,7 @@
 				{
 					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
 					<a class="btn @(currentAction == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Menu Management</a>
+					<a class="btn @(currentAction == "Orders" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Orders">Menu Management</a>
 				}
 				else if (userRole == "Cashier")
 				{
@@ -100,16 +101,16 @@
 				localStorage.setItem("theme", newTheme);
 			});
 
-			window.connection = new signalR.HubConnectionBuilder()
-				.withUrl("/connectorHub")
-				.withAutomaticReconnect()
-				.build();
-
-			// Start the connection once
-			window.connection.start()
-				.then(() => console.log("SignalR connected"))
-				.catch(err => console.error("SignalR connection error:", err));
 		});
+		window.connection = new signalR.HubConnectionBuilder()
+			.withUrl("/connectorHub")
+			.withAutomaticReconnect()
+			.build();
+
+		// Start the connection once
+		window.connection.start()
+			.then(() => console.log("SignalR connected"))
+			.catch(err => console.error("SignalR connection error:", err));
 	</script>
     @await RenderSectionAsync("Scripts", required: false)
 	

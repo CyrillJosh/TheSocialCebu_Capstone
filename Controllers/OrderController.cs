@@ -46,7 +46,7 @@ namespace TheSocialCebu_Capstone.Controllers
 
             var subcat = _context.SubCategories
                 .Where(x => x.CategoryId == category)
-                .Include(x => x.Products.Where(p => p.Availability)) // Only show available products
+                .Include(x => x.Products)
                 .Include(x => x.Category)
                 .ToList();
 
@@ -157,26 +157,37 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public async Task<JsonResult> ConfirmCart(string tableId)
         {
-            if (tableId == null)
+            if (string.IsNullOrEmpty(tableId))
             {
                 return Json(new { success = false, message = "Error: No active session found." });
             }
 
-            var orderItems = HttpContext.Session.GetString("Orders");
-            if (orderItems == null)
+            var orderItemsJson = HttpContext.Session.GetString("Orders");
+            if (string.IsNullOrEmpty(orderItemsJson))
                 return Json(new { success = false, message = "Error: No items in cart" });
 
-            var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItems);
+            var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItemsJson);
 
+            if (items == null || !items.Any())
+                return Json(new { success = false, message = "Error: No items in cart" });
+
+            // Load related entities for each item
             foreach (var item in items)
             {
                 item.OrderItemStatusId = 1;
 
                 if (item.Prod != null)
+                {
                     _context.Attach(item.Prod);
+                    await _context.Entry(item.Prod).Reference(p => p.Subcategory).LoadAsync();
+                }
+
+                // Set OrderItemStatus (assuming status 1 exists)
+                item.OrderItemStatus = await _context.OrderItemStatuses.FindAsync(1);
             }
 
-            Order order = new()
+            // Create Order
+            var order = new Order
             {
                 OrderId = Guid.NewGuid().ToString(),
                 TableId = tableId,
@@ -188,8 +199,9 @@ namespace TheSocialCebu_Capstone.Controllers
 
             _context.Orders.Add(order);
             HttpContext.Session.Remove("Orders");
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
+            // Prepare DTO for SignalR
             var orderDto = new
             {
                 order.OrderId,
@@ -197,12 +209,12 @@ namespace TheSocialCebu_Capstone.Controllers
                 order.CreatedAt,
                 Table = new
                 {
-                    order.Table.TableNumber
+                    TableNumber = (await _context.Tables.FindAsync(tableId))?.TableNumber ?? "Unknown"
                 },
                 OrderStatus = new
                 {
                     order.OrderStatusId,
-                    StatusName = "To Accept" // or fetch from your context if needed
+                    StatusName = "Pending"
                 },
                 OrderItems = order.OrderItems.Select(x => new
                 {
@@ -211,17 +223,28 @@ namespace TheSocialCebu_Capstone.Controllers
                     Instructions = x.Instructions ?? "",
                     Prod = new
                     {
-                        x.Prod.ProdName,
-                        Subcategory = new { x.Prod.SubcategoryId, x.Prod.Subcategory.SubcategoryName }
+                        ProdName = x.Prod?.ProdName ?? "Unknown",
+                        Subcategory = new
+                        {
+                            SubcategoryId = x.Prod?.SubcategoryId ?? "Unknown",
+                            SubCategoryName =  x.Prod?.Subcategory?.SubcategoryName ?? "Unknown"
+                        }
                     },
-                    OrderItemStatus = new { x.OrderItemStatusId, StatusName = x.OrderItemStatus.StatusName }
+                    OrderItemStatus = new
+                    {
+                        x.OrderItemStatusId,
+                        StatusName = x.OrderItemStatus?.StatusName ?? "Pending"
+                    }
                 }).ToList()
             };
 
+            // Send via SignalR
             await _hub.Clients.All.SendAsync("NewOrder", orderDto);
 
             return Json(new { success = true, message = "Success" });
         }
+
+
         #endregion
 
 

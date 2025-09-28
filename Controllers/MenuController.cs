@@ -71,7 +71,10 @@ namespace TheSocialCebu_Capstone.Controllers
             //Add the new product
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-            await _hub.Clients.All.SendAsync("NewProduct", product);
+            if (product.Availability)
+            {
+                await _hub.Clients.All.SendAsync("NewProduct", product);
+            }
             //Return to Index
             return RedirectToAction("Index");
         }
@@ -127,6 +130,8 @@ namespace TheSocialCebu_Capstone.Controllers
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
             await _hub.Clients.All.SendAsync("UpdateProduct", product);
+            await _hub.Clients.All.SendAsync("UpdateProductStatus", product.ProdId, product.Availability);
+
             //Return to Index
             return RedirectToAction("Index");
         }
@@ -144,6 +149,8 @@ namespace TheSocialCebu_Capstone.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+            await _hub.Clients.All.SendAsync("UpdateProductStatus", product.ProdId, product.Availability);
+
 
             //Return to Index
             return RedirectToAction("Index");

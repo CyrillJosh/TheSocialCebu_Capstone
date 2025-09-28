@@ -218,18 +218,17 @@
                 })
             });
 
-            $(".confirm").on("click", ()=> {
-                fetch(`/Order/ConfirmCart?id=${@table}`)
+            $(".confirm").on("click", () => {
+                const tableId = '@table'; // Razor variable
+                fetch(`/Order/ConfirmCart?tableId=${tableId}`)
                     .then(response => {
                         if (!response.ok) throw new Error("Network response was not OK");
                         return response.json();
                     })
                     .then(data => {
-                        if (data.success){
-                            alert(data.message);
-                            window.location.reload();
+                        if (data.success) {
+                           window.location.reload()
                         } else {
-                            console.error(data.message);
                             alert("Error: " + data.message);
                         }
                     })

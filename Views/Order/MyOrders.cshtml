@@ -42,7 +42,7 @@
         else
         {
             <div class="h-100 w-100 vstack gap-2">
-                @foreach (var order in Model)
+                @foreach (var order in Model.OrderBy(x => x.CreatedAt))
                 {
                     <div class="card bg-secondary p-3 rounded-3">
                         <h5 class="text-white">Order # @order.OrderNumber.ToString("0000")</h5>
@@ -61,7 +61,7 @@
                                     <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
                                         <td class="fw-bold py-2">@item.Quantity</td>
                                         <td class="fw-bold">@item.Prod.ProdName</td>
-                                        <td class="fw-bold" id="@item.OrderItemId">@item.OrderItemStatus.StatusName</td>
+                                        <td class="fw-bold stat" id="@item.OrderItemId">@item.OrderItemStatus.StatusName</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
@@ -80,7 +80,7 @@
         }
     </main>
     <!-- Bottom Navigation -->
-    <footer class="w-100">
+    <footer class="w-100 foot">
         @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
         {
             <button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>
@@ -137,17 +137,24 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
-            window.connection.on("UpdateOrderStatus", function (order) {
-                console.log(order);
+            window.connection.on("UpdateOrderStatus", function (orderid, orderstat) {
+                console.log(orderid, orderstat);
+                $(`[id='${orderid}']`).text(orderstat);
+                allServed();
+            });
+            function allServed() {
+                let allServed = true;
 
+                $(".stat").each(function () {
+                    if ($(this).text().trim() !== "Served") {
+                        allServed = false;
+                        return false; // exit the loop early
+                    }
+                });
 
+                $(".foot").prepend(`<button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>`)
+                return allServed;
             }
-
-            window.connection.invoke("JoinBranch", @table)
-                .then(() => console.log(`Joined table group: @table`))
-                .catch(err => console.error(err.toString()));
-            }).catch(err => console.error(err));
-
             $(".star").click(function () {
                 var rating = $(this).data("rating");
                 $("#RatingValue").val(rating);
@@ -163,19 +170,19 @@
                     }
                 });
             });
-            $("#Req").on("click", function () {
+            $(document).on("click", "#Req", function () {
                 let id = $(this).data("id");
 
                 fetch(`/Order/RequestBill?tableid=${id}`)
                 .then(response => response.json())
                 .then(x => {
-                        if(x.success){
-                            $("#FeedbackModal").modal("show");
-                        }else{
-							alert(x.message);
-                        }
-                })
-            })
+                    if(x.success){
+                        $("#FeedbackModal").modal("show");
+                    } else {
+                        alert(x.message);
+                    }
+                });
+            });
 
             $(".submitfeedback").on("click", function(){
                 let email = $("#email").val();
