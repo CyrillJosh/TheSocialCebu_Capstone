@@ -6,31 +6,29 @@
 @model List<BillingVM>
 <div class="render-body vh-100">
 	<div class="row h-100 p-4">
-		<div class="col-7 h-100">
+		<div class="col-7 h-100 d-flex flex-column">
 			<h1 class="text-dark fw-bold">PAYMENT</h1>
 			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 				{
-					<div class="show" id="@t.Table.TableId" style="max-height: 100px">
-						<div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow">
-							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
-								<h3 class="text-white m-0 py-2 px-5">@t.Table.TableNumber</h3>
-							</div>
+					<div class="border border-1 rounded-4 p-3 hstack bg-body-secondary show"id="@t.Table.TableId">
+						<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
+							<h3 class="text-black m-0 py-2 px-5">@t.Table.TableNumber</h3>
 						</div>
 					</div>
 				}
 			</div>
 		</div>
-		<div class="col-5 h-100">
+		<div class="col-5 h-100 border-start">
 			<h1 class="text-dark fw-bold">DETAILS</h1>
 			<div class="d-flex pt-3">
 			@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 			{
-				<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden" id="@("Details" + t.Table.TableId)">
+					<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden bg-body-secondary" id="@("Details" + t.Table.TableId)">
 					<div>
 						<div class="p-2 hstack gap-3 me-2">
 							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
-								<h3 class="text-white m-0 py-2 px-5">@t.Table.TableNumber</h3>
+								<h3 class="text-black m-0 py-2 px-5">@t.Table.TableNumber</h3>
 							</div>
 						</div>
 						<div class="w-100 overflow-y-auto d-flex flex-column" style="min-height: 300px">
@@ -38,39 +36,39 @@
 							<table class="w-100">
 								<thead>
 									<tr>
-										<th>Items</th>
-										<th>Qty</th>
-										<th>Price</th>
+										<th class="text-dark">Items</th>
+										<th class="text-dark">Qty</th>
+										<th class="text-dark">Price</th>
 									</tr>
 								</thead>
 								<tbody id="@("body" + t.Table.TableId)">
 									@foreach (var item in t.OrderItems)
 									{
 										<tr>
-											<td>@item.Prod.ProdName</td>
-											<td>@item.Quantity</td>
-											<td>₱@((item.Prod.Price * item.Quantity))</td>
+											<td class="text-dark">@item.Prod.ProdName</td>
+											<td class="text-dark">@item.Quantity</td>
+											<td class="text-dark">₱@((item.Prod.Price * item.Quantity))</td>
 										</tr>
 									}
 								</tbody>
 							</table>
 							<hr />
-							<div class="vstack h-auto">
+							<div class="vstack h-auto billbuttons">
 									<div class="d-flex flex-row gap-2  mt-auto">
 									@if (t.Table.TableStatusId == 3) 
 									{
-										<button class="btn btn-yellow bill flex-fill"
+										<button class="btn btn-primary bill flex-fill"
 												id="@t.Table.TableId">
 											Generate Bill
 										</button>
 									}
 									else if (t.Table.TableStatusId == 4) 
 									{
-										<button class="btn btn-yellow pay flex-fill"
+										<button class="btn btn-primary pay flex-fill"
 												id="@t.Table.TableId">
 											Pay Bill
 										</button>
-										<button class="btn btn-yellow flex-fill disc"
+										<button class="btn btn-primary flex-fill disc"
 												data-bs-toggle="modal"
 												data-bs-target="#DiscountModal"
 												id="@t.Table.TableId">
@@ -95,7 +93,7 @@
 			</div>
 			<div class="w-100 d-flex flex-row gap-2 px-5 py-2">
 				<button class="flex-fill btn btn-light shadow" data-bs-dismiss="modal" aria-label="Close">Back</button>
-				<a class="flex-fill btn btn-yellow printbill" href="javascript:window.print()">Print</a>
+				<a class="flex-fill btn btn-primary printbill" href="javascript:window.print()">Print</a>
 			</div>
 		</div>
 	</div>
@@ -111,12 +109,12 @@
 						<option value="@d.DiscountTypeId">@d.DiscountName</option>
 					}
 				</select>
-				<input type="number" value="1" id="nump" class="form-control intonly" placeholder="Number of people" />
-				<input type="number" value="1" id="appl" class="form-control intonly" placeholder="Number of persons applicable" />
+				<input type="number" id="nump" class="form-control intonly" placeholder="Number of people" />
+				<input type="number" id="appl" class="form-control intonly" placeholder="Number of persons applicable" />
 			</div>
 			<div class="w-100 d-flex flex-row gap-2 px-5 py-2">
 				<button class="flex-fill btn btn-light shadow" data-bs-dismiss="modal" aria-label="Close">Back</button>
-				<button class="flex-fill btn btn-yellow printwd">Apply</button>
+				<button class="flex-fill btn btn-primary printwd">Apply</button>
 			</div>
 		</div>
 	</div>
@@ -212,12 +210,8 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$(".printbill").click(function() {
-				// Update UI button
-						let btn = $(`#${tableId}.bill`);
-						btn.removeClass("bill").addClass("pay");
-						btn.text("Pay Bill");
-						btn.attr("data-bs-target", "#PayModal");
+			window.addEventListener('afterprint', function() {
+						window.location.reload()
 			});
 			$(".printwd").click(function (){
 				let tableId = $(this).attr("id");

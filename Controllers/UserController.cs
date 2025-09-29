@@ -67,45 +67,97 @@ namespace Menu.Controllers
             };
             return View(vm);
         }
-        [Auth("Manager")]
-        [HttpPost]
-        public IActionResult Create(Person person)
-        {
-            if (!ModelState.IsValid) return View(person);
 
-            person.HiredDate = DateTime.Now;
-            person.Account.Password = BCrypt.Net.BCrypt.HashPassword(person.Account.Password);
+        [HttpPost]
+        [Auth("Manager")]
+        public IActionResult Create(PersonVM personvm)
+        {
+            var person = new Person()
+            {
+                PersonId = Guid.NewGuid().ToString(),
+                Status = true,
+                BirthDate = personvm.BirthDate,
+                Gender = personvm.Gender,
+                RoleId = personvm.RoleId,
+                Name = personvm.Name,
+                HiredDate = DateTime.Now,
+                Account = new Account()
+                {
+                    Username = personvm.Username
+                }
+
+            };
+            personvm.Roles = _context.Roles.ToList();
+            if (!ModelState.IsValid) return View(personvm);
+            person.Account.Password = BCrypt.Net.BCrypt.HashPassword(personvm.Password);
+            person.Account.AccountId = Guid.NewGuid().ToString();
+            person.Account.PersonId = person.PersonId;
+            person.Role = _context.Roles.FirstOrDefault(x => x.RoleId == person.RoleId);
+            person.Account.DateUpdated = DateTime.Now;
             _context.People.Add(person);
             _context.SaveChanges();
-
-            return RedirectToAction("Index");
+            return RedirectToAction("HomePage");
         }
         //Update
         [HttpGet]
         [Auth("Manager")]
         public IActionResult Update(string id)
         {
-            Person person = _context.People.Include(p => p.Account).FirstOrDefault(x => x.PersonId == id);
+            var person = _context.People
+                .Include(p => p.Account)
+                .FirstOrDefault(x => x.PersonId == id);
 
-            return View(person);
+            if (person == null)
+                return NotFound();
+
+            var personvm = new PersonUpdateVM
+            {
+                PersonId = person.PersonId,
+                BirthDate = person.BirthDate,
+                HiredDate = person.HiredDate,
+                Gender = person.Gender,
+                Name = person.Name,
+                Status = person.Status,
+                RoleId = person.RoleId,
+                Roles = _context.Roles.ToList(),
+            };
+
+            return View(personvm);
         }
+
         //Update Process
         [Auth("Manager")]
-        public IActionResult Update(Person person)
+        public IActionResult Update(PersonUpdateVM personVM)
         {
-            //Validate
             if (!ModelState.IsValid)
-            {
-                return View(person);
-            }
+                return View(personVM);
 
+            var person = _context.People
+                                 .Include(p => p.Account)
+                                 .FirstOrDefault(p => p.PersonId == personVM.PersonId);
+
+            if (person == null)
+                return NotFound();
+
+            // Update only person fields, not password
+            person.Name = personVM.Name;
+            person.Gender = personVM.Gender;
+            person.BirthDate = personVM.BirthDate ?? person.BirthDate;
+            person.HiredDate = personVM.HiredDate ?? person.HiredDate; // keep old value if null
+            person.Status = personVM.Status;
+            person.RoleId = personVM.RoleId;
+
+            // Update account metadata (optional)
             person.Account.DateUpdated = DateTime.Now;
 
             _context.Update(person);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("HomePage");
         }
+
+
+
         //Delete Process
         [Auth("Manager")]
         public IActionResult Delete(string id)
@@ -114,10 +166,23 @@ namespace Menu.Controllers
 
             if (person is null) return Json(new { success = false, message = "Error! Record not found please try again" });
 
-            _context.Remove(person);
+            person.Status = false;
+            _context.Update(person);
             _context.SaveChanges();
 
-            return Json(new { success = true, message = "Record successfully removed!" });
+            return Json(new { success = true, message = "Success!" });
+        }
+
+        public JsonResult ResetPassword(string id, string npass)
+        {
+            var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);
+            if (acc == null) return Json(new { success = false, message = "Error: User not found" });
+
+            acc.Password = npass;
+
+            _context.Accounts.Update(acc);
+            _context.SaveChanges();
+            return Json(new {success = true, message="Success"});
         }
 
         [HttpPost]

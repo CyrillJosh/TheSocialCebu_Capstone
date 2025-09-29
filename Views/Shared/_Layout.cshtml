@@ -46,6 +46,7 @@
 					<a class="btn @(currentController == "Cashier" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Cashier" asp-action="Index">Billing Management</a>
 					<a class="btn @(currentController == "Kitchen" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
 					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="User" asp-action="HomePage">Employee Management</a>
+					<a class="btn @(currentController == "Marketing" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Marketing" asp-action="Index">Feedback Management</a>
 				}
 				else if (userRole == "Kitchen")
 				{

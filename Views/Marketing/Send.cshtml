@@ -1,0 +1,65 @@
+﻿@using TheSocialCebu_Capstone.Models
+@model EmailInvite
+
+@{
+    ViewBag.Title = "Send Marketing Email";
+}
+
+<div class="render-body vh-100 vw-100">
+    <div class="justify-content-center p-4">
+        <h4 class="card-title mb-3 text-center">Send Email to Subscribers</h4>
+
+        @using (Html.BeginForm("Send", "Marketing", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Subject, new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.Subject, new { 
+                    @class = "form-control", 
+                    placeholder = "Enter subject", 
+                    maxlength = "255", 
+                    oninput = "updateSubjectCount(this)" 
+                })
+                <small id="subjectCounter" class="text-muted">0 / 255</small>
+                @Html.ValidationMessageFor(m => m.Subject, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Message, new { @class = "form-label" })
+                @Html.TextAreaFor(m => m.Message, new { 
+                    @class = "form-control", 
+                    rows = 6, 
+                    placeholder = "Write your message", 
+                    maxlength = "4000", 
+                    oninput = "updateMessageCount(this)" 
+                })
+                <small id="messageCounter" class="text-muted">0 / 4000</small>
+                @Html.ValidationMessageFor(m => m.Message, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary rounded rounded-pill btn-lg">Send</button>
+            </div>
+        }
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                @ViewBag.Message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function updateSubjectCount(input) {
+        document.getElementById("subjectCounter").innerText = input.value.length + " / 255";
+    }
+    function updateMessageCount(input) {
+        document.getElementById("messageCounter").innerText = input.value.length + " / 4000";
+    }
+</script>
+}

@@ -34,12 +34,12 @@
     </div>
 
     <!-- QR Code Card -->
-    <div id="printCard" class="card bg-dark text-white border-secondary mx-auto shadow" style="max-width: 400px;">
+    <div id="printCard" class="card bg-dark text-light border-secondary mx-auto shadow" style="max-width: 400px;">
         <div class="card-body">
             <h4 class="card-title fw-bold mb-3">Table QR Code</h4>
 
-            <p class="mb-2"><strong>Table Number:</strong> @Model.TableNumber</p>
-            <p class="mb-3"><strong>Location:</strong> @Model.Location?.LocationName</p>
+            <p class="mb-2 text-light"><strong>Table Number:</strong> @Model.TableNumber</p>
+            <p class="mb-3 text-light"><strong>Location:</strong> @Model.Location?.LocationName</p>
 
             @if (Model.QrcodeImage != null)
             {

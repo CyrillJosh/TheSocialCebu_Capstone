@@ -126,12 +126,12 @@
                            asp-action="Menu"
                            asp-route-category="@cat.CategoryId">
 
-                            <div class="position-relative rounded overflow-hidden shadow-sm"
-                                 style="aspect-ratio: 1/1;">
+                            <div class="position-relative rounded border border-4 rounded rounded-4 overflow-hidden shadow-sm"
+                                 style="aspect-ratio: 1/1; border-color: #909090 !important">
                                 <!-- Background image -->
                                 <img src="/Images/Categories/@(cat.CategoryName.Trim().Replace(" ", "").ToLower() + ".png")"
                                      alt="@cat.CategoryName.Trim()"
-                                     class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" />
+                                     class="w-100 h-100 object-fit-cover position-absolute top-0 start-0 rounded rounded-4" />
 
                                 <!-- Dark overlay -->
                                 <div class="position-absolute top-0 start-0 w-100 h-100"

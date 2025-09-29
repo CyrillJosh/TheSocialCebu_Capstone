@@ -236,63 +236,85 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpGet]
         public JsonResult GetBill(string tableid)
         {
-            var bills = _context.Billings.Include(x=> x.Payment).ToList();
-            var bill = _context.Billings
-               .Include(b => b.Payment)
-               .Include(b => b.Discount)
-               .Include(b => b.DiscountDetail)
-               .FirstOrDefault(b => b.TableId == tableid && b.Payment == null);
-
-            if (bill == null)
-                return Json(new { success = false, message = "Bill not found" });
-
-
-            //calculation
-            var vatexempt = (bill.Subtotal / bill.DiscountDetail.NumOfCustomer) / 1.12m;
-            var discountamount = vatexempt * bill.Discount.Percentage * bill.DiscountDetail.NumOfDiscountHolder;
-            var totaldisc = (vatexempt * bill.DiscountDetail.NumOfCustomer) - discountamount;
-            var servicecharge = totaldisc * .10m;
-            var vatable = vatexempt * (bill.DiscountDetail.NumOfCustomer - bill.DiscountDetail.NumOfDiscountHolder);
-            var vatamount = vatable * .12m;
-            var grandtotal = totaldisc + servicecharge + vatamount;
-            var vatexemptsale = (totaldisc - vatexempt) + servicecharge;
-            var totalsale = totaldisc + servicecharge;
-
-            var vats = bill.Subtotal / 1.12m;
-            decimal? discountAmount = null;
-
-            if (bill.Discount != null)
+            try
             {
-                discountAmount = Math.Round((decimal)(vats * bill.Discount.Percentage),2);
-            }
-            return Json(new
-            {
-                success = true,
-                message = "Success",
-                discount = bill.DiscountId == null ? null : new
+                var bill = _context.Billings
+                   .Include(b => b.Payment)
+                   .Include(b => b.Discount)
+                   .Include(b => b.DiscountDetail)
+                   .FirstOrDefault(b => b.TableId == tableid && b.Payment == null);
+
+                if (bill == null)
+                    return Json(new { success = false, message = "Bill not found" });
+
+                decimal vatexempt = 0;
+                decimal discountamount = 0;
+                decimal totaldisc = 0;
+                decimal servicecharge = 0;
+                decimal vatable = 0;
+                decimal vatamount = 0;
+                decimal grandtotal = 0;
+                decimal vatexemptsale = 0;
+                decimal totalsale = 0;
+
+                if (bill.Discount != null && bill.DiscountDetail != null)
                 {
-                    bill.Discount.DiscountName,
-                    bill.Discount.Percentage,
-                    amount = Math.Round((decimal)discountamount, 2),
-                    bill.DiscountDetail.NumOfCustomer,
-                    bill.DiscountDetail.NumOfDiscountHolder
-                },
-                bill = new
-                {
-                    bill.Subtotal,
-                    vatexempt,
-                    servicecharge,
-                    vatamount,
-                    totalsale
-                },
-                breakdown = new
-                {
-                    vatsales = Math.Round((decimal)vatable, 2),
-                    vatexempt = Math.Round((decimal)vatexemptsale, 2),
-                    grandtotal = Math.Round((decimal)grandtotal, 2)
+                    vatexempt = (decimal)((bill.Subtotal / bill.DiscountDetail.NumOfCustomer) / 1.12m);
+                    discountamount = (decimal)(vatexempt * bill.Discount.Percentage * bill.DiscountDetail.NumOfDiscountHolder);
+                    totaldisc = (decimal)((vatexempt * bill.DiscountDetail.NumOfCustomer) - discountamount);
+                    servicecharge = totaldisc * .10m;
+                    vatable = (decimal)(vatexempt * (bill.DiscountDetail.NumOfCustomer - bill.DiscountDetail.NumOfDiscountHolder));
+                    vatamount = vatable * .12m;
+                    grandtotal = totaldisc + servicecharge + vatamount;
+                    vatexemptsale = (totaldisc - vatexempt) + servicecharge;
+                    totalsale = totaldisc + servicecharge;
                 }
-            });
+                else
+                {
+                    // No discount applied
+                    vatexempt = (decimal)(bill.Subtotal / 1.12m);
+                    vatamount = (decimal)(bill.Subtotal - vatexempt);
+                    servicecharge = vatexempt * 0.10m;
+                    grandtotal = (decimal)(bill.Subtotal + servicecharge);
+                    totalsale = (decimal)(bill.Subtotal + servicecharge);
+                    vatable = vatexempt;
+                    vatexemptsale = vatexempt + servicecharge;
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Success",
+                    discount = bill.DiscountId == null ? null : new
+                    {
+                        bill.Discount.DiscountName,
+                        bill.Discount.Percentage,
+                        amount = Math.Round((decimal)discountamount, 2),
+                        bill.DiscountDetail.NumOfCustomer,
+                        bill.DiscountDetail.NumOfDiscountHolder
+                    },
+                    bill = new
+                    {
+                        bill.Subtotal,
+                        vatexempt,
+                        servicecharge,
+                        vatamount,
+                        totalsale
+                    },
+                    breakdown = new
+                    {
+                        vatsales = Math.Round((decimal)vatable, 2),
+                        vatexempt = Math.Round((decimal)vatexemptsale, 2),
+                        grandtotal = Math.Round((decimal)grandtotal, 2)
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
+
         [HttpPost]
         public JsonResult PayBill(string tableid, decimal amount)
         {

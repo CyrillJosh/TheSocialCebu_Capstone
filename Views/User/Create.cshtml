@@ -13,42 +13,47 @@
 
         <form method="post" asp-controller="User" asp-action="Create" class="needs-validation" novalidate>
             <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" asp-for="Name">Name</label>
-                    <input class="form-control" asp-for="Name" type="text" required />
+                <div class="col-md-4">
+                    <label class="form-label text-dark" asp-for="Name">Name</label>
+                    <input class="form-control bg-body-secondary" asp-for="Name" type="text" required placeholder="Name"/>
                     <span class="text-danger" asp-validation-for="Name"></span>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label" asp-for="BirthDate">Birth Date</label>
-                    <input class="form-control" asp-for="BirthDate" type="date" required />
+                <div class="col-md-4">
+                    <label class="form-label text-dark" asp-for="Gender">Gender</label>
+                    <input class="form-control bg-body-secondary" asp-for="Gender" type="text" required placeholder="Gender" />
+                    <span class="text-danger" asp-validation-for="BirthDate"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-dark" asp-for="BirthDate">Birth Date</label>
+                    <input class="form-control bg-body-secondary" asp-for="BirthDate" type="date" value="" min="1900-01-01" max="@DateTime.Now.ToString("yyyy-MM-dd")" required />
                     <span class="text-danger" asp-validation-for="BirthDate"></span>
                 </div>
 
                 <div class="col-md-12">
-                    <label class="form-label" asp-for="RoleId">Role</label>
-                    <select class="form-select" asp-for="RoleId" required>
+                    <label class="form-label text-dark" asp-for="RoleId">Role</label>
+                    <select class="form-select bg-body-secondary" asp-for="RoleId" required>
                         <option value="">-- Select Role --</option>
                         @foreach (var r in Model.Roles)
                         {
-                            <option value="@r.RoleId">@r.RoleName</option>
+                            <option class="text-dark bg-body-secondary" value="@r.RoleId">@r.RoleName</option>
                         }
                     </select>
                     <span class="text-danger" asp-validation-for="RoleId"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" asp-for="Account.Username">Username</label>
+                    <label class="form-label  text-dark" asp-for="Username">Username</label>
                     <div class="input-group">
                         <span class="input-group-text">@@</span>
-                        <input class="form-control" asp-for="Account.Username" type="text" required />
+                        <input class="form-control bg-body-secondary" asp-for="Username" type="text" required placeholder="Username" />
                     </div>
-                    <span class="text-danger" asp-validation-for="Account.Username"></span>
+                    <span class="text-danger" asp-validation-for="Username"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" asp-for="Account.Password">Password</label>
-                    <input class="form-control" asp-for="Account.Password" type="password" required />
-                    <span class="text-danger" asp-validation-for="Account.Password"></span>
+                    <label class="form-label text-dark  " asp-for="Password">Password</label>
+                    <input class="form-control bg-body-secondary" asp-for="Password" type="password" required placeholder="Password" />
+                    <span class="text-danger" asp-validation-for="Password"></span>
                 </div>
 
                 <div class="col-12 text-center mt-4">

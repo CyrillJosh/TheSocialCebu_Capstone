@@ -6,7 +6,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "launchUrl": "http://thesocial.cebu",
+      //"launchUrl": "http://thesocial.cebu",
+      "launchUrl": "http://localhost",
       "dotnetRunMessages": true,
       "publishAllPorts": true,
       "applicationUrl": "http://0.0.0.0:80;http://localhost:80;http://thesocial.cebu:80",

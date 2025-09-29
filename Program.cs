@@ -1,7 +1,9 @@
+using Configurations;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Controllers;
 using TheSocialCebu_Capstone.Hubs;
+using TheSocialCebu_Capstone.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 //SignalR
 builder.Services.AddSignalR();
+builder.Services.Configure<SmtpSettings>(
+    builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<EmailService>();
 
 //Database
 builder.Services.AddDbContext<MyDBContext>(options =>

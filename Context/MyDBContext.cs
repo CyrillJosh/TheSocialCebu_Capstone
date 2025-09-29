@@ -27,6 +27,7 @@ public partial class MyDBContext : DbContext
     public virtual DbSet<DiscountDetail> DiscountDetails { get; set; }
     public virtual DbSet<DiscountType> DiscountTypes { get; set; }
 
+    public virtual DbSet<EmailInvite> EmailInvites { get; set; }
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
@@ -72,7 +73,7 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.AccountId)
                 .HasMaxLength(50)
                 .HasDefaultValueSql("(CONVERT([nvarchar](50),newid()))");
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.Password).HasColumnType("nvarchar(MAX)");
             entity.Property(e => e.PersonId).HasMaxLength(50);
             entity.Property(e => e.Username).HasMaxLength(50);
 
@@ -178,6 +179,17 @@ public partial class MyDBContext : DbContext
                   .HasForeignKey<DiscountDetail>(d => d.DiscountTypeId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
+        modelBuilder.Entity<EmailInvite>(entity =>
+        {
+            entity.HasKey(e => e.EmailInviteId).HasName("PK_EmailInvites");
+
+            entity.ToTable("EmailInvite");
+
+            entity.Property(e => e.EmailInviteId);
+            entity.Property(e => e.Subject).HasMaxLength(50);
+            entity.Property(e => e.Message).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<Feedback>(entity =>
         {
             entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDD62696CE5D");
