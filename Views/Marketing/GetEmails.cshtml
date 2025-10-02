@@ -1,0 +1,44 @@
+﻿@using TheSocialCebu_Capstone.Models
+@{
+	ViewData["Title"] = "Emails Sent";
+}
+@model List<EmailInvite>
+<div class="render-body vh-100 vw-100">
+	<div class="h-100 w-100 p-4">
+        <div class="flex-grow-1 overflow-auto table-responsive">
+            <table class="table table-hover h-auto align-middle rounded table-separate h-100" id="Table">
+                <thead class="sticky-top">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Message Preview</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var email in Model)
+                    {
+                        var preview = email.Message.Length > 80
+                        ? email.Message.Substring(0, 80) + "..."
+                        : email.Message;
+                        <tr data-bs-toggle="collapse" data-bs-target="#email-@email.EmailInviteId" class="clickable-row border-2 border-end-0 border-secondary rounded-start bg-body-secondary">
+                            <td>@email.Subject</td>
+                            <td>@preview</td>
+                        </tr>
+                        <tr id="email-@email.EmailInviteId" class="collapse border-2 border-start-0 border-secondary bg-body rounded-end bg-body-secondary">
+                            <td colspan="3">
+                                <strong>Full Message:</strong>
+                                <p class="mt-2 mb-0">@email.Message</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        document.querySelectorAll(".clickable-row").forEach(row => {
+            row.style.cursor = "pointer";
+        });
+    </script>
+}

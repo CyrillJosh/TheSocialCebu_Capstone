@@ -35,19 +35,24 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(orders);
         }
 
+        [HttpGet]
         public IActionResult UpdateMenu(string id)
         {
             var prod = _context.Products.FirstOrDefault(x => x.ProdId == id);
-            if(prod != null)
+            if (prod != null)
             {
                 prod.Availability = !prod.Availability;
                 _context.Update(prod);
                 _context.SaveChanges();
+
                 _hub.Clients.All.SendAsync("UpdateProductStatus", prod.ProdId, prod.Availability);
-                return Json(new { message = "Success" });
+
+                // return both message + availability for front-end sync
+                return Json(new { message = "Success", availability = prod.Availability });
             }
             return Json(new { message = "Error" });
         }
+
 
         public IActionResult ConfirmOrder(string orderid)
         {

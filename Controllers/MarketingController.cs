@@ -115,5 +115,11 @@ namespace TheSocialCebu_Capstone.Controllers
                 Console.WriteLine(ex);
             }
         }
+
+        public IActionResult GetEmails()
+        {
+            var em = _context.EmailInvites.ToList();
+            return View(em);
+        }
     }
 }

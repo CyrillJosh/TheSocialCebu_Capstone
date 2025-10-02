@@ -42,7 +42,7 @@ namespace Menu.Controllers
                 return View();
             }
 
-            var userRole = exist.Person.Role.RoleId;
+            var userRole = exist.Person.Role.RoleName;
 
             //Set Session String
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
@@ -53,7 +53,7 @@ namespace Menu.Controllers
 
         public IActionResult HomePage()
         {
-            List<Person> people = _context.People.Include(p => p.Account).ToList();
+            List<Person> people = _context.People.Include(p => p.Account).Include(x => x.Role).ToList();
             return View(people);
         }
 
@@ -178,18 +178,17 @@ namespace Menu.Controllers
             var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);
             if (acc == null) return Json(new { success = false, message = "Error: User not found" });
 
-            acc.Password = npass;
+            acc.Password = BCrypt.Net.BCrypt.HashPassword(npass);
 
             _context.Accounts.Update(acc);
             _context.SaveChanges();
             return Json(new {success = true, message="Success"});
         }
 
-        [HttpPost]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear(); // clears all session data
-            return RedirectToAction("Login", "User");
+            return RedirectToAction("Login");
         }
     }
 }

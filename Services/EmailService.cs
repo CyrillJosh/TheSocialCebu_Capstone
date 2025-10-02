@@ -30,7 +30,7 @@ namespace TheSocialCebu_Capstone.Services
                 smtp.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
                 smtp.EnableSsl = true;
 
-                foreach (var email in recipients)
+                    foreach (var email in recipients)
                 {
                     // Validate email before sending
                     try
@@ -40,11 +40,10 @@ namespace TheSocialCebu_Capstone.Services
                         using (var mail = new MailMessage())
                         {
                             mail.From = new MailAddress(_smtpSettings.Username, "TheSocialCebu");
-                            //mail.To.Add(mailAddress);
+                            mail.To.Add(mailAddress);
                             mail.Subject = subject;
                             mail.Body = body;
                             mail.IsBodyHtml = false;
-
                             await smtp.SendMailAsync(mail);
                         }
                     }
@@ -54,6 +53,8 @@ namespace TheSocialCebu_Capstone.Services
                         // Skip invalid emails
                         continue;
                     }
+
+                
                 }
 
                 // Save sent email to DB (only once per batch)

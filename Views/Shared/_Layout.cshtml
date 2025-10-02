@@ -23,15 +23,15 @@
 </head>
 <body class="row row-cols-sm-1 row-cols-lg-2 vh-100 vw-100 text-black" style="margin-left:0 !important">
 	@{
-		// var userId = Context.Session.GetString("_Id");
-		// var userRole = Context.Session.GetString("_Role");
-		var userId = "1";
-		var userRole = "Admin";
+		var userId = Context.Session.GetString("_Id");
+		var userRole = Context.Session.GetString("_Role");
+		// var userId = "1";
+		// var userRole = "Admin";
 
 		var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 		var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 	}
-	@if (userId != null && userRole != null && !(currentController == "Home" || currentController == "Order"))
+	@if (userId != null && userRole != null && !(currentController == "Home" || currentController == "Order" || (currentController == "User" && currentAction == "Login")))
 	{
 		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 px-4" style="width: 250px; z-index: 9999">
 			<div class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
@@ -39,7 +39,7 @@
 				<h4 class="m-0">THE SOCIAL</h4>
 			</div>
 			<div class="offcanvas-body d-flex flex-column gap-2 mt-5" id="navigation">
-				@if (userRole == "Admin")
+				@if (userRole == "Manager")
 				{
 					<a class="btn @(currentController == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Menu" asp-action="Index">Menu Management</a>
 					<a class="btn @(currentController == "Table" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Table" asp-action="Index">Table Management</a>
@@ -50,9 +50,9 @@
 				}
 				else if (userRole == "Kitchen")
 				{
+					<a class="btn @(currentAction == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Digital Menu</a>
 					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
-					<a class="btn @(currentAction == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Menu Management</a>
-					<a class="btn @(currentAction == "Orders" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Orders">Menu Management</a>
+					<a class="btn @(currentAction == "Orders" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Orders">Completed Orders</a>
 				}
 				else if (userRole == "Cashier")
 				{
@@ -71,7 +71,7 @@
 
 				@if (userId != null && userRole != null)
 				{
-					<a class="btn btn-dark w-100 text-start">Logout</a>
+					<a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Logout">Logout</a>
 				}
 				else
 				{

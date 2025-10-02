@@ -73,6 +73,8 @@ namespace TheSocialCebu_Capstone.Controllers
             var tableId = HttpContext.Session.GetString("Table");
 
             var orders = _context.Orders
+                .Include(x => x.Table)
+                .Include(x => x.OrderStatus)
                 .Include(x => x.OrderItems)
                     .ThenInclude(x => x.Prod)
                 .Include(x => x.OrderItems)
@@ -115,7 +117,7 @@ namespace TheSocialCebu_Capstone.Controllers
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
             if(table == null || table.TableStatusId >= 3)
             {
-                return Json(new {success = false, message = "Error: Cannot add new orders."});
+                return Json(new {success = false, message = "Error: Cannot add new orders   ."});
             }
 
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
@@ -194,7 +196,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 CreatedAt = DateTime.Now,
                 OrderStatusId = 1,
                 OrderItems = items,
-                OrderNumber = _context.Orders.Count(x => x.TableId == tableId) + 1
+                OrderNumber = _context.Orders.Count() + 1
             };
 
             _context.Orders.Add(order);
@@ -256,6 +258,7 @@ namespace TheSocialCebu_Capstone.Controllers
             var table = _context.Tables
                 .Include(t => t.Orders)
                 .FirstOrDefault(x => x.TableId == tableid);
+
             if (table.TableStatusId == 3) 
                 return Json(new { success = false, message = "Error: Bill already requested"});
             if (table == null)

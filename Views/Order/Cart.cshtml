@@ -38,7 +38,7 @@
             </span>
         </a>
     </header>
-    <main class="flex-grow-1 overflow-x-auto pb-5 px-3 d-flex flex-column flex-column orders">
+    <main class="flex-grow-1 overflow-x-auto pb-5 px-3 d-flex flex-column flex-column orders"id="main">
         @if (Model.Count == 0)
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
@@ -227,7 +227,14 @@
                     })
                     .then(data => {
                         if (data.success) {
-                           window.location.reload()
+                           let content = `
+                                <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
+                                        <h1 class="text-center text-wrap">Your order has been submitted.</h1>
+                                    </div>
+                                </div>
+                           `
                         } else {
                             alert("Error: " + data.message);
                         }

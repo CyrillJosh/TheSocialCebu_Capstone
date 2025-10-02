@@ -7,6 +7,7 @@
 
 <div class="render-body vh-100 vw-100">
     <div class="p-4 h-100 w-100">
+		<h1 class="text-dark fw-bold mb-4">Update User</h1>
         <form method="post" asp-controller="User" asp-action="Update" class="has-validation" novalidate>
             <!-- HIDDEN -->
             <input asp-for="PersonId" type="hidden" />
@@ -53,32 +54,35 @@
                     </select>
                     <span class="text-danger" asp-validation-for="RoleId"></span>
                 </div>
-                <div class="col-md-12 rounded-2 py-2 d-flex gap-5 align-items-center bg-body-secondary">
+                <div class="col-md-12">
                     <label class="d-block text-dark">Status</label>
-                    <div class="btn-group" role="group" aria-label="Stock status">
-                        <input type="radio"
-                               class="btn-check"
-                               name="Status"
-                               id="StatusTrue"
-                               value="true"
-                               autocomplete="off"
-                               @(Model.Status ? "checked" : "") />
-                        <label class="btn btn-outline-success" for="StatusTrue">Available</label>
+                    <div class="bg-body-secondary p-2 form-control">
+                        <div class="btn-group" role="group" aria-label="Stock status">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="Status"
+                                   id="StatusTrue"
+                                   value="true"
+                                   autocomplete="off"
+                                   @(Model.Status ? "checked" : "") />
+                            <label class="btn btn-outline-success" for="StatusTrue">Available</label>
 
-                        <input type="radio"
-                               class="btn-check"
-                               name="Status"
-                               id="StatusFalse"
-                               value="false"
-                               autocomplete="off"
-                               @(!Model.Status ? "checked" : "") />
-                        <label class="btn btn-outline-danger" for="StatusFalse">Unavailable</label>
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="Status"
+                                   id="StatusFalse"
+                                   value="false"
+                                   autocomplete="off"
+                                   @(!Model.Status ? "checked" : "") />
+                            <label class="btn btn-outline-danger" for="StatusFalse">Unavailable</label>
+                        </div>
                     </div>
                 </div>
 
 
-
-                <button class="btn btn-success col-12 my-5" type="submit">Update</button>
+                <div class="w-100 d-flex justify-content-end py-2">
+                    <button class="btn btn-success px-5 py-2" type="submit">Update</button>
+                </div>
             </div>
         </form>
     </div>

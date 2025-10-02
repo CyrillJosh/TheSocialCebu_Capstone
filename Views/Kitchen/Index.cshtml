@@ -50,9 +50,20 @@
 									<table class="w-100">
 										<thead>
 											<tr>
-												<th></th>
-												<th></th>
-												<th></th>
+												<th>Item</th>
+												<th>Qty</th>
+												<th class="d-flex flex-row nowrap">
+													@if (order.OrderStatus.OrderStatusId == 2)
+													{
+														<input type="checkbox"
+															   class="form-check select-all"
+															   data-orderid="@order.OrderId"
+															   id="selectAll-@order.OrderId"
+															   name="@order.OrderId" />
+
+														<label class="ms-1 user-select-none" for="selectAll-@order.OrderId">All</label>
+													}
+												</th>
 											</tr>
 										</thead>
 										<tbody id="@("body" + order.OrderId)">
@@ -92,7 +103,7 @@
 															<td>
 																<p id="qty" class="m-0">@item.Quantity</p>
 															</td>
-															<td class="ps-4"><input type="checkbox" @(item.OrderItemStatusId == 3 ? "disabled checked": "")/> @item.OrderItemStatus.StatusName</td>
+															<td class="ps-4"><input type="checkbox" class="form-check item-check" @(item.OrderItemStatusId == 3 ? "disabled checked" : "") /></td>
 														}
 													</tr>
 												}
@@ -107,7 +118,7 @@
 								}
 								else if (order.OrderStatus.OrderStatusId == 2)
 								{
-									<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 serve" id="@order.OrderId">Ready to Serve</button>
+									<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 serve" id="@order.OrderId">Serve selected items</button>
 								}
 							</div>
 						</div>
@@ -121,6 +132,16 @@
 @section Scripts {
 	<script>
 		$(document).ready(async function () {
+			$(document).on("change", ".select-all", function () {
+				const orderId = $(this).data("orderid");
+				const isChecked = $(this).prop("checked");
+
+				// Toggle only non-disabled checkboxes in that order
+				$(`#body${orderId} .item-check:not(:disabled)`).prop("checked", isChecked);
+			});
+
+
+
 			window.connection.on("NewOrder", function(order) {
 				console.log("Received order:", order);
 				appendOrder(order);

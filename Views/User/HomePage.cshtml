@@ -19,9 +19,10 @@
             <table class="table table-hover h-auto align-middle rounded table-separate h-100" id="Table">
                 <thead class="sticky-top">
                     <tr>
+                        <th>Role</th>
                         <th>Name</th>
                         <th>Username</th>
-                        @* <th>Password</th> *@
+                        <th>Password</th>
                         <th>Date hired</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -31,17 +32,18 @@
                     @foreach (var person in Model)
                     {
                         <tr>
-                            <td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary">@person.Name</td>
+							<td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary">@person.Role.RoleName</td>
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary" id="@person.PersonId">@person.Name</td>
                             <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@person.Account.Username</td>
-                            @* <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">
-                                <button id="@person.PersonId" class="btn btn-danger rounded d-flex flex-row nowrap align-content-center align-items-center justify-content-center gap-2">
+                            <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">
+                                <button data-bs-toggle="modal" data-bs-target="#PasswordModal" id="@person.PersonId" class="btn btn-danger rounded d-flex flex-row nowrap align-content-center align-items-center justify-content-center gap-2 changep">
                                     <p class="m-0 p-0">Reset</p>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise m-0 p-0" viewBox="0 0 16 16">
                                         <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
                                         <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
                                     </svg>
                                 </button>
-                            </td> *@
+                            </td>
                             <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">@person.HiredDate.ToString("yyyy-MM-dd")</td>
                             <td class="border-2 border-end-0 border-start-0 border-secondary bg-body-secondary">
                                 @(person.Status? "Active": "Inactive")
@@ -88,9 +90,91 @@
         </div>
     </div>
 </div>
+<!-- Password Modal -->
+<div class="modal fade" id="PasswordModal" tabindex="-1" aria-labelledby="PasswordModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="Name">Change Password for: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="NewPassword" class="form-label">New Password</label>
+                <input type="password" id="NewPassword" class="form-control mb-3" placeholder="Enter new password" />
+
+                <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" id="ConfirmPassword" class="form-control" placeholder="Re-enter new password" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="ConfirmChange">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 @section Scripts {
     <script>
+        // Open Reset Password modal
+        $(".changep").on("click", function () {
+            let personId = this.id;
+            let personName = $(`td#${personId}`).text();
+
+            $("#Name").text(`Change Password for: ${personName}`);
+            $("#ConfirmChange").attr("data-id", personId);
+        });
+
+        // Confirm Reset Password
+        $("#ConfirmChange").on("click", async function () {
+            let id = $(this).data("id");
+            let newPassword = $("#NewPassword").val();
+            let confirmPassword = $("#ConfirmPassword").val();
+
+            if (!id) {
+                alert("No user selected.");
+                return;
+            }
+
+            if (!newPassword || !confirmPassword) {
+                alert("Please enter and confirm the new password.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/User/ResetPassword`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `id=${encodeURIComponent(id)}&npass=${encodeURIComponent(newPassword)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    $("#NewPassword").val("");
+                    $("#ConfirmPassword").val("");
+                    bootstrap.Modal.getInstance(document.getElementById("PasswordModal")).hide();
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (err) {
+                alert("An error occurred: " + err.message);
+            }
+        });
+
+
+
+
+
         let selectedId = null;
 
         // When delete button is clicked, get the data-id

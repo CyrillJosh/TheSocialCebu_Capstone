@@ -183,7 +183,7 @@ public partial class MyDBContext : DbContext
         {
             entity.HasKey(e => e.EmailInviteId).HasName("PK_EmailInvites");
 
-            entity.ToTable("EmailInvite");
+            entity.ToTable("EmailInvites");
 
             entity.Property(e => e.EmailInviteId);
             entity.Property(e => e.Subject).HasMaxLength(50);

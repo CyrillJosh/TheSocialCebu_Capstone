@@ -4,15 +4,15 @@
 }
 @model List<Feedback>
 
-<div class="render-body vh-100 vw-100 bg-light">
-    <div class="container py-4 h-100 d-flex flex-column">
+<div class="render-body vh-100 vw-100">
+    <div class="container p-4 d-flex flex-column">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-dark fw-bold">FEEDBACK</h1>
-            <a class="btn btn-primary px-5 rounded rounded-pill text-black" href="/Marketing/Send">
+            @* <a class="btn btn-primary px-5 rounded rounded-pill text-black" href="/Marketing/Send">
                 + Send Emails
-            </a>
+            </a> *@
         </div>
-        <div class="row g-4">
+        <div class="row g-4 flex-grow-1">
             <!-- Overall -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100">
@@ -107,20 +107,60 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 flex-grow-1 d-flex">
-                <div>
+            <div class="col-md-12 flex-grow-1 h-100 d-flex flex-column gap-2 ps-3">
+                <hr />
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-dark fw-bold">5 ★</span>
+                    <div class="progress flex-grow-1" style="height: 50px;">
+                        <div class="progress-bar text-dark" role="progressbar"
+                             style="background-color: #E5B400 ;width: @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 5) * 100 / Model.Count())))%">
+                            @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 5) * 100 / Model.Count())))%
+                        </div>
+                    </div>
+                </div>
 
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-dark fw-bold">4 ★</span>
+                    <div class="progress flex-grow-1" style="height: 50px;">
+                        <div class="progress-bar text-dark" role="progressbar"
+                             style="background-color: #FFC71D ;width: @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 4) * 100 / Model.Count())))%">
+                            @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 4) * 100 / Model.Count())))%
+                        </div>
+                    </div>
                 </div>
-                <div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-dark fw-bold">3 ★</span>
+                    <div class="progress flex-grow-1" style="height: 50px;">
+                        <div class="progress-bar text-dark" role="progressbar"
+                             style="background-color: #FFDF39 ;width: @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 3) * 100 / Model.Count())))%">
+                            @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 3) * 100 / Model.Count())))%
+                        </div>
+                    </div>
                 </div>
-                <div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-dark fw-bold">2 ★</span>
+                    <div class="progress flex-grow-1" style="height: 50px;">
+                        <div class="progress-bar text-dark" role="progressbar"
+                             style="background-color: #FFF56C ;width: @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 2) * 100 / Model.Count())))%">
+                            @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 2) * 100 / Model.Count())))%
+                        </div>
+                    </div>
                 </div>
-                <div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-dark fw-bold">1 ★</span>
+                    <div class="progress flex-grow-1" style="height: 50px;">
+                        <div class="progress-bar text-dark" role="progressbar"
+                             style="background-color: #FFF9A2 ;width: @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 1) * 100 / Model.Count())))%">
+                            @((Model.Count() == 0 ? 0 : (Model.Count(x => x.Rating == 1) * 100 / Model.Count())))%
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p></p> <span class="bg-gray" style="width: @(Model.Count)%"></span>
-                </div>
+
             </div>
+
         </div>
     </div>
 </div>

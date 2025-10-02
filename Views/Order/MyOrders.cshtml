@@ -61,7 +61,7 @@
                                     <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
                                         <td class="fw-bold py-2">@item.Quantity</td>
                                         <td class="fw-bold">@item.Prod.ProdName</td>
-                                        <td class="fw-bold stat" id="@item.OrderItemId">@item.OrderItemStatus.StatusName</td>
+                                        <td class="fw-bold stat" id="@item.OrderItemId">@(item.OrderItemStatus.OrderItemStatusId <= 2 ? "Preparing" : item.OrderItemStatus.StatusName)</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
@@ -83,7 +83,7 @@
     <footer class="w-100 foot">
         @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
         {
-            <button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table">Request Bill</button>
+            <button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table" @(Model.First().Table.TableStatusId >= 3 && Model.First().Table.TableStatusId < 5 ? "disabled" : "")>@(Model.First().Table.TableStatusId >= 3 && Model.First().Table.TableStatusId < 5 ? "Bill Requested" : "Request Bill")</button>
         }
         <div class="w-100 border-top bg-secondary d-flex justify-content-evenly align-items-center text-white pt-3"
               style="padding-bottom: 10vh">
@@ -179,6 +179,7 @@
                 .then(response => response.json())
                 .then(x => {
                     if(x.success){
+                        $(this).text("Bill Requested")
                         $("#FeedbackModal").modal("show");
                     } else {
                         alert(x.message);
