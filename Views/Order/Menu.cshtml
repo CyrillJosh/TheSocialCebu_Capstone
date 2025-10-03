@@ -1,4 +1,4 @@
-﻿@using System.Text.Json
+﻿﻿@using System.Text.Json
 @using TheSocialCebu_Capstone.Models
 @model List<SubCategory>
 @{
@@ -26,9 +26,9 @@
 
     /* Dropdown results */
     #search-dropdown {
-        background: rgba(0, 0, 0, 0.75); 
+        background: rgba(0, 0, 0, 0.75);
         backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(12px); 
+        -webkit-backdrop-filter: blur(12px);
         border-radius: 1rem;
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
@@ -37,104 +37,105 @@
 <div class="vh-100 vw-100 d-flex flex-column"
      style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
     <!-- Top Nav -->
-        <header class="position-relative" id="navBar">
+    <header class="position-relative" id="navBar">
         <img src="/Images/Categories/@(Model.First().Category.CategoryName.Replace(" ", "").Replace("&", "").Replace("/", "") + ".png")" class="h-100 w-100 position-absolute object-fit-cover" style="z-index: 1" />
-        <div class="h-100 w-100 position-absolute object-fit-cover" style="z-index: 1; background: linear-gradient(180deg, rgba(0, 0, 0) 0%, rgba(217, 217, 217, 0.1) 50%,rgba(0, 0, 0) 95%);"></div>
-            <div class="d-flex flex-column" style="z-index: 2; position: relative;">
-                <div class="w-100 mb-2 d-flex justify-content-between p-2">
-                    <!-- Back button -->
-                    <div class="d-flex flex-row flex-nowrap gap-0 p-2">
-                        <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
-                            href="/Home">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
-                            </svg>
-                        </a>
-                    </div>
-                    <!-- Title -->
-                    <h1 class="text-white text-center m-0 p-0 align-self-center">@Model[0].Category.CategoryName</h1>
-
-                    <!-- Cart -->
-                    <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2" href="/Order/Cart">
-                        <img src="~/Images/Cart.png" class="img-fluid" style="height: 34px;">
-                        <span class="pill">
-                            @if(orders.Count() >0){
-                                <span class="position-absolute top-0 mt-1 start-100 translate-middle badge rounded-pill bg-danger">
-                                    @orders.Count()
-                                    <span class="visually-hidden">unread messages</span>
-                                </span>
-                            }
-                        </span>
+        <div class="h-100 w-100 position-absolute object-fit-cover" style="z-index: 1; background: linear-gradient(180deg, rgba(0, 0, 0) 0%, rgba(217, 217, 217, 0.1) 30%,rgba(0, 0, 0) 95%);"></div>
+        <div class="d-flex flex-column" style="z-index: 2; position: relative;">
+            <div class="w-100 mb-2 d-flex justify-content-between p-2">
+                <!-- Back button -->
+                <div class="d-flex flex-row flex-nowrap gap-0 p-2">
+                    <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+                       href="/Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                        </svg>
                     </a>
                 </div>
-                <!-- Search input -->
-            <div class="flex-grow-1 mx-3 border border-2 rounded-pill border-white text-white align-items-center gap-2 position-relative">
-                    <div class="h-100 w-100 py-2 px-3 d-flex" id="search-div">
-                        <i class="bi bi-search"></i>
-                        <input id="food-search" type="text"
-                               placeholder="Search your favorite food"
-                           class="border-0 bg-transparent text-white flex-grow-1" autocomplete="off" />
-                    </div>
+                <!-- Title -->
+                <h1 class="text-white text-center m-0 p-0 align-self-center text-arbutus">@Model[0].Category.CategoryName</h1>
 
-                    <!-- Dropdown for search results -->
-                <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-2 border-white shadow overflow-auto"
-                        style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
-                        @foreach (var i in Model.SelectMany(x => x.Products))
+                <!-- Cart -->
+                <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2" href="/Order/Cart">
+                    <img src="~/Images/Cart.png" class="img-fluid" style="height: 34px;">
+                    <span class="pill">
+                        @if (orders.Count() > 0)
                         {
-                            <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
-                                @i.ProdName
-                            </div>
-                        }
-                    </div>
-                </div>
-                <!-- Subcategories Navigation -->
-                <div class="d-flex flex-row flex-nowrap overflow-x-scroll gap-3 px-2 pb-1" id="subcat" style="scrollbar-width: none">
-                @foreach (var navcat in Model.Where(x => x.Products.Any()))
-                    {
-                        <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
-                            class="nav-link text-white h-100 p-3 d-flex flex-column align-items-center gap-2"
-                            style="width: 70px">
-                            <span class="rounded rounded-5 p-2 d-flex justify-content-center bg-gray" style="box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 3); ">
-                                <img src="/Images/Subcategories/@(navcat.SubcategoryName.ToString().Trim().Replace(" ", "").Replace("&", "").Replace("/","").ToLower() + ".png")" class="object-fit-cover" style="width:40px; height:40px;" />
+                            <span class="position-absolute top-0 mt-1 start-100 translate-middle badge rounded-pill bg-danger">
+                                @orders.Count()
+                                <span class="visually-hidden">unread messages</span>
                             </span>
-                            <p class="text-center mb-0 text-wrap">
-                                @navcat.SubcategoryName
-                            </p>
-                        </a>
+                        }
+                    </span>
+                </a>
+            </div>
+            <!-- Search input -->
+            <div class="flex-grow-1 mx-3 border border-1 rounded-pill border-white text-white align-items-center gap-2 position-relative">
+                <div class="h-100 w-100 py-2 px-3 d-flex" id="search-div">
+                    <i class="bi bi-search"></i>
+                    <input id="food-search" type="text"
+                           placeholder="Search your favorite food"
+                           class="border-0 bg-transparent text-white flex-grow-1" autocomplete="off" />
+                </div>
+
+                <!-- Dropdown for search results -->
+                <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-1 border-white shadow overflow-auto"
+                     style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
+                    @foreach (var i in Model.SelectMany(x => x.Products))
+                    {
+                        <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
+                            @i.ProdName
+                        </div>
                     }
                 </div>
             </div>
-        </header>
+            <!-- Subcategories Navigation -->
+            <div class="d-flex flex-row flex-nowrap overflow-x-scroll gap-3 px-2 pb-1" id="subcat" style="scrollbar-width: none">
+                @foreach (var navcat in Model.Where(x => x.Products.Any()))
+                {
+                    <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
+                       class="nav-link text-white h-100 p-3 d-flex flex-column align-items-center gap-2"
+                       style="width: 70px">
+                        <span class="rounded rounded-5 p-2 d-flex justify-content-center bg-gray" style="box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 3); ">
+                            <img src="/Images/Subcategories/@(navcat.SubcategoryName.ToString().Trim().Replace(" ", "").Replace("&", "").Replace("/", "").ToLower() + ".png")" class="object-fit-cover" style="width:40px; height:40px;" />
+                        </span>
+                        <p class="text-center mb-0 text-wrap text-arbutus">
+                            @navcat.SubcategoryName
+                        </p>
+                    </a>
+                }
+            </div>
+        </div>
+    </header>
 
     <!-- Product Navigation (scrollable middle content) -->
     <main class="flex-grow-1 overflow-auto pb-5 position-relative"
           data-bs-spy="scroll"
-          data-bs-target="#navBar" 
+          data-bs-target="#navBar"
           id="productContainer">
-    @foreach (var subcat in Model.Where(x => x.Products.Any()))
-    {
+        @foreach (var subcat in Model.Where(x => x.Products.Any()))
+        {
             <section id="@subcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
-                     class="mt-3 px-2 text-white text-center d-flex flex-column gap-2"
+                     class="my-5 px-2 text-white text-center d-flex flex-column gap-2 text-arbutus"
                      data-id="@subcat.SubcategoryId">
-            <h1>@subcat.SubcategoryName</h1>
-            @foreach (var item in subcat.Products)
-            {
-                <div id="@item.ProdId" class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3 @(item.Availability? "" : "visually-hidden")"
-                     style="background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 0%, rgba(115, 115, 115, 0.1) 100%);">
-                    <button class="add-product px-3 py-3 w-100 h-100 m-0 bg-transparent border-0"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#offcanvasBottom"
-                            data-id="@item.ProdId">
-                        <div class="d-flex justify-content-between align-items-center text-white">
-                            <p class="mb-0 text-start">@item.ProdName.ToUpper()</p>
-                            <span>@item.Price.ToString("₱0.00")</span>
-                        </div>
-                    </button>
-                </div>
-            }
+                <h1>@subcat.SubcategoryName</h1>
+                @foreach (var item in subcat.Products)
+                {
+                    <div id="@item.ProdId" class="col mx-3 border border-top-0 border-start-0 border-end-0 rounded rounded-3 @(item.Availability ? "" : "visually-hidden")"
+                         style="background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 0%, rgba(115, 115, 115, 0.1) 100%);">
+                        <button class="add-product px-3 py-3 w-100 h-100 m-0 bg-transparent border-0"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasBottom"
+                                data-id="@item.ProdId">
+                            <div class="d-flex justify-content-between align-items-center text-white">
+                                <p class="mb-0 text-start text-amarath">@item.ProdName.ToUpper()</p>
+                                <span class="text-amarath">@item.Price.ToString("₱0.00")</span>
+                            </div>
+                        </button>
+                    </div>
+                }
             </section>
 
-    }
+        }
     </main>
     <!-- Update to absolute layout -->
     <!-- Bottom Navigation -->
@@ -164,21 +165,21 @@
     </button>
 
     <div class="offcanvas-body p-5 overflow-hidden">
-        <div class="set-body">
+        <div class="set-body mb-3">
         </div>
 
-        <div class="w-100 row m-0">
+        <div class="w-100 row m-0 mb-3">
             <div class="set-price col-6 ps-0">
             </div>
 
-            <div class="col-6 position-relative">
-                <div class="rounded-pill p-1 minus position-absolute start-0" style="background:#959595">
+            <div class="col-6 d-flex flex-row justify-content-between">
+                <div class="rounded-pill p-1 minus" style="background:#959595">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black" viewBox="0 0 16 16">
                         <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
                     </svg>
                 </div>
-                <h2 id="qty" class="position-absolute start-50 translate-middle-x"></h2>
-                <div class="rounded-pill p-1 bg-primary add position-absolute end-0">
+                <h2 id="qty"></h2>
+                <div class="rounded-pill p-1 bg-primary add">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                     </svg>
@@ -186,8 +187,8 @@
             </div>
         </div>
 
-        <textarea id="instructions" class="w-100 bg-transparent text-white rounded rounded-2 mt-2" placeholder="Instructions" style="resize: none;"></textarea>
-
+        <textarea id="instructions" class="w-100 bg-transparent my-5 text-white rounded border border rounded-2 mt-2" placeholder="Instructions" style="resize: none; border-color: gray; height: 8vh"></textarea>
+        
         <button class="btn btn-primary col-6 p-3 add-to-order w-100 rounded-pill" data-bs-dismiss="offcanvas">ADD TO MY CART</button>
     </div>
 </div>
@@ -292,7 +293,7 @@
                     const previousSiblings = $(this).prevAll();
                     const heightsArray = previousSiblings.map(function() {
                         return $(this).outerHeight(true);
-                    }).get(); 
+                    }).get();
 
                     let totalPreviousHeight = 0;
                     heightsArray.forEach(height => {
@@ -303,7 +304,7 @@
                         $("#subcat a span").addClass("bg-gray")
                         $(`#subcat a[href^="#${$(this).attr("id")}"] span`).addClass("bg-white")
                     }
-                    
+
                     if($(this)[0] == $("section").last()[0] && top + $("#productContainer").height() + 100 >= $("#productContainer").prop('scrollHeight')){
                         $("#subcat a span").removeClass("bg-white")
                         $("#subcat a span").addClass("bg-gray")
@@ -320,7 +321,7 @@
                 var scrollPosition = 0;
 
                 // Iterate through all the sections
-                $('section').each(function() {  
+                $('section').each(function() {
                     if ($(this).attr('id') === targetSection.attr('id')) {
                         return false; // This breaks the .each() loop
                     }
@@ -349,9 +350,9 @@
 
                         $(".add-to-order").data("id",prod.prodId);
 
-                        $(".set-body").append(`<h2>${prod.prodName}</h2>`)
+                        $(".set-body").append(`<h1 class="text-amarath fw-bold">${prod.prodName.toUpperCase()}</h1>`)
                         // $(".set-body").append(`<p>${prod.description}</p>`)
-                        $(".set-price").append(`<h2 id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
+                        $(".set-price").append(`<h2 class="text-amarath" id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
 
                         $(".add-to-order").data("id", prod.prodId);
                     }
@@ -363,8 +364,8 @@
             //Add
             $(".add").on("click", ()=> {
                 const qty = $("#qty")
-				const price = $("#price")
-				let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
+                const price = $("#price")
+                let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
                 let num = parseInt(qty.text())
                 let basePrice = currentPrice / num
                 num++
@@ -377,7 +378,7 @@
                 let num = parseInt(qty.text())
                 const price = $("#price")
                 let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
-				let basePrice = currentPrice / num
+                let basePrice = currentPrice / num
                 if((num-1) == 0){
                     num = 1
                 }
@@ -406,7 +407,7 @@
                     }
                     else{
                         alert(data.message)
-					}
+                    }
                 })
             })
         })

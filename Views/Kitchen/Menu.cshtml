@@ -70,7 +70,7 @@
                     .then(response => response.json())
                     .then(m => {
                         if (m.message === "Error") {
-                            alert("Error changing status");
+                            AlertModal("Error","Error changing status");
                             // revert checkbox to previous state
                             checkbox.prop("checked", !previousState);
                             return;
@@ -82,8 +82,7 @@
                         }
                     })
                     .catch(err => {
-                        alert("Network error");
-                        // revert checkbox on network failure
+                        AlertModal("Error","Network error. Please try again later.");
                         checkbox.prop("checked", !previousState);
                         console.error(err);
                     });

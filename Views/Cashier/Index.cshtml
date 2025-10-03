@@ -288,12 +288,12 @@
 						$("#BillModal").modal("show");
 					}
 					else{
-						alert(m.message)
+						AlertModal("Error",m.message)
 					}
 				})
 				}
 				else{
-					alert("Please select a discount to apply");
+					AlertModal("Error","Please select a discount to apply");
 				}
 			})
 
@@ -314,7 +314,7 @@
 
 				// let disc = $
 				if (isNaN(amount) || amount <= 0) {
-					alert("Please enter a valid amount");
+					AlertModal("Error","Please enter a valid amount");
 					return;
 				}
 
@@ -403,7 +403,7 @@
 						)
 					}
 					else{
-						alert("Error: " + m.message);
+						AlertModal("Error",m.message);
 					}
 				});
 			});
@@ -491,7 +491,7 @@
 						$("#BillModal").modal("show");
 
 					} else {
-						alert("Error: " + (m.detail || "Unable to generate bill."));
+						AlertModal("Error",(m.detail || "Unable to generate bill."));
 					}
 				});
 			};
@@ -506,7 +506,7 @@
 				.then(res => res.json())
 				.then(m => {
 					if (!m.success) {
-						alert(m.message || "Bill not found");
+						AlertModal("Error",m.message || "Bill not found");
 						return;
 					}
 					// Grab the details table for this table

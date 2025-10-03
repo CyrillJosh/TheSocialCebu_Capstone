@@ -60,7 +60,7 @@
                 document.getElementById('QRCodeBase64').value = data.qrstring;
             })
             .catch(error => {
-                console.error('Error generating QR code:', error);
+               AlertModal("Error",'Problem in generating QR code');
             });
         })
     </script>

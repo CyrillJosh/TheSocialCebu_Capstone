@@ -275,6 +275,9 @@
 					if(confirm.message == "Success"){
 						window.location.reload();
 					}
+					else{
+						AlertModal("Error",confirm.message);
+					}
 				})
 			})
 
@@ -296,6 +299,9 @@
 					console.log(confirm)
 					if(confirm.message == "Success"){
 						window.location.reload();
+					}
+					else{
+						AlertModal("Error",confirm.message);
 					}
 				})
 			})

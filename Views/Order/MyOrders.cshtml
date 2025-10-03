@@ -18,7 +18,7 @@
             </a>
         </div>
         <!-- Title -->
-        <h1 class="text-white text-center m-0 p-0 align-self-center">My Orders</h1>
+        <h1 class="text-white text-center m-0 p-0 align-self-center text-arbutus">My Orders</h1>
 
         <!-- Cart -->
         <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2 invisible" href="/Order/Cart">
@@ -45,7 +45,7 @@
                 @foreach (var order in Model.OrderBy(x => x.CreatedAt))
                 {
                     <div class="card bg-secondary p-3 rounded-3">
-                        <h5 class="text-white">Order # @order.OrderNumber.ToString("0000")</h5>
+                        <h5 class="text-white text-amarath">Order No. @order.OrderNumber.ToString("0000")</h5>
                         <p class="text-white fst-italic">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
                         <table class="text-white table-borderless w-100">
                             <thead>
@@ -182,7 +182,7 @@
                         $(this).text("Bill Requested")
                         $("#FeedbackModal").modal("show");
                     } else {
-                        alert(x.message);
+                        AlertModal("Error",x.message);
                     }
                 });
             });
@@ -194,10 +194,10 @@
                 .then(response => response.json())
                 .then(x => {
                     if(x.success){
-                        alert("Thank you for your feedback!");
+                        AlertModal("Success","Thank you for your feedback!");
                         $("#FeedbackModal").modal("hide");
                     }else{
-                        alert(x.message);
+                        AlertModal("Error",x.message);
                     }
                 })
 			})

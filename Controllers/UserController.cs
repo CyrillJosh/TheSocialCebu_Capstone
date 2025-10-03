@@ -164,7 +164,7 @@ namespace Menu.Controllers
         {
             Person person = _context.People.Include(p => p.Account).FirstOrDefault(x => x.PersonId == id);
 
-            if (person is null) return Json(new { success = false, message = "Error! Record not found please try again" });
+            if (person is null) return Json(new { success = false, message = "Record not found please try again" });
 
             person.Status = false;
             _context.Update(person);
@@ -176,7 +176,7 @@ namespace Menu.Controllers
         public JsonResult ResetPassword(string id, string npass)
         {
             var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);
-            if (acc == null) return Json(new { success = false, message = "Error: User not found" });
+            if (acc == null) return Json(new { success = false, message = "User not found" });
 
             acc.Password = BCrypt.Net.BCrypt.HashPassword(npass);
 

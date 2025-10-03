@@ -133,17 +133,17 @@
             let confirmPassword = $("#ConfirmPassword").val();
 
             if (!id) {
-                alert("No user selected.");
+                AlertModal("Error","No user selected.");
                 return;
             }
 
             if (!newPassword || !confirmPassword) {
-                alert("Please enter and confirm the new password.");
+                AlertModal("Error","Please enter and confirm the new password.");
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                alert("Passwords do not match!");
+                AlertModal("Error","Passwords do not match!");
                 return;
             }
 
@@ -159,15 +159,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(result.message);
                     $("#NewPassword").val("");
                     $("#ConfirmPassword").val("");
                     bootstrap.Modal.getInstance(document.getElementById("PasswordModal")).hide();
                 } else {
-                    alert("Error: " + result.message);
+                    AlertModal("Error",result.message);
                 }
             } catch (err) {
-                alert("An error occurred: " + err.message);
+                AlertModal("Error","An error occurred: " + err.message);
             }
         });
 
@@ -191,14 +190,14 @@
                 type: "DELETE",
                 success: function (response) {
                     if (response.success) {
-                        alert(response.message);
+                        AlertModal("Success",response.message);
                         location.reload();
                     } else {
-                        alert("Error: " + response.message);
+                        AlertModal("Error", response.message);
                     }
                 },
                 error: function () {
-                    alert("An error occurred while processing the request.");
+                    AlertModal("Error","An error occurred while processing the request.");
                 }
             });
         });

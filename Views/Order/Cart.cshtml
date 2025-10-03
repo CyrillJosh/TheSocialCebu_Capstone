@@ -9,8 +9,7 @@
           ? new List<OrderItem>()
           : JsonSerializer.Deserialize<List<OrderItem>>(ordersJson);
 }
-<div class="vh-100 vw-100 d-flex flex-column"
-     style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
+<div class="vh-100 vw-100 d-flex flex-column bg-black">
     <header class="w-100 mb-2 d-flex justify-content-between p-2">
         <!-- Back button -->
         <div class="d-flex flex-row flex-nowrap gap-0 p-2">
@@ -22,7 +21,7 @@
             </a>
         </div>
         <!-- Title -->
-        <h1 class="text-white text-center m-0 p-0 align-self-center">My Cart</h1>
+        <h1 class="text-white text-center m-0 p-0 align-self-center text-arbutus">My Cart</h1>
 
         <!-- Cart -->
         <a class="text-decoration-none text-yellow rounded-1 gotocart position-relative align-self-end m-2 invisible" href="/Order/Cart">
@@ -44,8 +43,8 @@
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
                 <div class="d-flex flex-column justify-content-center">
                     <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
-                    <h1 class="text-center text-wrap">Your cart is waiting...</h1>
-                    <p class="mt-3 text-center">Time to add what you’re craving!</p>
+                    <h1 class="text-center text-wrap text-antonio" style="font-size:8vh">Your cart is waiting...</h1>
+                    <p class="mt-3 text-center text-arbutus" style="font-size:2.2vh">Time to add what you’re craving!</p>
                 </div>
             </div>
         }
@@ -53,23 +52,27 @@
             @foreach (var item in Model)
             {
                 <div class="w-100 text-white py-3 px-4 rounded-3 my-2 mx-0 position-relative"
-                     style="background: linear-gradient(345deg, rgba(255, 255, 255, 0.084) 48.8%, rgba(255, 255, 255, 0.284) 90.74%); backdrop-filter: blur(80px)">
+                     style="background: linear-gradient(345deg, rgba(255, 255, 255, 0.084) 48.8%, rgba(240, 240, 240, 0.284) 100%); backdrop-filter: blur(80px)">
 
-                    <div class="row">
+                    <div class="row py-2">
                         <div class="col-8">
-                            <h3 class="fw-bold">@item.Prod.ProdName.ToUpper()</h3>
-                            <p style="font-size:10px">@item.Instructions</p>
-                            <h2 id="@("price" + item.OrderItemId)">@item.Prod.Price.ToString("₱0.00")</h2>
+                            <h1 class="fw-bold text-amarath text-nowrap">@item.Prod.ProdName.ToUpper()</h1>
+                            <h6 style="font-size:10px">@item.Instructions</h6>
+                            <h3 class="text-arbutus" id="@("price" + item.OrderItemId)">@item.Prod.Price.ToString("₱0.00")</h3>
                         </div>
-                        <div class="col-4 d-flex align-items-end pb-2">
-                            <div class="rounded-pill bg-primary d-flex gap-2 justify-content-center align-items-center text-black">
-                                <svg data-id="@item.OrderItemId" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black @(item.Quantity == 1 ? "disabled" : "")" viewBox="0 0 16 16">
-                                    <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
-                                </svg>
-                                <p id="@("qty" + item.OrderItemId)" class="m-0 qty">@(item.Quantity?.ToString("D2") ?? "00")</p>
-                                <svg data-id="@item.OrderItemId" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                                </svg>
+                        <div class="col-4 d-flex align-items-end pt-3">
+                            <div class="rounded-pill d-flex gap-2 justify-content-center align-items-center text-black">
+                                <div class="rounded-pill p-1 bi-dash" style="background:#959595" data-id="@item.OrderItemId">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi text-black @(item.Quantity == 1 ? "disabled" : "")" viewBox="0 0 16 16">
+                                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                                    </svg>
+                                </div>
+                                <h5 id="@("qty" + item.OrderItemId)" class="m-0 qty text-white">@(item.Quantity?.ToString("D2") ?? "00")</h5>
+                                <div class="rounded-pill p-1 bg-primary bi-plus" data-id="@item.OrderItemId">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi text-black" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -87,7 +90,7 @@
     <footer class="w-100">
         @if (orders.Count > 0)
         {
-            <button class="btn btn-primary d-block mx-auto w-75 z-5 mb-3 px-5 confirm rounded-pill">Submit Orders</button>
+            <button class="btn btn-primary d-block mx-auto w-75 z-5 mb-3 px-5 py-3 confirm rounded-pill" style="font-size: 2.3vh;">SUBMIT ORDERS</button>
         }
         <div class="w-100 border-top h-100 d-flex justify-content-evenly align-items-center text-white pt-3"
              style="background: #151515; min-height: 120px; padding-bottom: 10vh">
@@ -213,7 +216,8 @@
                         window.location.reload()
                     }
                     else{
-						alert(m.message)
+                        AlertModal("Error",m.message);
+						// alert(m.message)
                     }
                 })
             });
@@ -227,19 +231,25 @@
                     })
                     .then(data => {
                         if (data.success) {
-                           let content = `
-                                <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
-                                    <div class="d-flex flex-column justify-content-center">
-                                        <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
-                                        <h1 class="text-center text-wrap">Your order has been submitted.</h1>
-                                    </div>
-                                </div>
-                           `
+                           // let content = `
+                           //      <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
+                           //          <div class="d-flex flex-column justify-content-center">
+                           //              <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
+                           //              <h1 class="text-center text-wrap">Your order/s has been submitted.</h1>
+                           //          </div>
+                           //      </div>
+                           // `
+                           // $("#main").html(content)
+                           // $(".confirm").remove()
+
+                           window.location.replace("http://10.14.90.47/Order/MyOrders")
                         } else {
-                            alert("Error: " + data.message);
+                            // alert("Error: " + data.message);
+                            AlertModal("Error",data.message);
+
                         }
                     })
-                    .catch(err => console.error("Fetch error:", err));
+                    .catch(err => "Error",err);
             });
         })
     </script>

@@ -57,7 +57,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var product = _context.Products.Where(x => x.Availability == true).FirstOrDefault(x => x.ProdId == id);
             if (product == null)
-                return Json(new {success = false, message = "Error: No product found" });
+                return Json(new {success = false, message = "No product found" });
             return Json(new
             {
                 success = true,
@@ -79,11 +79,10 @@ namespace TheSocialCebu_Capstone.Controllers
                     .ThenInclude(x => x.Prod)
                 .Include(x => x.OrderItems)
                     .ThenInclude(x => x.OrderItemStatus)
-                .Where(x => x.TableId == tableId && x.OrderStatusId < 5).ToList();
+                .Where(x => x.TableId == tableId && x.OrderStatusId < 5).OrderByDescending(x => x.OrderNumber).ToList();
 
             return View(orders);
         }
-
 
         //Cart Operations
         public IActionResult Cart()
@@ -113,15 +112,15 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var tableid = HttpContext.Session.GetString("Table").ToString();
             if(string.IsNullOrEmpty(tableid))
-                return Json(new { success = false, message = "Error: No active session found." });
+                return Json(new { success = false, message = "No active session found." });
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
             if(table == null || table.TableStatusId >= 3)
             {
-                return Json(new {success = false, message = "Error: Cannot add new orders   ."});
+                return Json(new {success = false, message = "Cannot add new orders."});
             }
 
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
-            if (product == null || !product.Availability) return Json(new { success = false, message = "Error: No product found." });
+            if (product == null || !product.Availability) return Json(new { success = false, message = "No product found." });
 
             var orders = GetOrders();
             var existingItem = orders.FirstOrDefault(o => o.ProdId == id);
@@ -161,17 +160,17 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (string.IsNullOrEmpty(tableId))
             {
-                return Json(new { success = false, message = "Error: No active session found." });
+                return Json(new { success = false, message = "No active session found." });
             }
 
             var orderItemsJson = HttpContext.Session.GetString("Orders");
             if (string.IsNullOrEmpty(orderItemsJson))
-                return Json(new { success = false, message = "Error: No items in cart" });
+                return Json(new { success = false, message = "No items in cart" });
 
             var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItemsJson);
 
             if (items == null || !items.Any())
-                return Json(new { success = false, message = "Error: No items in cart" });
+                return Json(new { success = false, message = "No items in cart" });
 
             // Load related entities for each item
             foreach (var item in items)
@@ -253,18 +252,18 @@ namespace TheSocialCebu_Capstone.Controllers
         public JsonResult RequestBill(string tableid)
         {
             if (string.IsNullOrEmpty(tableid))
-                return Json(new { success = false, message = "Error", details = "Invalid table id" });
+                return Json(new { success = false, message = "Invalid table id"});
 
             var table = _context.Tables
                 .Include(t => t.Orders)
                 .FirstOrDefault(x => x.TableId == tableid);
 
             if (table.TableStatusId == 3) 
-                return Json(new { success = false, message = "Error: Bill already requested"});
+                return Json(new { success = false, message = "Bill already requested"});
             if (table == null)
-                return Json(new { success = false, message = "Error: Table not found!"});
+                return Json(new { success = false, message = "Table not found!"});
             if (!table.Orders.Any())
-                return Json(new { success = false, message = "Error: No orders available!"});
+                return Json(new { success = false, message = "No orders available!"});
 
             // Update order statuses
             foreach (var order in table.Orders)

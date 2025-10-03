@@ -18,6 +18,11 @@
 		.btn:focus {
 			box-shadow: none !important;
 		}
+
+		#food-search:focus {
+			outline: none;
+			box-shadow: none;
+		}
 	</style>
     @await RenderSectionAsync("Links", required: false)
 </head>
@@ -84,11 +89,36 @@
         @RenderBody()
     </div>
 
+	<div class="modal fade" id="AlertModal" aria-labeledby="AlertModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="AlertTitle"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="Alertmessage">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/datatable.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 	<script src="~/js/signalR.js"></script>
+
+	<script>
+		function AlertModal(title,message){
+			$("#AlertTitle").text("");
+			$("#AlertTitle").text(title);
+			$("#Alertmessage").text("");
+			$("#Alertmessage").text(message);
+			$("#AlertModal").modal("show");
+		}
+	</script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {

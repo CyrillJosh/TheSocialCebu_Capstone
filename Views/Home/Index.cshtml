@@ -62,31 +62,34 @@
             </a> *@
             <!-- Text Contents -->
             <div class="px-3 row align-items-center">
-                <div class="col-7">
-                    <p class="text-white fw-bold display-6 m-0">THE SOCIAL</p>
-                    <p class="text-white fst-italic small">
+                <div class="col-7 pt-2">
+                    <p class="text-white m-0 text-antonio fw-bold text-nowrap" style="font-size: 6vh; letter-spacing: 2px !important">THE SOCIAL</p>
+                    <p class="text-white fst-italic small text-amarath" style="font-size: 2.25vh">
                         It’s not just food,<br />it’s the experience.
                     </p>
                 </div>
                 <div class="col-5 d-flex justify-content-center">
-                    <img class="logo img-fluid" src="/images/The Social Logo.png" style="max-height: 80px;" />
+                    <img class="logo" src="/images/The Social Logo.png" style="height: 120px; width: 120px" />
                 </div>
             </div>
             <!-- Search and Cart -->
             <div class="w-100 d-flex justify-content-between align-items-center px-3 gap-3 mt-3 position-relative">
                 <!-- Search input -->
-                <div class="flex-grow-1 d-flex border border-2 rounded-pill border-white text-white align-items-center gap-2 position-relative">
+                <div class="text-decoration-none link-underline-opacity-0 flex-grow-1 d-flex border border-1 rounded-pill border-white text-white align-items-center gap-2 position-relative">
                     <div class="h-100 w-100 py-2 px-3 d-flex" id="search-div">
-                        <i class="bi bi-search"></i>
+                        <i class="bi bi-search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                            </svg>
+                        </i>
                         <input id="food-search" type="text"
                                placeholder="Search your favorite food"
                                class="border-0 bg-transparent text-white flex-grow-1" autocomplete="off" />
                     </div>
-
                     <!-- Dropdown for search results -->
                     <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-2 border-white shadow overflow-auto"
                          style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
-                        @foreach (var i in Model.SelectMany(x=> x.SubCategories).SelectMany(x => x.Products))
+                        @foreach (var i in Model.SelectMany(x => x.SubCategories).SelectMany(x => x.Products))
                         {
                             <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
                                 @i.ProdName
@@ -94,7 +97,6 @@
                         }
                     </div>
                 </div>
-
                 <!-- Cart -->
                 <a class="text-decoration-none text-yellow position-relative" href="/Order/Cart">
                     <img src="~/Images/Cart.png" class="img-fluid" style="max-height: 40px;" />
@@ -106,9 +108,7 @@
                     }
                 </a>
             </div>
-
-
-            <p class="text-white mt-3 px-3">Select by Category</p>
+            <p class="text-white fw-bold px-3" style="font-size:2.5vh; margin-top: 3vh">Select by Category</p>
         </div>
     </nav>
 
@@ -133,16 +133,16 @@
                                      alt="@cat.CategoryName.Trim()"
                                      class="w-100 h-100 object-fit-cover position-absolute top-0 start-0 rounded rounded-4" />
 
-                                <!-- Dark overlay -->
+                               @*  <!-- Dark overlay -->
                                 <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0)); z-index:1;"></div>
+                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0)); z-index:1;"></div> *@
 
 
                                 <!-- Category Name (always visible) -->
                                 <div class="position-absolute top-0 start-50 translate-middle text-center w-100 px-2 pt-5 mt-2"
                                      style="z-index:2;">
-                                    <h6 class="text-white fw-bold text-wrap"
-                                        style="text-shadow: 0 2px 4px rgba(0,0,0,0.7);">
+                                    <h6 class="text-white fw-bold text-wrap text-arbutus"
+                                        style="text-shadow: 0 2px 4px rgba(0,0,0,0.7); font-size: 2vh">
                                         @cat.CategoryName.ToUpper()
                                     </h6>
                                 </div>
@@ -169,7 +169,45 @@
         </div>
     </footer>
 </div>
-@section Scripts{
+<!-- off canvas -->
+<div class="offcanvas offcanvas-bottom h-50 pb-3 rounded rounded-top-4 text-white border border-1 border-start-0 border-bottom-0 border-end-0 overflow-hidden"
+     tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel" style="background:#2F2F2F">
+
+    <button type="button" class="text-white bg-transparent border border-0 position-absolute top-0 end-0 m-4 " data-bs-dismiss="offcanvas" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+        </svg>
+    </button>
+
+    <div class="offcanvas-body p-5 overflow-hidden">
+        <div class="set-body mb-3">
+        </div>
+
+        <div class="w-100 row m-0 mb-3">
+            <div class="set-price col-6 ps-0">
+            </div>
+
+            <div class="col-6 d-flex flex-row justify-content-between">
+                <div class="rounded-pill p-1 minus" style="background:#959595">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-dash text-black" viewBox="0 0 16 16">
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
+                    </svg>
+                </div>
+                <h2 id="qty"></h2>
+                <div class="rounded-pill p-1 bg-primary add">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus text-black" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <textarea id="instructions" class="w-100 bg-transparent my-5 text-white rounded border border rounded-2 mt-2" placeholder="Instructions" style="resize: none; border-color: gray; height: 8vh"></textarea>
+
+        <button class="btn btn-primary col-6 p-3 add-to-order w-100 rounded-pill" data-bs-dismiss="offcanvas">ADD TO MY CART</button>
+    </div>
+</div>
+@section Scripts {
     <script>
         $(document).ready(function() {
             const searchInput = $("#food-search");
@@ -193,7 +231,6 @@
                 });
                 // Remove previous "no results" message
                 dropdown.children(".no-results").remove();
-				console.log(hasMatch);
 
                 if(!hasMatch){
                     dropdown.append('<div class="p-2 text-white no-results">No results found</div>');
@@ -207,12 +244,39 @@
                     dropdown.hide();
                 }
             });
+
+
             // Click a result to trigger offcanvas
             dropdown.on("click", ".search-item", function() {
                 const id = $(this).data("id");
-                $(".add-product[data-id='"+id+"']").trigger("click"); // triggers your existing offcanvas
                 dropdown.hide();
                 searchInput.val("");
+                fetch(`/Order/Preview?id=${id}`)
+                .then(response => response.json())
+                .then(prod => {
+                    if(prod.success){
+                        $("#qty").text("01")
+                        $(".set-body").empty()
+                        $(".set-header").empty()
+                        $(".set-price").empty()
+                        $("#instructions").val("")
+
+                        $(".add-to-order").data("id",prod.prodId);
+
+                        $(".set-body").append(`<h1 class="text-amarath fw-bold">${prod.prodName.toUpperCase()}</h1>`)
+                        // $(".set-body").append(`<p>${prod.description}</p>`)
+                        $(".set-price").append(`<h2 class="text-amarath" id="price">${prod.price.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}</h2>`)
+
+                        $(".add-to-order").data("id", prod.prodId);
+
+                        const offcanvas = new bootstrap.Offcanvas('#offcanvasBottom');
+                        offcanvas.show();
+                    }
+                    else{
+                        AlertModal("Error",m.message);
+                        // alert(m.message);
+                    }
+                })
             });
 
             // Hide dropdown when clicking outside
@@ -221,6 +285,57 @@
                     dropdown.hide();
                 }
             });
+
+            //Add
+            $(".add").on("click", ()=> {
+                const qty = $("#qty")
+                const price = $("#price")
+                let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
+                let num = parseInt(qty.text())
+                let basePrice = currentPrice / num
+                num++
+                qty.text(num.toString().padStart(2, "0"));
+                price.text((basePrice * num).toLocaleString("en-PH", { style: "currency", currency: "PHP" }))
+            })
+            //Minus
+             $(".minus").on("click", ()=> {
+                const qty = $("#qty")
+                let num = parseInt(qty.text())
+                const price = $("#price")
+                let currentPrice = parseFloat(price.text().replace(/[^0-9.-]+/g,""))
+                let basePrice = currentPrice / num
+                if((num-1) == 0){
+                    num = 1
+                }
+                else{
+                    num--
+                }
+                qty.text(num.toString().padStart(2, "0"));
+                price.text((basePrice * num).toLocaleString("en-PH", { style: "currency", currency: "PHP" }))
+            })
+            const addtoorder = $(".add-to-order")
+            addtoorder.on("click", () => {
+                let id = addtoorder.data("id");
+                let qty = $("#qty").text();
+                let ins = $("#instructions").val();
+                fetch(`/Order/AddToCart?id=${id}&qty=${qty}&ins=${ins}`)
+                .then(rawData => rawData.json())
+                .then(data => {
+                    if(data.success){
+                        let pill = $(".pill")
+                        pill.empty()
+                        let count = data["orders"].length
+                        pill.append(`<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${count}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>`)
+                    }
+                    else{
+                        AlertModal("Error",data.message);
+                        // alert(data.message)
+                    }
+                })
+            })
         });
     </script>
 }

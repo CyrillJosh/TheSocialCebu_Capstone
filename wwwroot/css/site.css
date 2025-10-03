@@ -15,6 +15,35 @@ body {
     margin-bottom: 100vh;
 }
 
+@font-face {
+    font-family: "Antonio";
+    src: url("/fonts/Antonio-VariableFont_wght.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Amarath";
+    src: url("/fonts/Amaranth-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Arbutus";
+    src: url("/fonts/ArbutusSlab-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.text-antonio {
+    font-family: "Antonio", sans-serif !important;
+}
+.text-amarath {
+    font-family: "Amarath", sans-serif !important;
+}
+.text-arbutus {
+    font-family: "Arbutus", sans-serif !important;
+}
+
 .table-separate {
     border-collapse: separate !important;
     border-spacing: 0 1rem !important;
