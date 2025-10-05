@@ -1,67 +1,143 @@
 ﻿@using TheSocialCebu_Capstone.Models
 @{
-	ViewData["Title"] = "Completed Bills";
+    ViewData["Title"] = "Completed Bills";
 }
 @model List<Billing>
+<style>
+    @@media print {
+        body *
+        {
+            visibility: hidden;
+        }
+
+        .print-section, .print-section * {
+            visibility: visible;
+        }
+
+        .print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+    }
+</style>
+
 <div class="render-body vh-100 vw-100">
-	<div class="row h-100 p-4">
-		<div class="col-7 h-100">
-			<h1>Bills</h1>
-			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
-				@foreach(var b in Model)
-				{
-					<div class="show" id="@b.BillingId" style="max-height: 100px">
-						<div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow">
-							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
-								<h3 class="text-white m-0 py-2 px-5">@b.BillingId</h3>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-		</div>
-		@foreach(var b in Model)
-		{
-			<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-				<h3>THE SOCIAL CEBU</h3>
-				<p>Billing Statement</p>
-				<p>Table: ${tableId}</p>
-				<hr />
-				<table style="width:100%; font-size:12px; text-align:left">
-					<thead>
-						<tr>
-							<th style="text-align:left">Item</th>
-							<th style="text-align:center">Qty</th>
-							<th style="text-align:right">Price</th>
-						</tr>
-					</thead>
-					<tbody>
-						${rows}
-					</tbody>
-				</table>
-				<hr />
-				<div style="text-align:right">
-					<p>Subtotal: ${m.bill.subtotal.toFixed(2)}</p>
-					<hr />
+    <div class="row h-100 p-4">
+        <!-- LEFT: List of Bills -->
+        <div class="col-7 h-100">
+            <h1 class="fw-bold text-antonio">Bills</h1>
+            <div class="d-flex gap-2 overflow-y-auto h-auto pt-4 ps-2 flex-wrap">
+                @foreach (var b in Model)
+                {
+                    <div class="show" id="@b.BillingId" style="cursor:pointer; max-height:100px;">
+                        <div class="border border-1 rounded-4 p-3 hstack me-2 bg-white shadow-sm align-items-center">
+                            <div class="p-2 px-4 bg-primary rounded-3 d-flex justify-content-center align-items-center">
+                                <h5 class="text-black m-0">@b.BillingId[..8]</h5> <!-- Shorten GUID -->
+                            </div>
+                            <div class="ms-3">
+                                <small class="d-block">Table: @b.Table.TableNumber</small>
+                                <small class="fw-bold">Total: ₱@b.GrandTotal?.ToString("N2")</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
 
-					<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
-					<p>${m.discount.discountName} discount: -${m.discount.amount.toFixed(2)}</p>
-					<h5><strong>Total: ${m.breakdown.grandtotal.toFixed(2)}</strong></h5>
-					<hr />
-					<p>Vat Sales: ${m.breakdown.vatsales.toFixed(2)}</p>
-					<p>Vat Exempt Sale: ${m.breakdown.vatexempt.toFixed(2)}</p>
-					<p>Service Charge: ${m.bill.servicecharge.toFixed(2)}</p>
-					<p>Total Sale: ${m.bill.totalsale.toFixed(2)}</p>
-					<p>Vat Amount: ${m.bill.vatamount.toFixed(2)}</p>
-					<p>Amount due : ${m.breakdown.grandtotal.toFixed(2)}</p>
+        <!-- RIGHT: Printable Bill Section -->
+        <div class="col-5 h-100 border-start d-flex flex-column">
+            <div class="d-flex justify-content-between mb-3">
+                <h1 class="fw-bold text-antonio">Receipt</h1>
+                <button class="btn btn-primary no-print px-5 py-1 rounded-pill visually-hidden" onclick="window.print()">Print</button>
+            </div>
+            <div class="h-100 overflow-y-auto flex-grow-1 print-section">
+            @foreach (var b in Model)
+            {
+                <div id="bill-@b.BillingId" class="bill-content visually-hidden">
+                    <div style="width:80mm; font-family:monospace; font-size:12px; text-align:center; margin:auto;">
+                        <h3 class="text-antonio">THE SOCIAL CEBU</h3>
+                        <p>Billing Statement</p>
+                        <p><strong></strong> @b.BillingId</p>
+                        <p><strong>Date:</strong> @b.BillingTime?.ToString("MMM dd, yyyy hh:mm tt")</p>
+                        <hr />
 
-				</div>
-				<hr />
+                        <table style="width:100%; font-size:12px; text-align:left;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Item</th>
+                                    <th style="text-align:center;">Qty</th>
+                                    <th style="text-align:right;">Price</th>
+                                </tr>
+                            </thead>
+                            @{
+                                var groupedItems = b.BillingOrders
+                                .SelectMany(o => o.Order.OrderItems)
+                                .GroupBy(i => new { i.Prod.ProdName, i.Prod.Price })
+                                .Select(g => new
+                                {
+                                    Name = g.Key.ProdName,
+                                    Price = g.Key.Price,
+                                    TotalQty = g.Sum(i => i.Quantity),
+                                    TotalAmount = g.Sum(i => i.Quantity * i.Prod.Price)
+                                });
+                            }
 
+                            <tbody>
+                                @foreach (var item in groupedItems)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td style="text-align:center;">@item.TotalQty</td>
+                                        <td style="text-align:right;">₱@item.TotalAmount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
-				<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
-				<p>Thank you for dining with us!</p>
-			</div>
-		}
-	</div>
+                        <hr />
+                        <div style="text-align:right;">
+                            <p>Subtotal: ₱@b.Subtotal?.ToString("N2")</p>
+                            <p>Service Charge: ₱@b.ServiceCharge?.ToString("N2")</p>
+
+                            @if (b.Discount != null)
+                            {
+                                var discountDetails = b.DiscountDetail;
+                                <p>@b.Discount.DiscountName Discount: -₱@((b.Subtotal * (decimal)b.Discount.Percentage)?.ToString("N2")) (@(b.Discount.Percentage * 100)%)</p>
+                            }
+
+                            <h5 class="mt-2"><strong>Total: ₱@b.GrandTotal?.ToString("N2")</strong></h5>
+                            <hr />
+                            <p>VAT Sales: ₱@((b.Subtotal / 1.12m)?.ToString("N2"))</p>
+                            <p>VAT Exempt Sale: ₱@((b.Subtotal - (b.Subtotal / 1.12m))?.ToString("N2"))</p>
+                            <p>VAT Amount: ₱@b.VatAmount?.ToString("N2")</p>
+                            <p><strong>Amount Due: ₱@b.GrandTotal?.ToString("N2")</strong></p>
+                        </div>
+
+                        <hr />
+                        <p style="font-size:11px;">Generated: @DateTime.Now.ToString("MMM dd, yyyy hh:mm tt")</p>
+                        <p>Thank you for dining with us!</p>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
 </div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".show").on("click", function () {
+                let id = $(this).attr("id");
+				$(".no-print").removeClass("visually-hidden");
+				$(".bill-content").addClass("visually-hidden");
+				$(`#bill-${id}`).removeClass("visually-hidden");
+            });
+        });
+    </script>
+}

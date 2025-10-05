@@ -1,0 +1,148 @@
+﻿@model TheSocialCebu_Capstone.Models.Account
+@{
+    ViewData["Title"] = "My Account";
+}
+<style>
+    .smooth-transition {
+        transition: all 0.4s ease-in-out;
+    }
+</style>
+<div class="render-body vh-100 vw-100">
+    <div class="p-4 h-100 w-100">
+        <h1 class="text-dark fw-bold mb-4 text-antonio">EDIT ACCOUNT DETAILS</h1>
+
+        <form method="post" asp-action="UpdateAccount" asp-controller="User" class="has-validation" novalidate>
+            <!-- Hidden Fields -->
+            <input asp-for="AccountId" type="hidden" />
+            <input asp-for="Person.PersonId" type="hidden" />
+
+            <div class="row g-3">
+                <!-- Date Updated (read-only) -->
+                <div class="col-md-12>
+                    <label class="form-label text-dark" asp-for="DateUpdated">Last Updated</label>
+                    <input class="form-control bg-body-secondary" asp-for="DateUpdated" type="datetime" readonly />
+                </div>
+
+                <!-- Full Name -->
+                <div class="col-md-6">
+                    <label class="form-label text-dark" asp-for="Person.Name">Full Name</label>
+                    <input class="form-control bg-body-secondary" asp-for="Person.Name" type="text" readonly placeholder="Enter Full Name" />
+                    <span class="text-danger" asp-validation-for="Person.Name"></span>
+                </div>
+
+                <!-- Gender -->
+                <div class="col-md-3">
+                    <label class="form-label text-dark" asp-for="Person.Gender">Gender</label>
+                    <input type="text" class="form-control bg-body-secondary" asp-for="Person.Gender" required/>
+                    <span class="text-danger" asp-validation-for="Person.Gender"></span>
+                </div>
+
+                <!-- Birth Date -->
+                <div class="col-md-3">
+                    <label class="form-label text-dark" asp-for="Person.BirthDate">Birth Date</label>
+                    <input class="form-control bg-body-secondary"
+                           asp-for="Person.BirthDate"
+                           type="date"
+                           min="1900-01-01"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           required />
+                    <span class="text-danger" asp-validation-for="Person.BirthDate"></span>
+                </div>
+
+                <!-- Role (read-only) -->
+                <div class="col-md-6">
+                    <label class="form-label text-dark">Role</label>
+                    <input type="text" class="form-control bg-body-secondary" value="@Model.Person.Role.RoleName" readonly />
+                </div>
+
+                <!-- Hired Date (read-only) -->
+                <div class="col-md-6">
+                    <label class="form-label text-dark" asp-for="Person.HiredDate">Hired Date</label>
+                    <input class="form-control bg-body-secondary" asp-for="Person.HiredDate" type="date" readonly />
+                </div>
+
+                <!-- Status (toggle like User form) -->
+                <div class="col-md-4 visually-hidden">
+                    <label class="d-block text-dark">Status</label>
+                    <div class="bg-body-secondary p-2 form-control">
+                        <div class="btn-group" role="group" aria-label="Status">
+                            <input type="radio" class="btn-check" name="Person.Status" id="StatusTrue" value="true" @(Model.Person.Status ? "checked" : "") />
+                            <label class="btn btn-outline-success" for="StatusTrue">Active</label>
+
+                            <input type="radio" class="btn-check" name="Person.Status" id="StatusFalse" value="false" @(!Model.Person.Status ? "checked" : "") />
+                            <label class="btn btn-outline-danger" for="StatusFalse">Inactive</label>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mt-4 mb-3" />
+
+                <!-- Username -->
+                <div class="col-md-6 smooth-transition">
+                    <label class="form-label text-dark" asp-for="Username">Username</label>
+                    <input class="form-control bg-body-secondary" asp-for="Username" type="text" required placeholder="Enter Username" />
+                    <span class="text-danger" asp-validation-for="Username"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6 smooth-transition">
+                    <label class="form-label text-dark" asp-for="Password">Password</label>
+                    <input class="form-control bg-body-secondary" asp-for="Password" type="password" id="Password" required placeholder="Enter Password" />
+                    <span class="text-danger" asp-validation-for="Password"></span>
+                </div>
+
+                <!-- Confirm Password (hidden initially) -->
+                <div class="col-md-4 visually-hidden smooth-transition" id="confirmContainer">
+                    <label class="form-label text-dark" for="ConfirmPassword">Confirm Password</label>
+                    <input class="form-control bg-body-secondary" type="password" id="ConfirmPassword" placeholder="Confirm Password" />
+                    <span class="text-danger" id="confirmError"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="w-100 d-flex justify-content-end py-2">
+                    <button class="btn btn-success px-5 py-2" type="submit">Save Changes</button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2 px-5 py-2">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+			const $username = $("#Username");
+            const $password = $("#Password");
+            const $confirm = $("#ConfirmPassword");
+            const $confirmContainer = $("#confirmContainer");
+            const $error = $("#confirmError");
+
+            // Show/Hide Confirm Password
+            $password.on("input", function() {
+                if ($(this).val().length > 0) {
+                    $confirmContainer.removeClass("visually-hidden");
+                    $password.parent().removeClass("col-md-6");
+                    $password.parent().addClass("col-md-4");
+                    $username.parent().removeClass("col-md-6");
+                    $username.parent().addClass("col-md-4");
+                } else {
+                    $confirmContainer.addClass("visually-hidden");
+                    $username.parent().removeClass("col-md-4");
+                    $username.parent().addClass("col-md-6");
+                    $password.parent().removeClass("col-md-4");
+                    $password.parent().addClass("col-md-6");
+                    $confirm.val('');
+                    $error.text('');
+                }
+            });
+
+            // Validate Confirm Password Match
+            $confirm.on("input", function() {
+                if ($confirm.val() !== $password.val()) {
+                    $error.text("Passwords do not match.");
+                } else {
+                    $error.text("");
+                }
+            });
+        });
+    </script>
+}
+

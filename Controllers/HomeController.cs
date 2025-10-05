@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using TheSocialCebu_Capstone.Context;
 
 namespace TheSocialCebu_Capstone.Controllers
@@ -20,6 +21,11 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var categories = _context.Categories.Include(x => x.SubCategories).ThenInclude(x => x.Products).Where(x => x.SubCategories.Any(y => y.Products.Any())).OrderBy(x => x.CategoryName).ToList();
             return View(categories);
+        }
+
+        public IActionResult Error()
+        {
+            return View("Error");
         }
     }
 }

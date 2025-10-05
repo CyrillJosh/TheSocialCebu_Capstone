@@ -23,6 +23,15 @@
 			outline: none;
 			box-shadow: none;
 		}
+
+		#navigation .btn:hover img, #settings label:hover img, #settings .btn:hover img {
+			filter: invert(1) brightness(0) !important;
+		}
+		#settings label:hover, #settings .btn:hover {
+			color: #000;
+			background: #fcef00;
+			border-color: #D6CB00;
+		}
 	</style>
     @await RenderSectionAsync("Links", required: false)
 </head>
@@ -38,50 +47,126 @@
 	}
 	@if (userId != null && userRole != null && !(currentController == "Home" || currentController == "Order" || (currentController == "User" && currentAction == "Login")))
 	{
-		<div class="bg-gray d-none d-sm-flex flex-column py-3 vh-100 position-fixed start-0 top-0 px-4" style="width: 250px; z-index: 9999">
-			<div class="navbar-brand font-monospace fw-bold d-flex align-items-center gap-2 text-white text-decoration-none">
+		<div class="bg-gray d-none d-sm-flex flex-column p-2 vh-100 position-fixed start-0 top-0 " style="width: 250px; z-index: 9999">
+			<div class="navbar-brand font-monospace fw-bold d-flex align-items-center justify-content-center gap-2 mb-1 text-white text-decoration-none">
 				<img class="logo" src="/images/The Social Logo.png" height="50" />
-				<h4 class="m-0">THE SOCIAL</h4>
+				<h2 class="m-0 text-antonio fw-bold" style="letter-spacing: 2px">THE SOCIAL</h2>
 			</div>
-			<div class="offcanvas-body d-flex flex-column gap-2 mt-5" id="navigation">
+			<div class="offcanvas-body flex-grow-1 d-flex flex-column gap-1 mt-1" id="navigation">
 				@if (userRole == "Manager")
 				{
-					<a class="btn @(currentController == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Menu" asp-action="Index">Menu Management</a>
-					<a class="btn @(currentController == "Table" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Table" asp-action="Index">Table Management</a>
-					<a class="btn @(currentController == "Cashier" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Cashier" asp-action="Index">Billing Management</a>
-					<a class="btn @(currentController == "Kitchen" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
-					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="User" asp-action="HomePage">Employee Management</a>
-					<a class="btn @(currentController == "Marketing" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Marketing" asp-action="Index">Feedback Management</a>
+					<a class="btn @(currentController == "Menu" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Menu" asp-action="Index">
+						<img src="~/Images/digitalmenu.png" alt="Digital Menu" height="50" width="50"
+							 style="filter: invert(@(currentController == "Menu" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">MENU MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentController == "Table" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Table" asp-action="Index">
+						<img src="~/Images/table.png" alt="Table Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "Table" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">TABLE MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentController == "Cashier" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Cashier" asp-action="Index">
+						<img src="~/Images/bill.png" alt="Billing Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "Cashier" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">BILLING MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentController == "Kitchen" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Kitchen" asp-action="Index">
+						<img src="~/Images/order manage.png" alt="Order Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "Kitchen" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">ORDER MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="User" asp-action="HomePage">
+						<img src="~/Images/employee.png" alt="Employee Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "User" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">EMPLOYEE MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentController == "Marketing" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Marketing" asp-action="Index">
+						<img src="~/Images/feedback.png" alt="Feedback Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "Marketing" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">FEEDBACK MANAGEMENT</h6>
+					</a>
 				}
 				else if (userRole == "Kitchen")
 				{
-					<a class="btn @(currentAction == "Menu" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Menu">Digital Menu</a>
-					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Index">Order Management</a>
-					<a class="btn @(currentAction == "Orders" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Kitchen" asp-action="Orders">Completed Orders</a>
+					<a class="btn @(currentAction == "Menu" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Kitchen" asp-action="Menu">
+						<img src="~/Images/digitalmenu.png" alt="Digital Menu" height="50" width="50"
+							 style="filter: invert(@(currentAction == "Menu" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">DIGITAL MENU</h6>
+					</a>
+
+					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Kitchen" asp-action="Index">
+						<img src="~/Images/order.png" alt="Order Management" height="50" width="50"
+							 style="filter: invert(@(currentAction == "Index" ? 1 : 0)) saturate(0); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">ORDER MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentAction == "Orders" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Kitchen" asp-action="Orders">
+						<img src="~/Images/Orders.png" alt="Completed Orders" height="50" width="50"
+						 style="filter: invert(@(currentAction == "Orders" ? 1 : 0)) saturate(0); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">COMPLETED ORDERS</h6>
+					</a>
 				}
 				else if (userRole == "Cashier")
 				{
-					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Cashier" asp-action="Index">Billing Management</a>
-					<a class="btn @(currentAction == "CompletedBills" ? "btn-primary" : "btn-dark") w-100 text-start" asp-controller="Casheir" asp-action="CompletedBills">Completed bills</a>
+					<a class="btn @(currentAction == "Index" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Cashier" asp-action="Index">
+						<img src="~/Images/bill.png" alt="Billing Management" height="50" width="50"
+							 style="filter: invert(@(currentAction == "Index" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">BILLING MANAGEMENT</h6>
+					</a>
+
+					<a class="btn @(currentAction == "CompletedBills" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Cashier" asp-action="CompletedBills">
+						<img src="~/Images/Orders.png" alt="Completed Bills" height="50" width="50"
+							 style="filter: invert(@(currentAction == "CompletedBills" ? 1 : 0)) saturate(0); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">COMPLETED BILLS</h6>
+					</a>
 				}
+
 
 
 				@* <a href="http://localhost:5021/Order/Table/cd69e8bc-ee35-4132-9768-8d4e198f9b8f">Order shortcut</a>
 			<a href="http://localhost:5021/Kitchen">Kitchen shortcut</a>
 			<a href="http://localhost:5021/Cashier">Cashier shortcut</a>
 			*@
-				<label for="theme" class="btn btn-dark w-100 text-start mt-auto">
-					<input type="checkbox" id="theme" hidden /> Theme
-				</label>
+				<a class="btn @(currentAction == "Account" ? "btn-primary" : "btn-dark") w-100 d-flex flex-row align-items-center gap-2 mt-auto" asp-controller="User" asp-action="Account" asp-route-id="@userId">
+					<img src="~/Images/settings.png" alt="Account" height="25" width="25"
+							style="filter: invert(@(currentAction == "Account" ? 1 : 0)); transition: filter 0.3s ease;" />
+					<p class="m-0 p-0">Account</p>
+				</a>
+				<div class="d-flex flex-row gap-1" id="settings">
+					<label for="theme" class="btn btn-dark flex-grow-1 d-flex flex-row gap-2 align-items-center text-start">
+						<input type="checkbox" id="theme" hidden />
+						<img src="~/Images/theme.png" alt="Account" height="20" width="20"/>
+						<span class="m-0 p-0">Theme</span>
+					</label>
 
-				@if (userId != null && userRole != null)
-				{
-					<a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Logout">Logout</a>
-				}
-				else
-				{
-					<a class="btn btn-dark w-100 text-start" asp-controller="User" asp-action="Login">Login</a>
-				}
+					@if (userId != null && userRole != null)
+					{
+						<a class="btn btn-dark flex-grow-1 text-start d-flex flex-row align-items-center gap-2" asp-controller="User" asp-action="Logout">
+							<img src="~/Images/logout.png" alt="Account" height="20" width="20" />
+							<p class="m-0 p-0">Logout</p>
+						</a>
+					}
+					else
+					{
+						<a class="btn btn-dark flex-grow-1 text-start" asp-controller="User" asp-action="Login">Login</a>
+					}
+				</div>
 			</div>
 		</div>
 	}
@@ -93,7 +178,7 @@
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="AlertTitle"></h5>
+					<h6 class="modal-title" id="AlertTitle"></h6>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body" id="Alertmessage">

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Text.Json;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Hubs;
@@ -24,7 +25,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
             if (table == null) return NotFound();
-            if (table.TableStatusId == 5) return NotFound();
+            if (table.TableStatusId == 5) return View("Error");
 
             HttpContext.Session.SetString("Table", id);
             table.TableStatusId = table.TableStatusId == 1 ? 2 : table.TableStatusId;
@@ -114,7 +115,11 @@ namespace TheSocialCebu_Capstone.Controllers
             if(string.IsNullOrEmpty(tableid))
                 return Json(new { success = false, message = "No active session found." });
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
-            if(table == null || table.TableStatusId >= 3)
+            if (table.TableStatusId == 5)
+            {
+                return Json(new { redirect = Url.Action("Error", "Home") });
+            }
+            if (table == null || table.TableStatusId >= 3)
             {
                 return Json(new {success = false, message = "Cannot add new orders."});
             }
@@ -162,29 +167,88 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 return Json(new { success = false, message = "No active session found." });
             }
+            var table = _context.Tables.FirstOrDefault(x => x.TableId == tableId);
+            if (table.TableStatusId == 5)
+            {
+                return Json(new { redirect = Url.Action("Error", "Home") });
+            }
+            if (table == null || table.TableStatusId >= 3)
+            {
+                return Json(new { success = false, message = "Bill is already requested, cannot add new orders" });
+            }
+
 
             var orderItemsJson = HttpContext.Session.GetString("Orders");
             if (string.IsNullOrEmpty(orderItemsJson))
-                return Json(new { success = false, message = "No items in cart" });
+            {
+                return Json(new { success = false, message = "No items in cart." });
+            }
 
             var items = JsonSerializer.Deserialize<List<OrderItem>>(orderItemsJson);
-
             if (items == null || !items.Any())
-                return Json(new { success = false, message = "No items in cart" });
-
-            // Load related entities for each item
-            foreach (var item in items)
             {
-                item.OrderItemStatusId = 1;
+                return Json(new { success = false, message = "Cart is empty." });
+            }
 
-                if (item.Prod != null)
+            // Get product IDs from items in session
+            var itemProdIds = items.Select(x => x.ProdId).ToList();
+
+            // Query database for those products
+            var dbitems = _context.Products
+                .Where(x => itemProdIds.Contains(x.ProdId))
+                .ToList();
+
+            // Find unavailable items
+            var unavailableProducts = dbitems.Where(x => !x.Availability).ToList();
+
+            if (unavailableProducts.Any())
+            {
+                var unavailableIds = unavailableProducts.Select(x => x.ProdId).ToList();
+
+                items.RemoveAll(x => unavailableIds.Contains(x.ProdId));
+
+                HttpContext.Session.SetString("Orders", JsonSerializer.Serialize(items));
+
+                var names = string.Join(", ", unavailableProducts.Select(x => x.ProdName));
+                return Json(new
                 {
-                    _context.Attach(item.Prod);
-                    await _context.Entry(item.Prod).Reference(p => p.Subcategory).LoadAsync();
-                }
+                    success = false,
+                    message = $"The following item/s are no longer available and have been removed from your cart: {names}",
+                    removedIds = unavailableIds
+                });
+            }
 
-                // Set OrderItemStatus (assuming status 1 exists)
-                item.OrderItemStatus = await _context.OrderItemStatuses.FindAsync(1);
+            try
+            {
+                // Load related entities for each item
+                foreach (var item in items)
+                {
+                    item.OrderItemStatusId = 1;
+
+                    if (item.Prod != null)
+                    {
+                        var trackedProd = _context.ChangeTracker.Entries<Product>()
+                            .FirstOrDefault(e => e.Entity.ProdId == item.Prod.ProdId);
+
+                        if (trackedProd == null)
+                        {
+                            _context.Attach(item.Prod);
+                        }
+                        else
+                        {
+                            // Use the already-tracked instance instead
+                            item.Prod = trackedProd.Entity;
+                        }
+
+                        await _context.Entry(item.Prod).Reference(p => p.Subcategory).LoadAsync();
+                    }
+
+                    item.OrderItemStatus = await _context.OrderItemStatuses.FindAsync(1);
+                }
+            }
+            catch(Exception err)
+            {
+                return Json(new { success = false, message = err });
             }
 
             // Create Order
@@ -210,7 +274,8 @@ namespace TheSocialCebu_Capstone.Controllers
                 order.CreatedAt,
                 Table = new
                 {
-                    TableNumber = (await _context.Tables.FindAsync(tableId))?.TableNumber ?? "Unknown"
+                    TableNumber = (await _context.Tables.FindAsync(tableId))?.TableNumber ?? "Unknown",
+                    LocationId = (await _context.Tables.FindAsync(tableId))?.LocationId ?? 0
                 },
                 OrderStatus = new
                 {
@@ -228,7 +293,7 @@ namespace TheSocialCebu_Capstone.Controllers
                         Subcategory = new
                         {
                             SubcategoryId = x.Prod?.SubcategoryId ?? "Unknown",
-                            SubCategoryName =  x.Prod?.Subcategory?.SubcategoryName ?? "Unknown"
+                            SubCategoryName = x.Prod?.Subcategory?.SubcategoryName ?? "Unknown"
                         }
                     },
                     OrderItemStatus = new

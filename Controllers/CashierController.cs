@@ -68,7 +68,15 @@ namespace TheSocialCebu_Capstone.Controllers
         }
         public IActionResult CompletedBills()
         {
-            var bills = _context.Billings.Include(x => x.Payment).Where(x => x.Payment != null).ToList();
+            var bills = _context.Billings
+                .Include(x => x.BillingOrders)
+                    .ThenInclude(x => x.Order)
+                    .ThenInclude(x => x.OrderItems)
+                    .ThenInclude(x => x.Prod)
+                .Include(x => x.Discount)
+                .Include(x => x.DiscountDetail)
+                .Include(x => x.Table)
+                .Include(x => x.Payment).Where(x => x.Payment != null).ToList();
             return View(bills);
         }
         [HttpGet]
@@ -131,6 +139,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 message = "Success",
                 bill = new
                 {
+                    billing.BillingId,
                     subtotal = Math.Round((decimal)billing.Subtotal,2),
                     vatsales = Math.Round((decimal)vats, 2),
                     vatamount = Math.Round((decimal)billing.VatAmount, 2),
@@ -161,6 +170,7 @@ namespace TheSocialCebu_Capstone.Controllers
             Billing billing = new Billing();
             //get unpaid bill
             billing = _context.Billings
+                    .Include(x => x.DiscountDetail)
                    .Include(x => x.Payment)
                    .FirstOrDefault(x => x.Payment == null && x.TableId == tableid);
             //initialization
@@ -186,16 +196,35 @@ namespace TheSocialCebu_Capstone.Controllers
             billing.DiscountId = discountid;
             billing.BillingTime = DateTime.Now;
 
-            var DiscountDetails = new DiscountDetail()
+            if (string.IsNullOrEmpty(billing.BillingId))
             {
-                DiscountDetailId = Guid.NewGuid().ToString(),
-                BillingId = billing.BillingId,
-                DiscountTypeId = disc.DiscountTypeId,
-                NumOfCustomer = numofcust,
-                NumOfDiscountHolder = numdischold,
-            };
-            
-            _context.DiscountDetails.Add(DiscountDetails);
+                _context.Billings.Update(billing);
+                _context.SaveChanges();
+            }
+
+            var existingDiscount = _context.DiscountDetails
+                .FirstOrDefault(x => x.BillingId == billing.BillingId);
+
+            if (existingDiscount != null)
+            {
+                existingDiscount.DiscountTypeId = disc.DiscountTypeId;
+                existingDiscount.NumOfCustomer = numofcust;
+                existingDiscount.NumOfDiscountHolder = numdischold;
+                _context.DiscountDetails.Update(existingDiscount);
+            }
+            else
+            {
+                var newDetail = new DiscountDetail
+                {
+                    DiscountDetailId = Guid.NewGuid().ToString(),
+                    BillingId = billing.BillingId,
+                    DiscountTypeId = disc.DiscountTypeId,
+                    NumOfCustomer = numofcust,
+                    NumOfDiscountHolder = numdischold,
+                };
+                _context.DiscountDetails.Add(newDetail);
+            }
+
 
             //update db
             _context.Update(billing);
@@ -219,6 +248,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 },
                 bill = new
                 {
+                    billing.BillingId,
                     subtotal,
                     vatexempt,
                     servicecharge,
@@ -295,6 +325,7 @@ namespace TheSocialCebu_Capstone.Controllers
                     },
                     bill = new
                     {
+                        bill.BillingId,
                         bill.Subtotal,
                         vatexempt,
                         servicecharge,
@@ -366,6 +397,7 @@ namespace TheSocialCebu_Capstone.Controllers
             }
             return Json(new
             {
+                bill.BillingId,
                 success = true,
                 vatSales = bill.Subtotal / 1.12m,
                 subtotal = bill.Subtotal,

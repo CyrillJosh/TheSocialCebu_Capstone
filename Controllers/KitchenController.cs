@@ -31,7 +31,15 @@ namespace TheSocialCebu_Capstone.Controllers
 
         public IActionResult Orders()
         {
-            var orders = _context.Orders.Include(x => x.Table).Include(x => x.OrderItems).ThenInclude(x => x.Prod).ThenInclude(x => x.Subcategory).Include(x => x.OrderItems).OrderBy(x => x.CreatedAt).Where(x => x.OrderStatusId >= 3).ToList();
+            var orders = _context.Orders
+                .Include(x => x.Table)
+                    .ThenInclude(x => x.Location)
+                .Include(x => x.OrderItems)
+                    .ThenInclude(x => x.Prod)
+                        .ThenInclude(x => x.Subcategory)
+                .Include(x => x.OrderItems)
+                .OrderBy(x => x.CreatedAt)
+                .Where(x => x.OrderStatusId >= 3).ToList();
             return View(orders);
         }
 

@@ -732,7 +732,7 @@ html.dark {
     }
 
     html.dark table.dataTable.row-border > tbody > tr > *, html.dark table.dataTable.display > tbody > tr > * {
-        border-top: 1px solid rgb(64, 67, 70)
+        border-top: 1px solid rgb(64, 67, 50)
     }
 
     html.dark table.dataTable.row-border > tbody > tr:first-child > *, html.dark table.dataTable.display > tbody > tr:first-child > * {
@@ -745,12 +745,12 @@ html.dark {
     }
 
     html.dark table.dataTable.cell-border > tbody > tr > th, html.dark table.dataTable.cell-border > tbody > tr > td {
-        border-top: 1px solid rgb(64, 67, 70);
-        border-right: 1px solid rgb(64, 67, 70)
+        border-top: 1px solid rgb(64, 67, 50);
+        border-right: 1px solid rgb(64, 67, 50)
     }
 
         html.dark table.dataTable.cell-border > tbody > tr > th:first-child, html.dark table.dataTable.cell-border > tbody > tr > td:first-child {
-            border-left: 1px solid rgb(64, 67, 70)
+            border-left: 1px solid rgb(64, 67, 50)
         }
 
     html.dark .dt-container.dt-empty-footer table.dataTable {

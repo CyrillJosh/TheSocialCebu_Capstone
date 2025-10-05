@@ -7,8 +7,8 @@
 <div class="render-body vh-100 vw-100">
 	<div class="h-100 w-100 p-4 d-flex flex-column">
 		<div class="d-flex justify-content-between align-items-center mb-4">
-			<h2 class="text-dark fw-semibold">Tables</h2>
-			<a asp-action="Create" class="btn btn-primary px-4 rounded-pill">+ Create New Table</a>
+			<h1 class="text-dark fw-bold text-antonio">TABLES</h1>
+			<a asp-action="Create" class="btn btn-primary px-4 rounded-pill">+ New Table</a>
 		</div>
 		<div class="flex-grow-1 overflow-auto table-responsive">
 			<table class="table table-hover h-auto align-middle rounded table-separate h-100" id="Table">
@@ -17,18 +17,18 @@
 						<th class="col">Table Number</th>
 						<th class="col">Location</th>
 						<th class="col">Status</th>
-						<th class="col">QR Code</th>
-						<th class="col">Actions</th>
+						<th class="col text-center">QR Code</th>
+						<th class="col text-center">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (var item in Model)
 					{
 						<tr>
-							<td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary ps-5 h3">@item.TableNumber</td>
+							<td class="border-2 border-end-0 border-secondary rounded-start bg-body-secondary ps-5 h3">@item.TableNumber.ToUpper()</td>
 							<td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary">@item.Location?.LocationName</td>
 							<td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary">@item.TableStatus?.StatusName</td>
-							<td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary">
+							<td class="border-2 border-end-0 border-start-0 border-secondary text-start bg-body-secondary d-flex justify-content-center	">
 								@if (item.QrcodeImage != null)
 								{
 									var base64 = Convert.ToBase64String(item.QrcodeImage);
@@ -40,10 +40,10 @@
 								}
 							</td>
 							<td class="border-2 border-start-0 border-secondary rounded-end bg-body-secondary">
-								<div class="btn-group">
+								<div class="d-flex justify-content-center gap-1">
 									<a asp-action="Edit" asp-route-id="@item.TableId" class="btn btn-sm btn-outline-primary border-0">
 										<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-											<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+											<path d="M15.502 1.94a.5.5 0 0 1 0 .506L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .507 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
 											<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
 										</svg>
 									</a>

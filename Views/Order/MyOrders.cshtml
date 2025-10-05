@@ -5,15 +5,15 @@
     ViewData["Title"] = "My Orders";
     string table = Context.Session.GetString("Table");
 }
-<div class="vh-100 vw-100 d-flex flex-column"
-     style="background: radial-gradient(376.79% 162.09% at 141.41% 59.77%, #000000 21.61%, #585757 56.69%, #565555 94.59%, #000000 100%);">
+<div class="vh-100 vw-100 d-flex flex-column bg-black">
     <header class="w-100 mb-2 d-flex justify-content-between p-2">
         <!-- Back button -->
         <div class="d-flex flex-row flex-nowrap gap-0 p-2">
-            <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+            <a class="bg-transparent text-primary m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
                href="/Home">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                     viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 2 5 8l6 6" />
                 </svg>
             </a>
         </div>
@@ -30,12 +30,12 @@
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
                 <div class="d-flex flex-column justify-content-center">
-                    <img src="/Images/Order.png" height="170" width="170" class="mx-auto d-block" />
-                    <h1 class="text-center text-wrap">
+                    <img src="/Images/Order.png" height="150" width="150" class="mx-auto d-block" />
+                    <h1 class="text-center text-wrap text-antonio" style="font-size:8vh">
                         Your order list
                         is empty.
                     </h1>
-                    <p class="mt-3 text-center">Go ahead, savor something delicious!</p>
+                    <p class="mt-3 text-center text-arbutus" style="font-size:2.2vh">Go ahead, savor something delicious!</p>
                 </div>
             </div>
         }
@@ -44,10 +44,10 @@
             <div class="h-100 w-100 vstack gap-2">
                 @foreach (var order in Model.OrderBy(x => x.CreatedAt))
                 {
-                    <div class="card bg-secondary p-3 rounded-3">
-                        <h5 class="text-white text-amarath">Order No. @order.OrderNumber.ToString("0000")</h5>
-                        <p class="text-white fst-italic">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
-                        <table class="text-white table-borderless w-100">
+                    <div class="card p-3 rounded-3" style="background: #2F2F2F">
+                        <h5 class="text-white text-amarath mb-0">Order No. @order.OrderNumber.ToString("0000")</h5>
+                        <p class="text-white fst-italic m-0 p-0 sma">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
+                        <table class="text-white table-borderless w-100 mt-1">
                             <thead>
                                 <tr>
                                     <th class="text-primary fw-light" style="width:10%">Qty</th>
@@ -58,10 +58,10 @@
                             <tbody>
                                 @foreach (var item in order.OrderItems)
                                 {
-                                    <tr class="border border-bottom-0 border-start-0 border-end-0 border-white">
-                                        <td class="fw-bold py-2">@item.Quantity</td>
-                                        <td class="fw-bold">@item.Prod.ProdName</td>
-                                        <td class="fw-bold stat" id="@item.OrderItemId">@(item.OrderItemStatus.OrderItemStatusId <= 2 ? "Preparing" : item.OrderItemStatus.StatusName)</td>
+                                    <tr class="border-top" style="border-color: #616161 !important">
+                                        <td class="fw-bold py-2 text-amarath">@item.Quantity</td>
+                                        <td class="fw-bold text-amarath" style="letter-spacing:1px">@item.Prod.ProdName.ToUpper()</td>
+                                        <td class="stat text-arbutus" id="@item.OrderItemId">@(item.OrderItemStatus.OrderItemStatusId <= 2 ? "PREPARING" : item.OrderItemStatus.StatusName.ToUpper())</td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(item.Instructions))
                                     {
@@ -80,12 +80,12 @@
         }
     </main>
     <!-- Bottom Navigation -->
-    <footer class="w-100 foot">
+    <footer class="w-100 foot pt-4 bg-transparent">
         @if (Model.All(y => y.OrderStatusId >= 3) && Model.Count > 0)
         {
             <button class="btn btn-primary rounded-pill d-block mx-auto w-75 z-5 mb-4" id="Req" data-id="@table" @(Model.First().Table.TableStatusId >= 3 && Model.First().Table.TableStatusId < 5 ? "disabled" : "")>@(Model.First().Table.TableStatusId >= 3 && Model.First().Table.TableStatusId < 5 ? "Bill Requested" : "Request Bill")</button>
         }
-        <div class="w-100 border-top bg-secondary d-flex justify-content-evenly align-items-center text-white pt-3"
+        <div class="w-100 border-top bg-secondary d-flex justify-content-evenly align-items-center text-white pt-4"
               style="padding-bottom: 10vh">
             <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
                 <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
@@ -103,9 +103,8 @@
     <div class="modal-dialog modal-dialog-centered p-2">
         <div class="modal-content bg-dark">
             <div class="modal-body d-flex flex-column">
-                <h1 class="text-white text-center mb-3">Requesting bill</h1>
-                <hr class="text-white" style="height: 2px" />
-                <h3 class="text-center text-white mt-2">How was your experience?</h3>
+                <h1 class="text-white text-center my-5 text-arbutus">Requesting bill</h1>
+                <h3 class="text-center text-white mt-2 text-amarath">How was your experience?</h3>
                 <div class="d-flex justify-content-center gap-2 mb-2">
                     @for(int i = 1; i<=5; i++ )
                     {
@@ -118,9 +117,6 @@
 
                 <hr class="text-white" style="height: 2px"/>
                 <div class="d-flex flex-column">
-					<h5 class="text-white">Want to hear from us?</h5>
-                    <p class="text-white">Get updates, promos, and invites straight to your inbox.</p>
-                    <input class="form-control bg-transparent border-2 text-white" value="" id="email" type="email" placeholder="Enter your email here (optional)"/>
                     <button class="btn btn-primary text-black rounded-pill submitfeedback mt-5">Submit</button>
                     <button class="btn mt-2 text-white rounded-pill" data-bs-dismiss="modal">Skip</button>
                 </div>
@@ -137,9 +133,13 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
+            let height = $("#req").outerHeight();
+            $("main").css("margin-bottom", `-${height}px`);
+
+
             window.connection.on("UpdateOrderStatus", function (orderid, orderstat) {
                 console.log(orderid, orderstat);
-                $(`[id='${orderid}']`).text(orderstat);
+                $(`[id='${orderid}']`).text(orderstat.toUpperCase());
                 allServed();
             });
             function allServed() {
@@ -147,7 +147,7 @@
 
                 $(".stat").each(function () {
                     console.log($(this).text().trim())
-                    if ($(this).text().trim() !== "Served") {
+                    if ($(this).text().trim() !== "SERVED") {
                         allServed = false;
                         return false; // exit the loop early
                     }
@@ -188,9 +188,8 @@
             });
 
             $(".submitfeedback").on("click", function(){
-                let email = $("#email").val();
                 let rating = $("#RatingValue").val();
-                fetch(`/Marketing/Rate?rate=${rating}&email=${email}`)
+                fetch(`/Marketing/Rate?rate=${rating}`)
                 .then(response => response.json())
                 .then(x => {
                     if(x.success){

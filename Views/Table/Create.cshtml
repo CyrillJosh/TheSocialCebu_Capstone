@@ -4,10 +4,10 @@
     ViewData["Title"] = "Create Table";
 }
 
-<div class="render-body h-100 w-100 p-3">
-    <div class="text-white ps-4">
+<div class="render-body h-100 w-100">
+    <div class="text-white p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-dark">Add New Table</h3>
+            <h1 class="mb-0 text-dark fw-bold text-antonio">CREATE NEW TABLE</h1>
             <div>
                 <button type="submit" form="tableForm" class="btn btn-success fw-bold me-2 px-4">Save</button>
                 <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
@@ -21,11 +21,13 @@
 
             <input hidden asp-for="Id" value="@Guid.NewGuid().ToString()" id="TableID"/>
             <div class="mb-3">
-                <input asp-for="TableNumber" placeholder="Table Number" class="form-control bg-body-secondary text-white border-secondary" />
+                <label asp-for="TableNumber" class="text-dark"></label>
+                <input asp-for="TableNumber" placeholder="Table Number" class="form-control bg-body-secondary text-dark border-secondary" />
                 <span asp-validation-for="TableNumber" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
+				<label asp-for="LocationId" class="text-dark">Location</label>
                 <select asp-for="LocationId" asp-items="Model.LocationList" class="form-select bg-body-secondary text-dark border-secondary">
                     <option value="" class="bg-body-secondary">-- Select a Location --</option>
                 </select>
@@ -34,7 +36,7 @@
 
 
             <div class="mb-4">
-                <label class="form-label">QR Code Preview</label><br />
+                <label class="form-label text-dark">QR Code Preview</label><br />
                 <img id="qrPreview" src="" alt="QR Code Preview" class="img-thumbnail rounded shadow border border-secondary" style="max-width: 400px; display: none;" />
             </div>
 

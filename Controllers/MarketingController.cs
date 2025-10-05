@@ -76,50 +76,5 @@ namespace TheSocialCebu_Capstone.Controllers
                 return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
-        public ActionResult Send()
-        {
-            return View();
-        }
-        [HttpPost]
-        public ActionResult Send(string subject, string message)
-        {
-
-            if (!_context.Marketings.Any())
-            {
-                ViewBag.Message = "No subscribers found!";
-                return View();
-            }
-
-            SendEmailsInBackground(subject, message);
-
-            ViewBag.Message = "Emails are being sent in the background!";
-            return View();
-        }
-
-        // Runs asynchronously in background
-        private async Task SendEmailsInBackground(string subject, string message)
-        {
-            try
-            {
-                using (var scope = HttpContext.RequestServices.CreateScope())
-                {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<MyDBContext>();
-                    var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
-
-                    await emailService.SendEmailAsync(subject, message);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log exception here
-                Console.WriteLine(ex);
-            }
-        }
-
-        public IActionResult GetEmails()
-        {
-            var em = _context.EmailInvites.ToList();
-            return View(em);
-        }
     }
 }

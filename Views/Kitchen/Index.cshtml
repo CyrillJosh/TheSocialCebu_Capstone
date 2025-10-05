@@ -7,22 +7,25 @@
 	<div class="p-4 h-100 w-100">
 		<div class="row h-100 w-100">
 			<div class="col-sm-12 col-md-8 col-lg-8 h-100 d-flex flex-column">
-				<h1>Orders</h1>
-				<div>
-					<button class="btn btn-secondary type" value="Progress">To Serve</button>
-					<button class="btn btn-primary type" value="Pending">To Accept</button>
+				<h1 class ="text-antonio fw-bold" style="letter-spacing: 2px">ORDERS</h1>
+				<div class="mt-4">
+					<button class="btn bg-body-secondary type text-black" value="Progress">To Serve</button>
+					<button class="btn bg-primary type text-black" value="Pending">To Accept</button>
 				</div>
 				<div class="w-100 mt-3 flex-grow-1 overflow-y-auto">
-					<div class="d-flex flex-column gap-1" id="orderNums" @* style="min-height: 30vh;max-height: 81vh" *@>
+					<div class="d-flex gap-1 flex-wrap" id="orderNums" @* style="min-height: 30vh;max-height: 81vh" *@>
 						@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 						{
-							<button class="border border-1 rounded-3 visually-hidden bg-body-secondary p-2 hstack gap-3 me-2 Order @order.OrderStatus.StatusName" id="@order.OrderId">
-								<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
-									<h3 class="m-0 p-0 fw-bold">@order.Table.TableNumber</h3>
+							<button class="col-lg-3 col-md-6 border border-1 rounded-3 visually-hidden bg-body-secondary p-2 hstack gap-3 me-1 mb-1 Order @order.OrderStatus.StatusName" id="@order.OrderId">
+								<div class="p-2 @(order.Table.LocationId == 2 ? "bg-success" :
+												order.Table.LocationId == 1 ? "bg-danger" :
+												order.Table.LocationId == 4 ? "bg-warning" : "bg-info")
+												text-dark rounded-3 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+									<h3 class="m-0 p-0 fw-bold text-amarath" style="letter-spacing:2px">@order.Table.TableNumber</h3>
 								</div>
 								<div class="d-flex flex-column justify-content-center text-start">
-									<p class="m-0 fw-bold">Order #: @order.OrderNumber.ToString("00000")</p>
-									<p class="m-0">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
+									<p class="m-0 fw-bold text-amarath">Order #: @order.OrderNumber.ToString("00000")</p>
+									<p class="m-0 small text-amarath">@Convert.ToDateTime(order.CreatedAt).ToString("t").ToUpper()</p>
 								</div>
 							</button>
 						}
@@ -30,16 +33,18 @@
 				</div>
 			</div>
 			<div class="col-md-4 col-sm-12 col-lg-4 h-100 border-start">
-				<h1>Order Details</h1>
+				<h1 class="text-antonio fw-bold" style="letter-spacing: 2px">ORDER DETAILS</h1>
 					<div id="OrderDetails">
 					<p>Select an order to view details</p>
 					@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 					{
-						<div class="border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="@order.OrderId">
+						<div class="mt-4 border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="@order.OrderId">
 							<div>
 								<div class="p-2 hstack gap-3 me-2">
-									<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
-										<h3 class="m-0 p-0 fw-bold">@order.Table.TableNumber</h3>
+									<div class="p-2 @(order.Table.LocationId == 2 ? "bg-success" :
+													order.Table.LocationId == 1 ? "bg-danger" :
+													order.Table.LocationId == 4 ? "bg-warning" : "bg-info") text-dark rounded-3 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+									<h3 class="m-0 p-0 fw-bold" style="letter-spacing:2px">@order.Table.TableNumber</h3>
 									</div>
 									<div class="d-flex flex-column justify-content-center text-start">
 										<p class="m-0 fw-bold">Order #: @order.OrderNumber.ToString("00000")</p>
@@ -51,19 +56,19 @@
 										<thead>
 											<tr>
 												<th>Item</th>
-												<th>Qty</th>
-												<th class="d-flex flex-row nowrap">
-													@if (order.OrderStatus.OrderStatusId == 2)
-													{
+											<th class="@(order.OrderStatus.OrderStatusId == 2 ? "" : "text-end")">Qty</th>
+												@if (order.OrderStatus.OrderStatusId == 2)
+												{
+												<th class="d-flex flex-row nowrap justify-content-end">
 														<input type="checkbox"
-															   class="form-check select-all"
+															   class="form-check select-all visually-hidden"
 															   data-orderid="@order.OrderId"
 															   id="selectAll-@order.OrderId"
 															   name="@order.OrderId" />
 
-														<label class="ms-1 user-select-none" for="selectAll-@order.OrderId">All</label>
-													}
+														<label class="btn btn-info ms-1 user-select-none" for="selectAll-@order.OrderId">Select All</label>
 												</th>
+												}
 											</tr>
 										</thead>
 										<tbody id="@("body" + order.OrderId)">
@@ -73,19 +78,19 @@
 													<td colspan="3">
 														<div>
 															<hr />
-															<p>@subcat.SubcategoryName</p>
+															<p class="text-arbutus small text-body-secondary">@subcat.SubcategoryName</p>
 														</div>
 													</td>
 												</tr>
 												@foreach (var item in order.OrderItems.Where(x => x.Prod.SubcategoryId == subcat.SubcategoryId))
 												{
-													<tr id="@item.OrderItemId">
+													<tr id="@item.OrderItemId" class="order-row">
 														@if (item.OrderItemStatus.OrderItemStatusId == 1)
 														{
 															<td colspan="2">
 																<div>
-																	<h5>@item.Prod.ProdName</h5>
-																	<p class="fst-italic">@(string.IsNullOrEmpty(item.Instructions) ? "" : "Instructions: " + item.Instructions)</p>
+																	<h5 class="text-arbutus">@item.Prod.ProdName</h5>
+																	<p class="fst-italic text-arbutus small">@(string.IsNullOrEmpty(item.Instructions) ? "" : "Instructions: " + item.Instructions)</p>
 																</div>
 															</td>
 															<td>
@@ -98,12 +103,13 @@
 															<td>
 																<div>
 																	<h5>@item.Prod.ProdName</h5>
+																	<p class="fst-italic text-arbutus small">@(string.IsNullOrEmpty(item.Instructions) ? "" : "Instructions: " + item.Instructions)</p>
 																</div>
 															</td>
 															<td>
 																<p id="qty" class="m-0">@item.Quantity</p>
 															</td>
-															<td class="ps-4"><input type="checkbox" class="form-check item-check" @(item.OrderItemStatusId == 3 ? "disabled checked" : "") /></td>
+															<td class="ps-4 d-flex justify-content-end"><input type="checkbox" class="form-check item-check" @(item.OrderItemStatusId == 3 ? "disabled checked" : "") /></td>
 														}
 													</tr>
 												}
@@ -132,6 +138,15 @@
 @section Scripts {
 	<script>
 		$(document).ready(async function () {
+			$(document).on("click", ".order-row", function (e) {
+				// Prevent double trigger when clicking directly on checkbox
+				if (!$(e.target).is("input[type=checkbox]")) {
+					let checkbox = $(this).find("input[type=checkbox]");
+					if (!checkbox.prop("disabled")) {
+						checkbox.prop("checked", !checkbox.prop("checked"));
+					}
+				}
+			});
 			$(document).on("change", ".select-all", function () {
 				const orderId = $(this).data("orderid");
 				const isChecked = $(this).prop("checked");
@@ -154,15 +169,22 @@
 				const timeFormatted = createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
 
 				// Build order button (left column)
-				const isConfirmed = $(".type.btn-primary").val() === "Pending";
+				const activeTab = $(".type.bg-primary").val();
+				const isConfirmed = activeTab === "Pending";
+
+				const locationColor =
+					order.table.locationId === 2 ? "bg-success" :
+					order.table.locationId === 1 ? "bg-danger" :
+					order.table.locationId === 4 ? "bg-warning" : "bg-info";
+
 				const numcontent = `
-					<button class="border border-1 rounded-3  bg-body-secondary ${isConfirmed ? "" : "visually-hidden"} p-2 hstack gap-3 me-2 Order ${order.OrderStatus?.StatusName || 'Pending'}" id="${order.orderId}">
-						<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
-							<h3 class="m-0 p-0 fw-bold">${order.table.tableNumber}</h3>
+					<button class="col-lg-3 col-md-6 border border-1 rounded-3 ${isConfirmed ? "" : "visually-hidden"} bg-body-secondary p-2 hstack gap-3 me-1 mb-1 Order ${order.OrderStatus?.StatusName || 'Pending'}" id="${order.orderId}">
+						<div class="p-2 ${locationColor} text-dark rounded-3 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
+							<h3 class="m-0 p-0 fw-bold text-amarath" style="letter-spacing:2px">${order.table.tableNumber}</h3>
 						</div>
 						<div class="d-flex flex-column justify-content-center text-start">
-							<p class="m-0 fw-bold">Order #: ${orderNumberFormatted}</p>
-							<p class="m-0">${timeFormatted}</p>
+							<p class="m-0 fw-bold text-amarath">Order #: ${orderNumberFormatted}</p>
+							<p class="m-0 small text-amarath">${timeFormatted}</p>
 						</div>
 					</button>`;
 
@@ -177,62 +199,112 @@
 				// Build order details (right column)
 				const subcategories = [...new Set(order.orderItems.map(i => i.prod?.subcategory?.subCategoryName || "Uncategorized"))];
 
-				const rowsHtml = subcategories.map(subcatName => {
-					const items = order.orderItems.filter(i => (i.prod?.subcategory?.subCategoryName || "Uncategorized") === subcatName);
+						const rowsHtml = subcategories.map(subcatName => {
+			const items = order.orderItems.filter(i => (i.prod?.subcategory?.subCategoryName || "Uncategorized") === subcatName);
 
-					let rows = `<tr><td colspan="3"><div><hr/><p>${subcatName}</p></div></td></tr>`;
-					rows += items.map(item => {
-						const prodName = item.prod?.prodName || "Unknown Product";
-						const instructions = item.instructions || "";
-						const quantity = item.quantity || 0;
-						const statusName = item.orderItemStatus?.statusName || "Pending";
-						const statusId = item.orderItemStatus?.orderItemStatusId || 1;
+			let rows = `
+			<tr>
+				<td colspan="3">
+					<div>
+						<hr />
+						<p class="text-arbutus small text-body-secondary">${subcatName}</p>
+					</div>
+				</td>
+			</tr>`;
 
-						if (statusId === 1) {
-							return `<tr id="${item.orderItemId}">
-								<td colspan="2">
-									<div>
-										<h5>${prodName}</h5>
-										<p class="fst-italic">${instructions}</p>
-									</div>
-								</td>
-								<td><p class="m-0">${quantity}</p></td>
-							</tr>`;
-						} else {
-							return `<tr id="${item.orderItemId}">
-								<td><h5>${prodName}</h5></td>
-								<td><p class="m-0">${quantity}</p></td>
-								<td class="ps-4"><input type="checkbox"/> ${statusName}</td>
-							</tr>`;
-						}
-					}).join('');
+			rows += items.map(item => {
+				const prodName = item.prod?.prodName || "Unknown Product";
+				const instructions = item.instructions ? `Instructions: ${item.instructions}` : "";
+				const quantity = item.quantity || 0;
+				const statusId = item.orderItemStatus?.orderItemStatusId || 1;
+				const isChecked = statusId === 3 ? "checked disabled" : "";
+				const showCheckbox = statusId >= 2 ? `
+					<td class="ps-4 d-flex justify-content-end">
+						<input type="checkbox" class="form-check item-check" ${isChecked} />
+					</td>` : "";
 
-					return rows;
-				}).join('');
-
-
-				const detcontent = `
-					<div class="border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="${order.orderId}">
-						<div>
-							<div class="p-2 hstack gap-3 me-2">
-								<div class="p-2 bg-primary text-black rounded-4 d-flex justify-content-center align-items-center" style="min-height: 50px; min-width:50px">
-									<h3 class="m-0 p-0 fw-bold">${order.table.tableNumber}</h3>
-								</div>
-								<div class="d-flex flex-column justify-content-center text-start">
-									<p class="m-0 fw-bold">Order #: ${orderNumberFormatted}</p>
-									<p class="m-0">${timeFormatted}</p>
-								</div>
+				if (statusId === 1) {
+					return `
+					<tr id="${item.orderItemId}" class="order-row">
+						<td colspan="2">
+							<div>
+								<h5 class="text-arbutus">${prodName}</h5>
+								<p class="fst-italic text-arbutus small">${instructions}</p>
 							</div>
-							<div class="w-100 overflow-y-auto" style="min-height: 300px">
-								<table class="w-100">
-									<thead><tr><th></th><th></th><th></th></tr></thead>
-									<tbody id="body${order.orderId}">${rowsHtml}</tbody>
-								</table>
+						</td>
+						<td><p id="qty" class="m-0">${quantity}</p></td>
+					</tr>`;
+				} else {
+					return `
+					<tr id="${item.orderItemId}" class="order-row">
+						<td>
+							<div>
+								<h5>${prodName}</h5>
+								<p class="fst-italic text-arbutus small">${instructions}</p>
 							</div>
-							<hr/>
-							<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 confirm" id="${order.orderId}">Confirm</button>
-						</div>
-					</div>`;
+						</td>
+						<td><p id="qty" class="m-0">${quantity}</p></td>
+						${showCheckbox}
+					</tr>`;
+				}
+			}).join('');
+
+			return rows;
+		}).join('');
+
+
+		// now build the entire OrderDetails container
+		const detcontent = `
+		<div class="mt-4 border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="${order.orderId}">
+			<div>
+				<div class="p-2 hstack gap-3 me-2">
+					<div class="p-2 ${
+						order.table.locationId == 2 ? "bg-success" :
+						order.table.locationId == 1 ? "bg-danger" :
+						order.table.locationId == 4 ? "bg-warning" : "bg-info"
+					} text-dark rounded-3 d-flex justify-content-center align-items-center"
+					style="min-height: 50px; min-width:50px">
+						<h3 class="m-0 p-0 fw-bold" style="letter-spacing:2px">${order.table.tableNumber}</h3>
+					</div>
+					<div class="d-flex flex-column justify-content-center text-start">
+						<p class="m-0 fw-bold">Order #: ${orderNumberFormatted}</p>
+						<p class="m-0">${timeFormatted}</p>
+					</div>
+				</div>
+				<div class="w-100 overflow-y-auto" style="min-height: 300px">
+					<table class="w-100">
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th class="${order.orderStatus?.orderStatusId == 2 ? "" : "text-end"}">Qty</th>
+								${
+									order.orderStatus?.orderStatusId == 2
+										? `<th class="d-flex flex-row nowrap justify-content-end">
+											<input type="checkbox"
+												class="form-check select-all visually-hidden"
+												data-orderid="${order.orderId}"
+												id="selectAll-${order.orderId}"
+												name="${order.orderId}" />
+											<label class="btn btn-info ms-1 user-select-none" for="selectAll-${order.orderId}">Select All</label>
+										</th>`
+										: ""
+								}
+							</tr>
+						</thead>
+						<tbody id="body${order.orderId}">${rowsHtml}</tbody>
+					</table>
+				</div>
+				<hr />
+				${
+					order.orderStatus?.orderStatusId == 1
+						? `<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 confirm" id="${order.orderId}">Confirm</button>`
+						: order.orderStatus?.orderStatusId == 2
+						? `<button class="text-center d-block mx-auto mt-auto btn btn-primary shadow px-5 serve" id="${order.orderId}">Serve selected items</button>`
+						: ""
+				}
+			</div>
+		</div>`;
+
 
 				$("#OrderDetails").append(detcontent);
 				console.log("appended details");
@@ -255,9 +327,9 @@
 				$(".Order." + status).removeClass("visually-hidden");
 				$(".OrderDetails").addClass("visually-hidden");
 
-				$(".type").addClass("btn-secondary");
-				$(this).removeClass("btn-secondary")
-				$(this).addClass("btn-primary");
+				$(".type").addClass("bg-body-secondary");
+				$(this).removeClass("bg-body-secondary")
+				$(this).addClass("bg-primary");
 			});
 
 			// $(".OrderDetails").on("click", function(){

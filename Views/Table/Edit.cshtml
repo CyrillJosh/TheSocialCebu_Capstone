@@ -4,45 +4,53 @@
 @{
     ViewData["Title"] = "Edit";
 }
-<div class="render-body h-100 w-100 p-3">
-    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="p-4">
-        <input type="hidden" asp-for="Id" id="TableID"/>
-        <input type="hidden" asp-for="QRCodeBase64" id="QRCodeBase64" />
-
-        <div class="form-group">
-            <label asp-for="TableNumber"></label>
-            <input asp-for="TableNumber" class="form-control" id="TableNumber" />
-            <span asp-validation-for="TableNumber" class="text-danger"></span>
+<div class="render-body vh-100 vw-100">
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0 text-dark fw-bold text-antonio">EDIT TABLE</h1>
+            <div>
+                <button type="submit" form="tableform" class="btn btn-success fw-bold me-2 px-4">Save</button>
+                <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+            </div>
         </div>
+        <form asp-action="Edit" method="post" id="tableform" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" id="TableID"/>
+            <input type="hidden" asp-for="QRCodeBase64" id="QRCodeBase64" />
 
-        <div class="form-group">
-            <label asp-for="LocationId">Location</label>
-            <select asp-for="LocationId" class="form-control" asp-items="Model.LocationList">
-            </select>
-            <span asp-validation-for="LocationId" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label class="d-block mb-2">Status</label>
-
-            <div class="btn-group" role="group" aria-label="Status">
-                @foreach(var stat in Model.StatusList.Where(x => x.StatusName == "Available" || x.StatusName == "Unavailable"))
-                {
-                    <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.StatusId == stat.TableStatusId ? "checked" : "")>
-                    <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>
-                }
+            <div class="form-group mb-3">
+                <label asp-for="TableNumber" class="text-dark">Table Number</label>
+                <input asp-for="TableNumber" class="form-control bg-body-secondary text-dark border-secondary" id="TableNumber" />
+                <span asp-validation-for="TableNumber" class="text-danger"></span>
             </div>
 
-        </div>
+            <div class="form-group mb-3">
+                <label asp-for="LocationId" class="text-dark">Location</label>
+                <select asp-for="LocationId" class="form-control bg-body-secondary text-dark border-secondary" asp-items="Model.LocationList">
+                </select>
+                <span asp-validation-for="LocationId" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label>QR Code Preview</label><br />
-            <img id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />
-        </div>
+            <div class="mb-3">
+                <label class="d-block mb-2 text-dark">Status</label>
 
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    </form>
+                <div class="btn-group border-secondary" role="group" aria-label="Status">
+                    @foreach(var stat in Model.StatusList.Where(x => x.StatusName == "Available" || x.StatusName == "Unavailable"))
+                    {
+                        <input type="radio" class="btn-check" name="StatusId" id="@stat.StatusName" value="@stat.TableStatusId" autocomplete="off" @(Model.StatusId == stat.TableStatusId ? "checked" : "")>
+                        <label class="btn btn-outline-success" for="@stat.StatusName">@stat.StatusName</label>
+                    }
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label class ="text-dark">QR Code Preview</label><br />
+                <img class="border border-secondary rounded" id="qrPreview" src="@("data:image/png;base64," + Convert.ToBase64String(Model.ExistingQRCodeImage ?? new byte[0]))" alt="QR Code Preview" style="max-width: 200px;" />
+            </div>
+
+
+        </form>
+    </div>
 </div>
 
 @section Scripts {

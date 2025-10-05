@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http.Headers;
 using BCrypt.Net;
 using Menu.Attributes;
 using Microsoft.AspNetCore.Mvc;
@@ -32,25 +33,87 @@ namespace Menu.Controllers
         [HttpPost]
         public IActionResult Login(LoginVM user)
         {
-            if(!ModelState.IsValid) return View();
+            if (!ModelState.IsValid)
+                return View();
 
-            var exist = _context.Accounts.Include(u => u.Person).ThenInclude(x => x.Role).FirstOrDefault(a => a.Username == user.Username);
-
-            if (!BCrypt.Net.BCrypt.Verify(user.Password, exist.Password))
+            if (_context == null)
             {
-                //Invalid
+                TempData["ErrorMessage"] = "Database context not initialized.";
                 return View();
             }
 
-            var userRole = exist.Person.Role.RoleName;
+            var exist = _context.Accounts
+                .Include(u => u.Person)
+                    .ThenInclude(x => x.Role)
+                .FirstOrDefault(a => a.Username == user.Username);
 
-            //Set Session String
+            if (exist == null)
+            {
+                TempData["ErrorMessage"] =  "Username or Password is incorrect.";
+                return View();
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(user.Password, exist.Password))
+            {
+                TempData["ErrorMessage"] = "Username or Password is incorrect.";
+                return View();
+            }
+
+            TempData["ErrorMessage"] = "";
+
+            var userRole = exist.Person.Role.RoleName ?? "Unknown";
+
+            if (HttpContext.Session == null)
+            {
+                TempData["ErrorMessage"] = "Session is not available.";
+                return View();
+            }
+
             HttpContext.Session.SetString("_Id", exist.AccountId.ToString());
             HttpContext.Session.SetString("_Role", userRole);
 
-            return RedirectToAction("Index","Menu");
+            switch (userRole)
+            {
+                case "Manager":
+                    return RedirectToAction("Index", "Menu");
+                case "Kitchen":
+                    return RedirectToAction("Index", "Kitchen");
+                case "Cashier":
+                    return RedirectToAction("Index", "Order");
+                default:
+                    TempData["ErrorMessage"] = "User role is not recognized.";
+                    return View();
+            }
         }
 
+        public IActionResult Account(string id)
+        {
+            var acc = _context.Accounts.Include(x => x.Person).ThenInclude(r => r.Role).FirstOrDefault(x => x.AccountId == id);
+            return View(acc);
+        }
+        [HttpPost]
+        public IActionResult UpdateAccount(Account account)
+        {
+            var existing = _context.Accounts
+                .Include(a => a.Person)
+                .FirstOrDefault(a => a.AccountId == account.AccountId);
+
+            if (existing != null)
+            {
+                existing.Username = account.Username;
+                existing.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+                existing.DateUpdated = DateTime.Now;
+
+                existing.Person.Name = account.Person.Name;
+                existing.Person.BirthDate = account.Person.BirthDate;
+                existing.Person.Gender = account.Person.Gender;
+                existing.Person.Status = account.Person.Status;
+
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Account", new { id = account.Person.PersonId });
+        }
         public IActionResult HomePage()
         {
             List<Person> people = _context.People.Include(p => p.Account).Include(x => x.Role).ToList();

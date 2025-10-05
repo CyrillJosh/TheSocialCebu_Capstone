@@ -245,7 +245,7 @@ public partial class MyDBContext : DbContext
             entity.HasOne(d => d.Table).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.TableId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Orders__TableId__37703C52");
+                .HasConstraintName("FK__Orders__TableId__37503C52");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
@@ -370,7 +370,7 @@ public partial class MyDBContext : DbContext
 
         modelBuilder.Entity<SubCategory>(entity =>
         {
-            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__9C4E705DB40BC5A5");
+            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__9C4E505DB40BC5A5");
 
             entity.ToTable("SubCategory");
 

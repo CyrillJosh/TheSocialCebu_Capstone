@@ -13,11 +13,13 @@
     <header class="w-100 mb-2 d-flex justify-content-between p-2">
         <!-- Back button -->
         <div class="d-flex flex-row flex-nowrap gap-0 p-2">
-            <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+            <a class="bg-transparent text-primary m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
                href="/Home">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                     viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 2 5 8l6 6" />
                 </svg>
+
             </a>
         </div>
         <!-- Title -->
@@ -42,7 +44,7 @@
         {
             <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
                 <div class="d-flex flex-column justify-content-center">
-                    <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
+                    <img src="/Images/ThinCart.png" height="150" width="150" class="mx-auto d-block" />
                     <h1 class="text-center text-wrap text-antonio" style="font-size:8vh">Your cart is waiting...</h1>
                     <p class="mt-3 text-center text-arbutus" style="font-size:2.2vh">Time to add what you’re craving!</p>
                 </div>
@@ -52,16 +54,17 @@
             @foreach (var item in Model)
             {
                 <div class="w-100 text-white py-3 px-4 rounded-3 my-2 mx-0 position-relative"
+                     id="cart-item-@item.ProdId"
                      style="background: linear-gradient(345deg, rgba(255, 255, 255, 0.084) 48.8%, rgba(240, 240, 240, 0.284) 100%); backdrop-filter: blur(80px)">
 
                     <div class="row py-2">
-                        <div class="col-8">
-                            <h1 class="fw-bold text-amarath text-nowrap">@item.Prod.ProdName.ToUpper()</h1>
+                        <h1 class="col-12 fw-bold text-amarath">@item.Prod.ProdName.ToUpper()</h1>
+                        <div class="col-6">
                             <h6 style="font-size:10px">@item.Instructions</h6>
                             <h3 class="text-arbutus" id="@("price" + item.OrderItemId)">@item.Prod.Price.ToString("₱0.00")</h3>
                         </div>
-                        <div class="col-4 d-flex align-items-end pt-3">
-                            <div class="rounded-pill d-flex gap-2 justify-content-center align-items-center text-black">
+                        <div class="col-6 d-flex align-items-end pt-3">
+                            <div class="w-100 rounded-pill d-flex gap-2 justify-content-center align-items-center text-black">
                                 <div class="rounded-pill p-1 bi-dash" style="background:#959595" data-id="@item.OrderItemId">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi text-black @(item.Quantity == 1 ? "disabled" : "")" viewBox="0 0 16 16">
                                         <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
@@ -80,7 +83,7 @@
                     <button type="button" class="text-white bg-transparent border-0 position-absolute top-0 end-0 p-2 remove" data-id="@item.OrderItemId">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                              fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                            <path d="M2.146 2.854a.5.5 0 1 1 .508-.508L8 7.293l5.146-5.147a.5.5 0 0 1 .508.508L8.507 8l5.147 5.146a.5.5 0 0 1-.508.508L8 8.507l-5.146 5.147a.5.5 0 0 1-.508-.508L7.293 8z" />
                         </svg>
                     </button>
                 </div>
@@ -90,15 +93,15 @@
     <footer class="w-100">
         @if (orders.Count > 0)
         {
-            <button class="btn btn-primary d-block mx-auto w-75 z-5 mb-3 px-5 py-3 confirm rounded-pill" style="font-size: 2.3vh;">SUBMIT ORDERS</button>
+            <button class="btn btn-primary d-block mx-auto w-75 z-5 mb-4 confirm rounded-pill" style="font-size: 2.3vh;">SUBMIT ORDERS</button>
         }
-        <div class="w-100 border-top h-100 d-flex justify-content-evenly align-items-center text-white pt-3"
-             style="background: #151515; min-height: 120px; padding-bottom: 10vh">
-            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Home/Index">
+        <div class="w-100 border-top d-flex justify-content-evenly align-items-center text-white pt-4"
+             style="background: #151515; min-height: 60px; padding-bottom: 10vh">
+            <a class="text-decoration-none pb-1 d-flex flex-column align-items-center" href="/Home/Index">
                 <img src="/Images/Home.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
                 <small class="text-white">Home</small>
             </a>
-            <a class="text-decoration-none d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
+            <a class="text-decoration-none pb-1 d-flex flex-column align-items-center" href="/Order/MyOrders/@table">
                 <img src="/Images/Orders.png" class="img-fluid" style="max-height: 30px; filter: brightness(1) saturate(0%);" />
                 <small class="text-decoration-none text-white">Orders</small>
             </a>
@@ -109,7 +112,7 @@
 <div class="offcanvas offcanvas-bottom bg-dark h-50 pb-3 rounded rounded-top-4 text-white border border-1 border-start-0 border-bottom-0 border-end-0" style="background: #2F2F2F" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
     <button type="button" class="text-white bg-transparent border border-0 position-absolute top-0 end-0 m-4 " data-bs-dismiss="offcanvas" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+            <path d="M2.146 2.854a.5.5 0 1 1 .508-.508L8 7.293l5.146-5.147a.5.5 0 0 1 .508.508L8.507 8l5.147 5.146a.5.5 0 0 1-.508.508L8 8.507l-5.146 5.147a.5.5 0 0 1-.508-.508L7.293 8z" />
         </svg>
     </button>
     <div class="offcanvas-body p-5">
@@ -231,22 +234,23 @@
                     })
                     .then(data => {
                         if (data.success) {
-                           // let content = `
-                           //      <div class="h-100 w-100 text-white d-flex justify-content-center align-items-center">
-                           //          <div class="d-flex flex-column justify-content-center">
-                           //              <img src="/Images/ThinCart.png" height="170" width="170" class="mx-auto d-block" />
-                           //              <h1 class="text-center text-wrap">Your order/s has been submitted.</h1>
-                           //          </div>
-                           //      </div>
-                           // `
-                           // $("#main").html(content)
-                           // $(".confirm").remove()
 
-                           window.location.replace("http://10.14.90.47/Order/MyOrders")
+                           window.location.replace(`/Order/MyOrders/${tableId}`);
                         } else {
-                            // alert("Error: " + data.message);
                             AlertModal("Error",data.message);
 
+                            if (data.removedIds && data.removedIds.length > 0) {
+                                for (const id of data.removedIds) {
+                                    fetch(`/Order/RemoveFromCart/${id}`);
+
+                                    const $item = $(`#cart-item-${id}`);
+                                    if ($item.length) {
+                                        $item.fadeOut(300, function() {
+                                            $(this).remove();
+                                        });
+                                    }
+                                }
+                            }
                         }
                     })
                     .catch(err => "Error",err);

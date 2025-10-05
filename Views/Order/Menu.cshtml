@@ -44,10 +44,11 @@
             <div class="w-100 mb-2 d-flex justify-content-between p-2">
                 <!-- Back button -->
                 <div class="d-flex flex-row flex-nowrap gap-0 p-2">
-                    <a class="bg-primary text-black m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
+                    <a class="bg-transparent text-primary m-0 p-0 rounded-1 d-flex align-items-center justify-content-center" style="z-index: 1; min-width: 25px"
                        href="/Home">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                             viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 2 5 8l6 6" />
                         </svg>
                     </a>
                 </div>
@@ -94,7 +95,7 @@
                 {
                     <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
                        class="nav-link text-white h-100 p-3 d-flex flex-column align-items-center gap-2"
-                       style="width: 70px">
+                       style="width: 50px">
                         <span class="rounded rounded-5 p-2 d-flex justify-content-center bg-gray" style="box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 3); ">
                             <img src="/Images/Subcategories/@(navcat.SubcategoryName.ToString().Trim().Replace(" ", "").Replace("&", "").Replace("/", "").ToLower() + ".png")" class="object-fit-cover" style="width:40px; height:40px;" />
                         </span>
@@ -160,7 +161,7 @@
 
     <button type="button" class="text-white bg-transparent border border-0 position-absolute top-0 end-0 m-4 " data-bs-dismiss="offcanvas" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+            <path d="M2.146 2.854a.5.5 0 1 1 .508-.508L8 7.293l5.146-5.147a.5.5 0 0 1 .508.508L8.507 8l5.147 5.146a.5.5 0 0 1-.508.508L8 8.507l-5.146 5.147a.5.5 0 0 1-.508-.508L7.293 8z" />
         </svg>
     </button>
 
@@ -187,7 +188,7 @@
             </div>
         </div>
 
-        <textarea id="instructions" class="w-100 bg-transparent my-5 text-white rounded border border rounded-2 mt-2" placeholder="Instructions" style="resize: none; border-color: gray; height: 8vh"></textarea>
+        <textarea id="instructions" class="w-100 bg-transparent text-white rounded border border rounded-2 my-2" placeholder="Instructions" style="resize: none; border-color: gray; height: 8vh"></textarea>
         
         <button class="btn btn-primary col-6 p-3 add-to-order w-100 rounded-pill" data-bs-dismiss="offcanvas">ADD TO MY CART</button>
     </div>
@@ -227,7 +228,7 @@
             });
 
              window.connection.on("UpdateProductStatus", function (prodid, prodstat) {
-                 if(!prodstat){
+                 if(prodstat){
                     $(`#${prodid}`).removeClass("visually-hidden");
                  }
                  else{
@@ -357,7 +358,7 @@
                         $(".add-to-order").data("id", prod.prodId);
                     }
                     else{
-                        alert(m.message);
+                        AlertModal("Error",m.message);
                     }
                 })
             })
@@ -396,6 +397,10 @@
                 fetch(`/Order/AddToCart?id=${id}&qty=${qty}&ins=${ins}`)
                 .then(rawData => rawData.json())
                 .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
                     if(data.success){
                         let pill = $(".pill")
                         pill.empty()
@@ -406,7 +411,7 @@
                         </span>`)
                     }
                     else{
-                        alert(data.message)
+                        AlertModal("Error",data.message)
                     }
                 })
             })

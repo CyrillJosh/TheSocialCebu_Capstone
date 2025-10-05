@@ -52,7 +52,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 var newTable = new Table
                 {
                     TableId = vm.Id, // Use the ID passed from the view
-                    TableNumber = vm.TableNumber,
+                    TableNumber = vm.TableNumber.ToUpper(),
                     TableStatusId = tableStatus.TableStatusId, // Correctly map the status string to the integer ID
                     LocationId = vm.LocationId,
                     QrcodeImage = Convert.FromBase64String(vm.QRCodeBase64.Split(',')[1]),

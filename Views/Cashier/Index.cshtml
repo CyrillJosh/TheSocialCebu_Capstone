@@ -7,29 +7,36 @@
 <div class="render-body vh-100">
 	<div class="row h-100 p-4">
 		<div class="col-7 h-100 d-flex flex-column">
-			<h1 class="text-dark fw-bold">PAYMENT</h1>
+			<h1 class="text-dark fw-bold text-antonio">PAYMENT</h1>
 			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 				{
-					<div class="border border-1 rounded-4 p-3 hstack bg-body-secondary show"id="@t.Table.TableId">
-						<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
-							<h3 class="text-black m-0 py-2 px-5">@t.Table.TableNumber</h3>
-						</div>
+					<div class="@(t.Table.LocationId == 2 ? "bg-success" :
+											t.Table.LocationId == 1 ? "bg-danger" :
+											t.Table.LocationId == 4 ? "bg-warning" : "bg-info")
+											rounded-3 d-flex justify-content-center align-items-center show"
+						id="@t.Table.TableId"
+						style="min-height: 100px; min-width: 100px">
+						<h2 class="text-black m-0 text-amarath">@t.Table.TableNumber</h2>
 					</div>
 				}
 			</div>
 		</div>
 		<div class="col-5 h-100 border-start">
-			<h1 class="text-dark fw-bold">DETAILS</h1>
+			<h1 class="text-dark fw-bold text-antonio">DETAILS</h1>
 			<div class="d-flex pt-3">
 			@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 			{
 					<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden bg-body-secondary" id="@("Details" + t.Table.TableId)">
 					<div>
-						<div class="p-2 hstack gap-3 me-2">
-							<div class="p-2 px-5 bg-primary rounded-3 d-flex justify-content-center align-items-center">
-								<h3 class="text-black m-0 py-2 px-5">@t.Table.TableNumber</h3>
-							</div>
+						<div class="p-2 d-flex flex-row gap-3 me-2">
+							<div class="@(t.Table.LocationId == 2 ? "bg-success" :
+														t.Table.LocationId == 1 ? "bg-danger" :
+														t.Table.LocationId == 4 ? "bg-warning" : "bg-info")
+										rounded-3 d-flex justify-content-center align-items-center show"
+								 style="min-height: 75px; min-width: 75px">
+								<h4 class="text-black m-0 text-amarath">@t.Table.TableNumber</h4>
+						</div>
 						</div>
 						<div class="w-100 overflow-y-auto d-flex flex-column" style="min-height: 300px">
 							<hr />
@@ -44,7 +51,7 @@
 								<tbody id="@("body" + t.Table.TableId)">
 									@foreach (var item in t.OrderItems)
 									{
-										<tr>
+										<tr class="text-amarath">
 											<td class="text-dark">@item.Prod.ProdName</td>
 											<td class="text-dark">@item.Quantity</td>
 											<td class="text-dark">₱@((item.Prod.Price * item.Quantity))</td>
@@ -245,7 +252,7 @@
 					// Build proper bill
 					let content = `
 						<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-							<h3>THE SOCIAL CEBU</h3>
+							<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 							<p>Billing Statement</p>
 							<p>Table: ${tableId}</p>
 							<hr />
@@ -351,7 +358,7 @@
 						// Build proper bill
 						let content = `
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-								<h3>THE SOCIAL CEBU</h3>
+								<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 								<p>Official Reciept</p>
 								<p>Table: ${tableId}</p>
 								<hr />
@@ -446,7 +453,7 @@
 						// Build proper bill
 						let content = `
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-								<h3>THE SOCIAL CEBU</h3>
+								<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 								<p>Billing Statement</p>
 								<p>Table: ${tableId}</p>
 								<hr />
@@ -522,7 +529,7 @@
 						// Build proper bill
 						let content = `
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-							<h3>THE SOCIAL CEBU</h3>
+							<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 							<p>Billing Statement</p>
 							<p>Table: ${tableId}</p>
 							<hr />
