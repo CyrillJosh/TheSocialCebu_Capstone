@@ -15,24 +15,28 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             _context = context;
         }
+        //Index
         public IActionResult Index()
         {
-            // Only tables that requested a bill (TableStatusId == 3)
+            // Only tables that requested a bill or in payment
             var tables = _context.Tables
                 .Where(x => x.TableStatusId == 3 || x.TableStatusId == 4)
                 .ToList();
 
+            // Get order items
             var orderitems = _context.OrderItems
                 .Include(x => x.Order)
                 .ThenInclude(x => x.Table)
                 .Include(x => x.Prod)
                 .ToList();
 
+            //get orders
             var orders = _context.Orders
                 .Include(x => x.Table)
                 .Where(x => x.OrderStatusId < 5)
                 .ToList();
 
+            //ViewModel for display
             var vm = new List<BillingVM>();
 
             foreach (var item in tables)
@@ -360,12 +364,13 @@ namespace TheSocialCebu_Capstone.Controllers
                 .ThenInclude(oi => oi.Prod)
                 .FirstOrDefault(b => b.TableId == tableid && b.Payment == null); 
             if(bill == null)
-                return Json(new { success = false, message = "Bill already paid" });
+                return Json(new { success = false, message = "Bill not found" });
+
             if (bill.Payment != null)
                 return Json(new { success = false, message = "Bill already paid" });
 
             if (amount < bill.GrandTotal)
-                return Json(new { success = false, message = "Insufficient payment" });
+                return Json(new { success = false, message = "Insufficient payment amount" });
             //Record payment
             var payment = new Payment
             {

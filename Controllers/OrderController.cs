@@ -113,7 +113,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             var tableid = HttpContext.Session.GetString("Table").ToString();
             if(string.IsNullOrEmpty(tableid))
-                return Json(new { success = false, message = "No active session found." });
+                return Json(new { success = false, message = "Table no longer exists" });
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
             if (table.TableStatusId == 5)
             {
@@ -165,7 +165,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             if (string.IsNullOrEmpty(tableId))
             {
-                return Json(new { success = false, message = "No active session found." });
+                return Json(new { success = false, message = "Table no linger exists." });
             }
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableId);
             if (table.TableStatusId == 5)
@@ -317,7 +317,7 @@ namespace TheSocialCebu_Capstone.Controllers
         public JsonResult RequestBill(string tableid)
         {
             if (string.IsNullOrEmpty(tableid))
-                return Json(new { success = false, message = "Invalid table id"});
+                return Json(new { success = false, message = "Table no longer exists"});
 
             var table = _context.Tables
                 .Include(t => t.Orders)

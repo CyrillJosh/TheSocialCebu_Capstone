@@ -67,9 +67,9 @@ namespace TheSocialCebu_Capstone.Controllers
             var order = _context.Orders.Include(x => x.OrderItems).FirstOrDefault(x => x.OrderId == orderid);
             foreach (var item in order.OrderItems)
             {
-                item.OrderItemStatusId = 2; // Set to 'Preparing'
+                item.OrderItemStatusId = item.OrderItemStatusId >= 2 ? item.OrderItemStatusId : 2; // Set to Preparing
             }
-            order.OrderStatusId = 2; // Set to 'In Progress'
+            order.OrderStatusId = order.OrderStatusId >= 2 ? order.OrderStatusId : 2; // Set to In Progress
             _context.Update(order);
             _context.SaveChanges();
             foreach(var item in order.OrderItems)
