@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Menu.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using TheSocialCebu_Capstone.Context;
@@ -24,6 +25,7 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //List of products
+        [Auth("Manager")]
         public IActionResult Index()
         {
             var products = _context.Products.Include(p => p.Subcategory).ThenInclude(s => s.Category).OrderByDescending(o => o.Availability).ThenBy(o => o.ProdName).ToList();
@@ -31,6 +33,8 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //Create 
+        [Auth("Manager")]
+
         public IActionResult Create()
         {
             PopulateCategories(); 
@@ -44,6 +48,8 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         [HttpPost]
+        [Auth("Manager")]
+
         public async Task<IActionResult> Create(ProductVM vm)
         {
             //Invalid
@@ -80,6 +86,8 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         //Edit
+        [Auth("Manager")]
+
         public IActionResult Edit(string id)
         {
             //Get the product
@@ -104,6 +112,8 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         [HttpPost]
+        [Auth("Manager")]
+
         public async Task<IActionResult> Edit(ProductVM vm)
         {
             if (!ModelState.IsValid)
@@ -138,6 +148,8 @@ namespace TheSocialCebu_Capstone.Controllers
 
         //Delete
         [HttpPost]
+        [Auth("Manager")]
+
         public async Task<IActionResult> Delete(string id)
         {
             //Get product
