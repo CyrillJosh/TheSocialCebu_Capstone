@@ -5,9 +5,11 @@ using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
 using QRCoder;
+using Menu.Attributes;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
+    [Auth("Manager")] 
     public class TableController : Controller
     {
         private readonly MyDBContext _context;
