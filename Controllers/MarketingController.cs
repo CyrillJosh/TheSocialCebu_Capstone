@@ -8,7 +8,6 @@ using TheSocialCebu_Capstone.Services;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
-    [Auth("Manager")]
     public class MarketingController : Controller
     {
 
@@ -20,6 +19,7 @@ namespace TheSocialCebu_Capstone.Controllers
             _emailservice = emailService;
 
         }
+        [Auth("Manager")]
 
         public IActionResult Index()
         {
@@ -27,7 +27,7 @@ namespace TheSocialCebu_Capstone.Controllers
             return View(f);
         }
 
-
+        
         public JsonResult Rate(int rate, string email)
         {
             try
