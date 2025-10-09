@@ -8,7 +8,7 @@
 	<div class="row h-100 p-4">
 		<div class="col-7 h-100 d-flex flex-column">
 			<h1 class="text-dark fw-bold text-antonio">PAYMENT</h1>
-			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3">
+			<div class="d-flex gap-2 overflow-y-auto h-auto pt-5 ps-3" id="tables-container">
 				@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 				{
 					<div class="@(t.Table.LocationId == 2 ? "bg-success" :
@@ -24,7 +24,7 @@
 		</div>
 		<div class="col-5 h-100 border-start">
 			<h1 class="text-dark fw-bold text-antonio">DETAILS</h1>
-			<div class="d-flex pt-3">
+			<div class="d-flex pt-3" id="details-container">
 			@foreach (var t in Model.Where(x => x.Table.TableStatusId > 1 && x.OrderItems.Count() > 0))
 			{
 					<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden bg-body-secondary" id="@("Details" + t.Table.TableId)">
@@ -217,6 +217,84 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
+			window.connection.on("NewBill", function(bill) {
+				console.log("New bill received:", bill);
+
+				// Determine color based on location
+				const colorClass =
+					bill.table.locationId == 2 ? "bg-success" :
+					bill.table.locationId == 1 ? "bg-danger" :
+					bill.table.locationId == 4 ? "bg-warning" : "bg-info";
+
+				// Table box (left side)
+				const tableBox = `
+					<div class="${colorClass} rounded-3 d-flex justify-content-center align-items-center show"
+						 id="table-${bill.table.tableId}"
+						 style="min-height: 100px; min-width: 100px; cursor:pointer">
+						<h2 class="text-black m-0 text-amarath">${bill.table.tableNumber}</h2>
+					</div>
+				`;
+				$("#tables-container").append(tableBox);
+
+				// Order items rows
+				let orderRows = "";
+				bill.orderItems.forEach(i => {
+					orderRows += `
+						<tr class="text-amarath">
+							<td class="text-dark">${i.prod.prodName}</td>
+							<td class="text-dark">${i.quantity}</td>
+							<td class="text-dark">₱${(i.prod.price * i.quantity).toFixed(2)}</td>
+						</tr>
+					`;
+				});
+
+				// Buttons
+				const buttonSection =`<button class="btn btn-primary bill flex-fill" id="${bill.table.tableId}">Generate Bill</button>`
+
+				// Details box (right side)
+				const detailsBox = `
+					<div class="border border-1 shadow rounded-3 p-3 w-100 details visually-hidden bg-body-secondary"
+						 id="Details${bill.table.tableId}">
+						<div>
+							<div class="p-2 d-flex flex-row gap-3 me-2">
+								<div class="${colorClass} rounded-3 d-flex justify-content-center align-items-center show"
+									 style="min-height: 75px; min-width: 75px">
+									<h4 class="text-black m-0 text-amarath">${bill.table.tableNumber}</h4>
+								</div>
+							</div>
+							<div class="w-100 overflow-y-auto d-flex flex-column" style="min-height: 300px">
+								<hr/>
+								<table class="w-100">
+									<thead>
+										<tr>
+											<th class="text-dark">Items</th>
+											<th class="text-dark">Qty</th>
+											<th class="text-dark">Price</th>
+										</tr>
+									</thead>
+									<tbody id="body${bill.table.tableId}">
+										${orderRows}
+									</tbody>
+								</table>
+								<hr/>
+								<div class="vstack h-auto billbuttons">
+									<div class="d-flex flex-row gap-2 mt-auto">
+										${buttonSection}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				`;
+				$("#details-container").append(detailsBox);
+
+				// Click to show details
+				$(`#table-${bill.table.tableId}`).on("click", function () {
+					$(".details").addClass("visually-hidden");
+					$(`#Details${bill.table.tableId}`).removeClass("visually-hidden");
+				});
+			});
+
 			window.addEventListener('afterprint', function() {
 						window.location.reload()
 			});
@@ -254,7 +332,7 @@
 						<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
 							<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 							<p>Billing Statement</p>
-							<p>Table: ${tableId}</p>
+							<p>Table: ${m.tablenumber}</p>
 							<hr />
 							<table style="width:100%; font-size:12px; text-align:left">
 								<thead>
@@ -293,93 +371,93 @@
 						</div>`
 						$("#billbody").html(content);
 						$("#BillModal").modal("show");
+						}
+						else{
+							AlertModal("Error",m.message)
+						}
+					})
 					}
 					else{
-						AlertModal("Error",m.message)
+						AlertModal("Error","Please select a discount to apply");
 					}
 				})
-				}
-				else{
-					AlertModal("Error","Please select a discount to apply");
-				}
-			})
 
-			$(".disc").click(function (){
-				let id = $(this).attr("id");
-				$(".printwd").attr("id",id)
-				$("#select").val("")
-			})
-
-			$("#clear").click(function (){
-				$("#amount").val("")
-			})
-
-			$("#calc").click(function (){
-				let amount = parseFloat($("#amount").val());
-				let tableId = $(this).attr("data-id");
-
-
-				// let disc = $
-				if (isNaN(amount) || amount <= 0) {
-					AlertModal("Error","Please enter a valid amount");
-					return;
-				}
-
-				fetch('/Cashier/PayBill', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: new URLSearchParams({
-						tableid: tableId,
-						amount: amount
-					})
+				$(".disc").click(function (){
+					let id = $(this).attr("id");
+					$(".printwd").attr("id",id)
+					$("#select").val("")
 				})
-				.then(rawData => rawData.json())
-				.then(m => {
-					if (m.success) {
-						console.log(m)
-						//add to transac details
-						$("#receiptAmount").text("₱" + m.payment.amountPaid.toFixed(2));
-						$("#receiptSubtotal").text("₱" + m.subtotal.toFixed(2));
-						$("#receiptTax").text("₱" + m.tax.toFixed(2));
-						$("#receiptService").text("₱" + m.servicecharge.toFixed(2));
-						$("#receiptTotal").text("₱" + m.total.toFixed(2));
-						$("#receiptChange").text("₱" + m.change.toFixed(2));
+
+				$("#clear").click(function (){
+					$("#amount").val("")
+				})
+
+				$("#calc").click(function (){
+					let amount = parseFloat($("#amount").val());
+					let tableId = $(this).attr("data-id");
+					// let disc = $
+					if (isNaN(amount) || amount <= 0) {
+						AlertModal("Error","Please enter a valid amount");
+						return;
+					}
+
+					fetch('/Cashier/PayBill', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+						body: new URLSearchParams({
+							tableid: tableId,
+							amount: amount
+						})
+					})
+					.then(rawData => rawData.json())
+					.then(m => {
+						if (m.success) {
+							console.log(m)
+							$("#calc").addClass("visually-hidden");
+							//add to transac details
+							$("#receiptAmount").text("₱" + m.payment.amountPaid.toFixed(2));
+							$("#receiptSubtotal").text("₱" + m.subtotal.toFixed(2));
+							$("#receiptTax").text("₱" + m.tax.toFixed(2));
+							$("#receiptService").text("₱" + m.servicecharge.toFixed(2));
+							$("#receiptTotal").text("₱" + m.total.toFixed(2));
+							$("#receiptChange").text("₱" + m.change.toFixed(2));
 
 
-						let rows = $(`#Details${tableId} tbody tr`).map(function () {
-						let cols = $(this).find("td");
-						return `<tr>
-									<td>${cols.eq(0).text()}</td>
-									<td class="text-center">${cols.eq(1).text()}</td>
-									<td class="text-end">${cols.eq(2).text()}</td>
-								</tr>`;
-						}).get().join("");
+							let rows = $(`#Details${tableId} tbody tr`).map(function () {
+							let cols = $(this).find("td");
+							return `<tr>
+										<td>${cols.eq(0).text()}</td>
+										<td class="text-center">${cols.eq(1).text()}</td>
+										<td class="text-end">${cols.eq(2).text()}</td>
+									</tr>`;
+							}).get().join("");
 
-						// Build proper bill
-						let content = `
-							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
-								<h3 class="text-antonio">THE SOCIAL CEBU</h3>
-								<p>Official Reciept</p>
-								<p>Table: ${tableId}</p>
-								<hr />
-								<table style="width:100%; font-size:12px; text-align:left">
-									<thead>
-										<tr>
-											<th style="text-align:left">Item</th>
-											<th style="text-align:center">Qty</th>
-											<th style="text-align:right">Price</th>
-										</tr>
-									</thead>
-									<tbody>
-										${rows}
-									</tbody>
-								</table>
-								<hr />
-								<div id="recadd" style="text-align:right">
-									<p>Subtotal: ${m.subtotal.toFixed(2)}</p>
-									<p>Vat Sales: ${m.vatSales.toFixed(2)}</p>
-									<p>Vat Amount: ${m.tax.toFixed(2)}</p>
-									<p>Service Charge: ${m.servicecharge.toFixed(2)}</p>
+							// Build proper bill
+							let content = `
+								<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
+									<h3 class="text-antonio">THE SOCIAL CEBU</h3>
+									<p>Official Reciept</p>
+									<p>Table: ${m.tablenumber</p>
+									<hr />
+									<table style="width:100%; font-size:12px; text-align:left">
+										<thead>
+											<tr>
+												<th style="text-align:left">Item</th>
+												<th style="text-align:center">Qty</th>
+												<th style="text-align:right">Price</th>
+											</tr>
+										</thead>
+										<tbody>
+											${rows}
+										</tbody>
+									</table>
+									<hr />
+									<div id="recadd" style="text-align:right">
+										<p>Subtotal: ${m.subtotal.toFixed(2)}</p>
+										<p>Vat Sales: ${m.vatSales.toFixed(2)}</p>
+										<p>Vat Amount: ${m.tax.toFixed(2)}</p>
+										<p>Service Charge: ${m.servicecharge.toFixed(2)}</p>
+				
 
 						`;
 						if(m.discount != null){
@@ -455,7 +533,7 @@
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
 								<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 								<p>Billing Statement</p>
-								<p>Table: ${tableId}</p>
+								<p>Table: ${m.tablenumber}</p>
 								<hr />
 								<table style="width:100%; font-size:12px; text-align:left">
 									<thead>
@@ -504,6 +582,7 @@
 			};
 
 			$('#PayModal').on('shown.bs.modal', function () {
+				$("#calc").removeClass("visually-hidden")
 				$("#amount").trigger('focus');
 			});
 			// Pay Bill
@@ -531,7 +610,7 @@
 							<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
 							<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 							<p>Billing Statement</p>
-							<p>Table: ${tableId}</p>
+							<p>Table: ${m.tablenumber}</p>
 							<hr />
 							<table style="width:100%; font-size:12px; text-align:left">
 								<thead>

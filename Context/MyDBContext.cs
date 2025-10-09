@@ -76,7 +76,7 @@ public partial class MyDBContext : DbContext
             entity.Property(e => e.Password).HasColumnType("nvarchar(MAX)");
             entity.Property(e => e.PersonId).HasMaxLength(50);
             entity.Property(e => e.Username).HasMaxLength(50);
-
+            entity.Property(e => e.Salt).HasColumnType("nvarchar(MAX)");
             entity.Property(e => e.DateUpdated)
                 .HasColumnType("datetime");
 

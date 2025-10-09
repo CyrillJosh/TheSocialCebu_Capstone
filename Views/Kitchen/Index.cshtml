@@ -32,10 +32,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4 col-sm-12 col-lg-4 h-100 border-start">
+			<div class="col-md-4 col-sm-12 col-lg-4 h-100 border-start d-flex flex-column">
 				<h1 class="text-antonio fw-bold" style="letter-spacing: 2px">ORDER DETAILS</h1>
-					<div id="OrderDetails">
-					<p>Select an order to view details</p>
+				<p>Select an order to view details</p>
+				<div class="flex-grow-1 overflow-y-auto" id="OrderDetails">
 					@foreach (var order in Model.Where(x => x.OrderStatus.OrderStatusId < 3))
 					{
 						<div class="mt-4 border border-1 rounded-3 p-3 w-100 visually-hidden OrderDetails bg-body-secondary" id="@order.OrderId">

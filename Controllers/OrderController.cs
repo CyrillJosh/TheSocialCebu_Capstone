@@ -6,6 +6,7 @@ using System.Text.Json;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Hubs;
 using TheSocialCebu_Capstone.Models;
+using TheSocialCebu_Capstone.ViewModels;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
@@ -24,8 +25,8 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult Table(string id)
         {
             var table = _context.Tables.FirstOrDefault(x => x.TableId == id);
-            if (table == null) return NotFound();
-            if (table.TableStatusId == 5) return View("Error");
+            if (table == null) return RedirectToAction("Error", "Home", "Error|Table not found!");
+            if (table.TableStatusId == 5) return RedirectToAction("Error", "Home", "Error|Table not available!");
 
             HttpContext.Session.SetString("Table", id);
             table.TableStatusId = table.TableStatusId == 1 ? 2 : table.TableStatusId;
@@ -36,15 +37,23 @@ namespace TheSocialCebu_Capstone.Controllers
             return RedirectToAction("Index","Home");
         }
 
+        //Clear customer session
+        public JsonResult ClearMySession()
+        {
+            HttpContext.Session.Clear();
+            return Json(new { success = true });
+        }
+
         #region Customer
         [HttpGet]
         //Digital Menu
         public IActionResult Menu(string category)
         {
             var tableId = HttpContext.Session.GetString("Table");
-            if (string.IsNullOrEmpty(tableId) || !_context.Tables.Any(x => x.TableId == tableId) || string.IsNullOrEmpty(category))
-                return NotFound();
-
+            if (string.IsNullOrEmpty(tableId) || !_context.Tables.Any(x => x.TableId == tableId))
+                return RedirectToAction("Error","Home", "Error|Table not found! please scan again");
+            if (string.IsNullOrEmpty(category))
+                return RedirectToAction("Error", "Home", "Error|Category not found!");
             var subcat = _context.SubCategories
                 .Where(x => x.CategoryId == category)
                 .Include(x => x.Products)
@@ -72,6 +81,8 @@ namespace TheSocialCebu_Capstone.Controllers
         public IActionResult MyOrders()
         {
             var tableId = HttpContext.Session.GetString("Table");
+            if (string.IsNullOrEmpty(tableId) || !_context.Tables.Any(x => x.TableId == tableId))
+                return RedirectToAction("Error", "Home", "Error|Table not found! please scan again");
 
             var orders = _context.Orders
                 .Include(x => x.Table)
@@ -88,6 +99,9 @@ namespace TheSocialCebu_Capstone.Controllers
         //Cart Operations
         public IActionResult Cart()
         {
+            var tableId = HttpContext.Session.GetString("Table");
+            if (string.IsNullOrEmpty(tableId) || !_context.Tables.Any(x => x.TableId == tableId))
+                return RedirectToAction("Error", "Home", "Error|Table not found! please scan again");
             var orders = GetOrders();
             return View(orders);
         }
@@ -117,11 +131,15 @@ namespace TheSocialCebu_Capstone.Controllers
             var table = _context.Tables.FirstOrDefault(x => x.TableId == tableid);
             if (table.TableStatusId == 5)
             {
-                return Json(new { redirect = Url.Action("Error", "Home") });
+                return Json(new { redirect = Url.Action("Error", "Home","Error|Table not available!") });
             }
             if (table == null || table.TableStatusId >= 3)
             {
                 return Json(new {success = false, message = "Cannot add new orders."});
+            }
+            if(table.TableStatusId == 1)
+            {
+                return Json(new {success = false, message = "Cannot add new orders please scan again."});
             }
 
             var product = _context.Products.FirstOrDefault(x => x.ProdId == id);
@@ -314,37 +332,69 @@ namespace TheSocialCebu_Capstone.Controllers
         #endregion
 
 
-        public JsonResult RequestBill(string tableid)
+        [HttpPost]
+        public async Task<JsonResult> RequestBill(string tableid)
         {
             if (string.IsNullOrEmpty(tableid))
-                return Json(new { success = false, message = "Table no longer exists"});
+                return Json(new { success = false, message = "Table no longer exists" });
 
             var table = _context.Tables
                 .Include(t => t.Orders)
+                    .ThenInclude(o => o.OrderItems)
+                        .ThenInclude(i => i.Prod)
                 .FirstOrDefault(x => x.TableId == tableid);
 
-            if (table.TableStatusId == 3) 
-                return Json(new { success = false, message = "Bill already requested"});
             if (table == null)
-                return Json(new { success = false, message = "Table not found!"});
-            if (!table.Orders.Any())
-                return Json(new { success = false, message = "No orders available!"});
+                return Json(new { success = false, message = "Table not found!" });
 
-            // Update order statuses
+            if (!table.Orders.Any())
+                return Json(new { success = false, message = "No orders available!" });
+
+            if (table.TableStatusId == 3)
+                return Json(new { success = false, message = "Bill already requested" });
+
+            // Update order statuses to "For Billing" (status 4)
             foreach (var order in table.Orders)
             {
-                if (order.OrderStatusId < 4) 
-                    order.OrderStatusId = 4; 
+                if (order.OrderStatusId < 4)
+                    order.OrderStatusId = 4;
             }
 
-            // Update table status
-            table.TableStatusId = 3; 
+            // Update table status to "For Billing"
+            table.TableStatusId = 3;
 
             _context.Update(table);
             _context.SaveChanges();
 
-            return Json(new { success = true, message = "Requesting bill"});
+            var billingData = new
+            {
+                table = new
+                {
+                    tableId = table.TableId,
+                    tableNumber = table.TableNumber,
+                    locationId = table.LocationId,
+                    tableStatusId = table.TableStatusId
+                },
+                orderItems = table.Orders
+                .Where(x => x.TableId == table.TableId && x.OrderStatusId == 4)
+                .SelectMany(o => o.OrderItems)
+                .Select(i => new
+                {
+                    prod = new
+                    {
+                        prodName = i.Prod.ProdName,
+                        price = i.Prod.Price
+                    },
+                    quantity = i.Quantity
+                }).ToList()
+            };
+
+            // Broadcast to all clients
+            await _hub.Clients.All.SendAsync("NewBill", billingData);
+
+            return Json(new { success = true, message = "Bill requested successfully" });
         }
+
 
         //
         //Custom Methods

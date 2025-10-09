@@ -1,6 +1,6 @@
 ﻿@model TheSocialCebu_Capstone.Models.Account
 @{
-    ViewData["Title"] = "My Account";
+    ViewData["Title"] = "Account";
 }
 <style>
     .smooth-transition {
@@ -10,7 +10,13 @@
 <div class="render-body vh-100 vw-100">
     <div class="p-4 h-100 w-100">
         <h1 class="text-dark fw-bold mb-4 text-antonio">EDIT ACCOUNT DETAILS</h1>
-
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         <form method="post" asp-action="UpdateAccount" asp-controller="User" class="has-validation" novalidate>
             <!-- Hidden Fields -->
             <input asp-for="AccountId" type="hidden" />
@@ -100,7 +106,6 @@
                 <!-- Buttons -->
                 <div class="w-100 d-flex justify-content-end py-2">
                     <button class="btn btn-success px-5 py-2" type="submit">Save Changes</button>
-                    <a asp-action="Index" class="btn btn-secondary ms-2 px-5 py-2">Cancel</a>
                 </div>
             </div>
         </form>

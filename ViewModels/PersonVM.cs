@@ -11,9 +11,9 @@ namespace TheSocialCebu_Capstone.ViewModels
 
         public string RoleId { get; set; } = null!;
 
-        [Required(ErrorMessage = "Birth date is required")]
-        [DataType(DataType.Date)]
-        public DateTime BirthDate { get; set; }
+        [Required(ErrorMessage = "Birth date is required.")]
+        [DataType(DataType.Date, ErrorMessage = "Please enter a valid birth date.")]
+        public DateTime? BirthDate { get; set; }
 
         public DateTime HiredDate { get; set; }
 

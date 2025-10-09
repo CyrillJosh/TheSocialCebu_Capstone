@@ -22,9 +22,16 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label text-dark" asp-for="BirthDate">Birth Date</label>
-                    <input class="form-control bg-body-secondary" asp-for="BirthDate" type="date" value="" min="1900-01-01" max="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    <input class="form-control bg-body-secondary"
+                           asp-for="BirthDate"
+                           type="date"
+                           value="@(Model?.BirthDate.HasValue == true ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "")"
+                           min="1900-01-01"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           required />
                     <span class="text-danger" asp-validation-for="BirthDate"></span>
                 </div>
+
 
                 <div class="col-md-12">
                     <label class="form-label text-dark" asp-for="RoleId">Role</label>

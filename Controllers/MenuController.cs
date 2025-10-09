@@ -84,7 +84,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             //Get the product
             var product = _context.Products.Include(s => s.Subcategory).FirstOrDefault(p => p.ProdId == id);
-            if (product == null) return NotFound();
+            if (product == null) return View("Error", "Error|Product not found!");
             PopulateCategories();
 
             var vm = new ProductVM
@@ -117,7 +117,7 @@ namespace TheSocialCebu_Capstone.Controllers
             }
             //Get product
             var product = _context.Products.Find(vm.ProdId);
-            if (product == null) return NotFound();
+            if (product == null) return View("Error", "Error|Product not found!");
 
             //Set product's new data
             product.ProdName = vm.ProdName;
@@ -142,7 +142,7 @@ namespace TheSocialCebu_Capstone.Controllers
         {
             //Get product
             var product = _context.Products.Find(id);
-            if (product == null) return NotFound();
+            if (product == null) return View("Error", "Error|Product not found!");
 
             //Delete product (Make product unavailable)
             product.Availability = false;

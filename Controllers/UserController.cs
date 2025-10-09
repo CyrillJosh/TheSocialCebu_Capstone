@@ -1,12 +1,13 @@
-﻿using System;
-using System.Net.Http.Headers;
-using BCrypt.Net;
+﻿using BCrypt.Net;
 using Menu.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Net.Http.Headers;
 using TheSocialCebu_Capstone.Context;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.ViewModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Menu.Controllers
 {
@@ -86,9 +87,17 @@ namespace Menu.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult Account(string id)
         {
-            var acc = _context.Accounts.Include(x => x.Person).ThenInclude(r => r.Role).FirstOrDefault(x => x.AccountId == id);
+            var acc = _context.Accounts
+                .Include(x => x.Person)
+                .ThenInclude(r => r.Role)
+                .FirstOrDefault(x => x.AccountId == id);
+
+            if (acc == null)
+                return View("Error", "Error|Account not found!");
+
             return View(acc);
         }
         [HttpPost]
@@ -96,12 +105,33 @@ namespace Menu.Controllers
         {
             var existing = _context.Accounts
                 .Include(a => a.Person)
+                .ThenInclude(p => p.Role)
                 .FirstOrDefault(a => a.AccountId == account.AccountId);
+
+            var valid = ValidatePasswordStrength(account.Password);
+            if (valid.Any())
+            {
+                foreach (var v in valid)
+                    ModelState.AddModelError("Password", v);
+
+                var fullAccount = _context.Accounts
+                    .Include(a => a.Person)
+                    .ThenInclude(p => p.Role)
+                    .FirstOrDefault(a => a.AccountId == account.AccountId);
+
+                fullAccount.Password = account.Password;
+                fullAccount.Username = account.Username;
+
+                return View("Account", fullAccount); 
+            }
 
             if (existing != null)
             {
                 existing.Username = account.Username;
-                existing.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+                string salt = BCrypt.Net.BCrypt.GenerateSalt();
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password, salt);
+                existing.Salt = salt;
+                existing.Password = hashedPassword;
                 existing.DateUpdated = DateTime.Now;
 
                 existing.Person.Name = account.Person.Name;
@@ -110,10 +140,14 @@ namespace Menu.Controllers
                 existing.Person.Status = account.Person.Status;
 
                 _context.SaveChanges();
+
+                TempData["SuccessMessage"] = "Account updated successfully!";
             }
 
-            return RedirectToAction("Account", new { id = account.Person.PersonId });
+            return RedirectToAction("Account", new { id = account.AccountId });
         }
+
+
         public IActionResult HomePage()
         {
             List<Person> people = _context.People.Include(p => p.Account).Include(x => x.Role).ToList();
@@ -135,24 +169,50 @@ namespace Menu.Controllers
         [Auth("Manager")]
         public IActionResult Create(PersonVM personvm)
         {
+
+            personvm.Roles = _context.Roles.ToList();
+            if (!ModelState.IsValid)
+            {
+                return View(personvm);
+            }
+                
+            if(personvm.Username.Length < 5)
+            {
+                ModelState.AddModelError("Username", "Username length must be greater than 5");
+                return View(personvm);
+            }
+            if(personvm.Password.Length < 8)
+            {
+                ModelState.AddModelError("Password", "Password length must be greater than 7");
+                return View(personvm);  
+            }
+
+
+            var persons = _context.Accounts.Select(x => x.Username).ToList();
+            if (persons.Contains(personvm.Username))
+            {
+                ModelState.AddModelError("Username", "Username already exist please choose another");
+                return View(personvm);
+            }
+
             var person = new Person()
             {
                 PersonId = Guid.NewGuid().ToString(),
                 Status = true,
-                BirthDate = personvm.BirthDate,
+                BirthDate = (DateTime)personvm.BirthDate,
                 Gender = personvm.Gender,
                 RoleId = personvm.RoleId,
                 Name = personvm.Name,
                 HiredDate = DateTime.Now,
                 Account = new Account()
                 {
-                    Username = personvm.Username
+                    Username = personvm.Username,
                 }
 
             };
-            personvm.Roles = _context.Roles.ToList();
-            if (!ModelState.IsValid) return View(personvm);
-            person.Account.Password = BCrypt.Net.BCrypt.HashPassword(personvm.Password);
+            
+            person.Account.Salt = BCrypt.Net.BCrypt.GenerateSalt();
+            person.Account.Password = BCrypt.Net.BCrypt.HashPassword(personvm.Password, person.Account.Salt);
             person.Account.AccountId = Guid.NewGuid().ToString();
             person.Account.PersonId = person.PersonId;
             person.Role = _context.Roles.FirstOrDefault(x => x.RoleId == person.RoleId);
@@ -171,7 +231,7 @@ namespace Menu.Controllers
                 .FirstOrDefault(x => x.PersonId == id);
 
             if (person == null)
-                return NotFound();
+                return View("Error","Error|Person not found!");
 
             var personvm = new PersonUpdateVM
             {
@@ -200,7 +260,7 @@ namespace Menu.Controllers
                                  .FirstOrDefault(p => p.PersonId == personVM.PersonId);
 
             if (person == null)
-                return NotFound();
+                return View("Error","Error|Person not found!");
 
             // Update only person fields, not password
             person.Name = personVM.Name;
@@ -241,7 +301,11 @@ namespace Menu.Controllers
             var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);
             if (acc == null) return Json(new { success = false, message = "User not found" });
 
-            acc.Password = BCrypt.Net.BCrypt.HashPassword(npass);
+            string salt = BCrypt.Net.BCrypt.GenerateSalt();
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(npass, salt);
+
+            acc.Salt = salt;
+            acc.Password = hashedPassword;
 
             _context.Accounts.Update(acc);
             _context.SaveChanges();
@@ -252,6 +316,32 @@ namespace Menu.Controllers
         {
             HttpContext.Session.Clear(); // clears all session data
             return RedirectToAction("Login");
+        }
+
+
+        //Password Checker
+        private List<string> ValidatePasswordStrength(string password)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                errors.Add("Password cannot be empty.");
+                return errors;
+            }
+
+            if (password.Length < 8)
+                errors.Add("Password must be at least 8 characters long.");
+            if (!password.Any(char.IsUpper))
+                errors.Add("Password must contain at least one uppercase letter.");
+            if (!password.Any(char.IsLower))
+                errors.Add("Password must contain at least one lowercase letter.");
+            if (!password.Any(char.IsDigit))
+                errors.Add("Password must contain at least one number.");
+            if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"[\W_]"))
+                errors.Add("Password must contain at least one special character.");
+
+            return errors;
         }
     }
 }

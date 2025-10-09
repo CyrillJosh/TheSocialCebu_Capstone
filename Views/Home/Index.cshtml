@@ -86,26 +86,30 @@
                                placeholder="Search your favorite food"
                                class="border-0 bg-transparent text-white flex-grow-1" autocomplete="off" />
                     </div>
-                    <!-- Dropdown for search results -->
-                    <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-2 border-white shadow overflow-auto"
-                         style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
-                        @foreach (var i in Model.SelectMany(x => x.SubCategories).SelectMany(x => x.Products))
-                        {
-                            <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
-                                @i.ProdName
-                            </div>
-                        }
-                    </div>
+                    @if(table != null){
+                        <!-- Dropdown for search results -->
+                        <div id="search-dropdown" class="position-absolute py-1 mt-1 text-white w-100 rounded-4 border border-2 border-white shadow overflow-auto"
+                             style="max-height: 300px; display:none; top:100%; left:0; z-index:1050;">
+                            @foreach (var i in Model.SelectMany(x => x.SubCategories).SelectMany(x => x.Products))
+                            {
+                                <div class="p-2 ps-4 search-item" data-id="@i.ProdId" style="cursor:pointer;">
+                                    @i.ProdName
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
                 <!-- Cart -->
                 <a class="text-decoration-none text-yellow position-relative" href="/Order/Cart">
                     <img src="~/Images/Cart.png" class="img-fluid" style="max-height: 40px;" />
+                    <span class="pill">
                     @if (orders.Count > 0)
                     {
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             @orders.Count
                         </span>
                     }
+                    </span>
                 </a>
             </div>
             <p class="text-white fw-bold px-3" style="font-size:2.5vh; margin-top: 3vh">Select a Category</p>
@@ -210,6 +214,23 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            window.connection.on("DonePayment", function(table){
+                let currentTable = '@table';
+                if(currentTable === table){
+                    console.log("Payment done for table: " + table);
+                    fetch('/Order/ClearMySession', { method: 'POST' })
+                    .then(() => {
+                        console.log("Session cleared");
+                        $("body").empty();
+                        $("body").removeClass("row");
+                        $("body").append(`
+                            <div style="overflow: hidden; width:100vw; height:100vh; display:flex; justify-content:center; align-items:center; background-color:black;">
+                                <img src="/Images/donepayment.png" alt="Payment Done" style="height: 100%; width: 100%; object-fit: cover"/>
+                            </div>
+                        `);
+                    })
+                }
+            });
             const searchInput = $("#food-search");
             const dropdown = $("#search-dropdown");
 

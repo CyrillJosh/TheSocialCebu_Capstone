@@ -109,6 +109,7 @@
     </footer>
 </div>
 
+<!-- Offcanvas -->
 <div class="offcanvas offcanvas-bottom bg-dark h-50 pb-3 rounded rounded-top-4 text-white border border-1 border-start-0 border-bottom-0 border-end-0" style="background: #2F2F2F" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
     <button type="button" class="text-white bg-transparent border border-0 position-absolute top-0 end-0 m-4 " data-bs-dismiss="offcanvas" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
@@ -125,9 +126,57 @@
         </div>
     </div>
 </div>
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-white bg-gray border-0 shadow-lg">
+
+            <!-- Header -->
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-arbutus" id="DeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <hr/>
+            <!-- Body -->
+            <div class="modal-body text-center pt-2 pb-4">
+                <h5 class="fw-semibold mb-3">Are you sure you want to delete:</h5>
+                <h4 class="fw-bold text-yellow" id="Item">Item Name</h4>
+                <p class="mt-2 text-white small">This action cannot be undone.</p>
+            </div>
+            <hr/>
+            <!-- Footer -->
+            <div class="modal-footer border-0 d-flex justify-content-center pb-4">
+                <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm" id="ConfirmDelete">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function (){
+            window.connection.on("DonePayment", function(table){
+                let currentTable = '@table';
+                if(currentTable === table){
+                    console.log("Payment done for table: " + table);
+                    fetch('/Order/ClearMySession', { method: 'POST' })
+                    .then(() => {
+                        console.log("Session cleared");
+                        $("body").empty();
+                        $("body").removeClass("row");
+                        $("body").append(`
+                            <div style="overflow: hidden; width:100vw; height:100vh; display:flex; justify-content:center; align-items:center; background-color:black;">
+                                <img src="/Images/donepayment.png" alt="Payment Done" style="height: 100%; width: 100%; object-fit: cover"/>
+                            </div>
+                        `);
+                    })
+                }
+            });
             $(".bi-plus").on("click", function () {
                 let id =  $(this).data("id");
                 fetch(`/Order/UpdateQuantity?id=${id}&type=Add`)
@@ -212,18 +261,28 @@
             //Add confirmation
             $(".remove").on("click", function () {
                 let id = $(this).data("id");
-                fetch(`/Order/RemoveFromCart/${id}`)
-                .then(response => response.json())
-                .then(m => {
-                    if(m.success){
-                        window.location.reload()
-                    }
-                    else{
-                        AlertModal("Error",m.message);
-						// alert(m.message)
-                    }
-                })
+
+                let itemName = $(this).closest(".w-100").find("h1").text().trim();
+
+                $("#ConfirmDelete").data("id", id);
+                $("#Item").text(itemName);
+                $("#DeleteModal").modal("show");
             });
+
+            $("#ConfirmDelete").on("click", function () {
+                let id = $(this).data("id");
+
+                fetch(`/Order/RemoveFromCart/${id}`)
+                    .then(response => response.json())
+                    .then(m => {
+                        if (m.success) {
+                            window.location.reload();
+                        } else {
+                            AlertModal("Error", m.message);
+                        }
+                    });
+            });
+
 
             $(".confirm").on("click", () => {
                 const tableId = '@table'; // Razor variable

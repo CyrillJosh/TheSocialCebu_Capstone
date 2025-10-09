@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TheSocialCebu_Capstone.Context;
+using TheSocialCebu_Capstone.Hubs;
 using TheSocialCebu_Capstone.Models;
 using TheSocialCebu_Capstone.Models.BillingClasses;
 using TheSocialCebu_Capstone.ViewModels;
@@ -11,9 +13,12 @@ namespace TheSocialCebu_Capstone.Controllers
     public class CashierController : Controller
     {
         private readonly MyDBContext _context;
-        public CashierController(MyDBContext context)
+        private readonly IHubContext<ConnectorHub> _hub;
+
+        public CashierController(MyDBContext context, IHubContext<ConnectorHub> hub)
         {
             _context = context;
+            _hub = hub;
         }
         //Index
         public IActionResult Index()
@@ -141,6 +146,7 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 success = true,
                 message = "Success",
+                tablenumber = table.TableNumber,
                 bill = new
                 {
                     billing.BillingId,
@@ -242,6 +248,7 @@ namespace TheSocialCebu_Capstone.Controllers
             {
                 success = true,
                 message = "Success",
+                tablenumber = table.TableNumber,
                 discount = disc == null ? null : new
                 {
                     disc.DiscountName,
@@ -314,11 +321,13 @@ namespace TheSocialCebu_Capstone.Controllers
                     vatable = vatexempt;
                     vatexemptsale = vatexempt + servicecharge;
                 }
+                var table = _context.Tables.FirstOrDefault(t => t.TableId == tableid);
 
                 return Json(new
                 {
                     success = true,
                     message = "Success",
+                    tablenumber = table.TableNumber,
                     discount = bill.DiscountId == null ? null : new
                     {
                         bill.Discount.DiscountName,
@@ -351,19 +360,19 @@ namespace TheSocialCebu_Capstone.Controllers
         }
 
         [HttpPost]
-        public JsonResult PayBill(string tableid, decimal amount)
+        public async Task<JsonResult> PayBill(string tableid, decimal amount)
         {
-            var bills = _context.Billings.ToList();
-            var bill = _context.Billings
+            var bill = await _context.Billings
                 .Include(b => b.Payment)
                 .Include(b => b.Discount)
                 .Include(b => b.Table)
                 .Include(b => b.BillingOrders)
-                .ThenInclude(b => b.Order)
-                .ThenInclude(o => o.OrderItems)
-                .ThenInclude(oi => oi.Prod)
-                .FirstOrDefault(b => b.TableId == tableid && b.Payment == null); 
-            if(bill == null)
+                    .ThenInclude(b => b.Order)
+                        .ThenInclude(o => o.OrderItems)
+                            .ThenInclude(oi => oi.Prod)
+                .FirstOrDefaultAsync(b => b.TableId == tableid && b.Payment == null);
+
+            if (bill == null)
                 return Json(new { success = false, message = "Bill not found" });
 
             if (bill.Payment != null)
@@ -371,40 +380,39 @@ namespace TheSocialCebu_Capstone.Controllers
 
             if (amount < bill.GrandTotal)
                 return Json(new { success = false, message = "Insufficient payment amount" });
-            //Record payment
+
             var payment = new Payment
             {
-                PaymentId = bill.BillingId, //Use the same ID as BillingId
+                PaymentId = bill.BillingId,
                 AmountPaid = amount,
                 PaymentTime = DateTime.Now,
                 PaymentNavigation = bill
             };
 
-            //Close all orders under this bill
             foreach (var order in bill.BillingOrders.Select(x => x.Order))
             {
-                order.OrderStatusId = 5; //Completed
+                order.OrderStatusId = 5; // Completed
             }
 
-            //Reset table to Available
-            bill.Table.TableStatusId = 1;
+            bill.Table.TableStatusId = 1; // Reset table to Available
 
-            _context.Payments.Add(payment);
-            _context.SaveChanges();
+            await _context.Payments.AddAsync(payment);
+            await _context.SaveChangesAsync();
 
-
+            await _hub.Clients.All.SendAsync("DonePayment", tableid);
             var vats = bill.Subtotal / 1.12m;
             decimal? discountAmount = null;
 
             if (bill.DiscountId != null)
-            {
                 discountAmount = vats * bill.Discount.Percentage;
-            }
+
+            var table = _context.Tables.FirstOrDefault(t => t.TableId == tableid);
             return Json(new
             {
                 bill.BillingId,
                 success = true,
-                vatSales = bill.Subtotal / 1.12m,
+                tablenumber = table.TableNumber,
+                vatSales = vats,
                 subtotal = bill.Subtotal,
                 tax = bill.VatAmount,
                 servicecharge = bill.ServiceCharge,
@@ -420,10 +428,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 {
                     id = payment.PaymentId,
                     amountPaid = payment.AmountPaid,
-                    time = payment.PaymentTime,
-                    //discount = new {
-                    //    amount = discounted
-                    //}
+                    time = payment.PaymentTime
                 }
             });
         }

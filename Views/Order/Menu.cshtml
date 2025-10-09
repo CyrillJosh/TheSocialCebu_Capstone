@@ -90,7 +90,7 @@
                 </div>
             </div>
             <!-- Subcategories Navigation -->
-            <div class="d-flex flex-row flex-nowrap overflow-x-scroll gap-3 px-2 pb-1" id="subcat" style="scrollbar-width: none">
+            <div class="d-flex flex-row flex-nowrap overflow-x-scroll gap-4 px-2 pb-1" id="subcat" style="scrollbar-width: none">
                 @foreach (var navcat in Model.Where(x => x.Products.Any()))
                 {
                     <a href="#@navcat.SubcategoryName.Replace(" ", "").Replace("&", "").Replace("/", "")"
@@ -99,7 +99,7 @@
                         <span class="rounded rounded-5 p-2 d-flex justify-content-center bg-gray" style="box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 3); ">
                             <img src="/Images/Subcategories/@(navcat.SubcategoryName.ToString().Trim().Replace(" ", "").Replace("&", "").Replace("/", "").ToLower() + ".png")" class="object-fit-cover" style="width:40px; height:40px;" />
                         </span>
-                        <p class="text-center mb-0 text-wrap text-arbutus">
+                        <p class="text-center mb-0 text-arbutus text-wrap small">
                             @navcat.SubcategoryName
                         </p>
                     </a>
@@ -198,6 +198,23 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            window.connection.on("DonePayment", function(table){
+                let currentTable = '@table';
+                if(currentTable === table){
+                    console.log("Payment done for table: " + table);
+                    fetch('/Order/ClearMySession', { method: 'POST' })
+                    .then(() => {
+                        console.log("Session cleared");
+                        $("body").empty();
+                        $("body").removeClass("row");
+                        $("body").append(`
+                            <div style="overflow: hidden; width:100vw; height:100vh; display:flex; justify-content:center; align-items:center; background-color:black;">
+                                <img src="/Images/donepayment.png" alt="Payment Done" style="height: 100%; width: 100%; object-fit: cover"/>
+                            </div>
+                        `);
+                    })
+                }
+            });
             window.connection.on("NewProduct", function (prod) {
                 console.log(prod)
                 // Format price

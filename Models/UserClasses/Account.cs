@@ -13,7 +13,9 @@ public partial class Account
 
     public string Password { get; set; } = null!;
 
-    public DateTime DateUpdated { get ; set; }
+    public string Salt { get; set; } = null!;
+
+    public DateTime DateUpdated { get; set; }
 
     public virtual Person Person { get; set; } = null!;
 }

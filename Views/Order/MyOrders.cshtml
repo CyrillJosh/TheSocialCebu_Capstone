@@ -5,6 +5,7 @@
     ViewData["Title"] = "My Orders";
     string table = Context.Session.GetString("Table");
 }
+<img hidden src="/Images/donepayment.png" alt="Payment done image"/>
 <div class="vh-100 vw-100 d-flex flex-column bg-black">
     <header class="w-100 mb-2 d-flex justify-content-between p-2">
         <!-- Back button -->
@@ -109,7 +110,7 @@
                     @for(int i = 1; i<=5; i++ )
                     {
                         <button type="button" value="@i" class="btn star m-0 p-0" data-rating="@i">
-                            <img src="~/Images/Star.png" class="img-fluid star-img" style="height: 40px; width: 40px; opacity: 0.5;" />
+                            <img src="~/Images/Star.png" class="img-fluid star-img" style="height: 40px; width: 40px;" />
                         </button>
                     }
                 </div>
@@ -133,6 +134,25 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
+            window.connection.on("DonePayment", function(table){
+                let currentTable = '@table';
+                if(currentTable === table){
+                    console.log("Payment done for table: " + table);
+                    fetch('/Order/ClearMySession', { method: 'POST' })
+                    .then(() => {
+                        console.log("Session cleared");
+                        $("body").empty();
+                        $("body").removeClass("row");
+                        $("body").append(`
+                            <div style="overflow: hidden; width:100vw; height:100vh; display:flex; justify-content:center; align-items:center; background-color:black;">
+                                <img src="/Images/donepayment.png" alt="Payment Done" style="height: 100%; width: 100%; object-fit: cover"/>
+                            </div>
+                        `);
+                    })
+                }
+            });
+
+
             let height = $("#req").outerHeight();
             $("main").css("margin-bottom", `-${height}px`);
 
@@ -160,7 +180,6 @@
             $(".star").click(function () {
                 var rating = $(this).data("rating");
                 $("#RatingValue").val(rating);
-                $(".star-img").css("opacity", "0.5");
                 console.log(rating)
                 $(".star").each(function () {
                     if ($(this).data("rating") <= rating) {
@@ -172,20 +191,25 @@
                     }
                 });
             });
-            $(document).on("click", "#Req", function () {
-                let id = $(this).data("id");
+                    $(document).on("click", "#Req", function () {
+            let id = $(this).data("id");
 
-                fetch(`/Order/RequestBill?tableid=${id}`)
-                .then(response => response.json())
-                .then(x => {
-                    if(x.success){
-                        $(this).text("Bill Requested")
-                        $("#FeedbackModal").modal("show");
-                    } else {
-                        AlertModal("Error",x.message);
-                    }
-                });
+            fetch(`/Order/RequestBill`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ tableid: id })
+            })
+            .then(response => response.json())
+            .then(x => {
+                if(x.success){
+                    $(this).text("Bill Requested");
+                    $("#FeedbackModal").modal("show");
+                } else {
+                    AlertModal("Error", x.message);
+                }
             });
+        });
+
 
             $(".submitfeedback").on("click", function(){
                 let rating = $("#RatingValue").val();

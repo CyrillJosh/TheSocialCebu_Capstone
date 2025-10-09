@@ -71,13 +71,13 @@ namespace TheSocialCebu_Capstone.Controllers
         //Print
         public IActionResult Print(string id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            if (string.IsNullOrEmpty(id)) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
             var table = _context.Tables
                 .Include(t => t.Location)
                 .FirstOrDefault(t => t.TableId == id);
 
-            if (table == null) return NotFound();
+            if (table == null) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
             return View(table);
         }
@@ -85,10 +85,10 @@ namespace TheSocialCebu_Capstone.Controllers
         //Edit
         public async Task<IActionResult> Edit(string? id)
         {
-            if (id == null) return NotFound();
+            if (id == null) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
             var table = _context.Tables.Include(x => x.TableStatus).FirstOrDefault(x => x.TableId == id);
-            if (table == null) return NotFound();
+            if (table == null) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
             var vm = new TableVM
             {
@@ -108,12 +108,12 @@ namespace TheSocialCebu_Capstone.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string id, TableVM vm)
         {
-            if (id.ToString() != vm.Id) return NotFound();
+            if (id.ToString() != vm.Id) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
             if (ModelState.IsValid)
             {
                 var table = await _context.Tables.FindAsync(id);
-                if (table == null) return NotFound();
+                if (table == null) return RedirectToAction("Error", "Home", "Error|Table not found!");
 
                 table.TableNumber = vm.TableNumber;
                 table.LocationId = vm.LocationId;
@@ -155,7 +155,7 @@ namespace TheSocialCebu_Capstone.Controllers
             var qrcode = new QRCodeGenerator();
             //var qr = qrcode.CreateQrCode("http://192.168.254.177/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY home wifi
             //var qr = qrcode.CreateQrCode("http://thesocial.cebu/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); //testing domain
-            var qr = qrcode.CreateQrCode("http://10.14.90.47/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY hotspot
+            var qr = qrcode.CreateQrCode("http://10.41.43.47/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY hotspot
 
 
             Base64QRCode qrimage = new Base64QRCode(qr);
