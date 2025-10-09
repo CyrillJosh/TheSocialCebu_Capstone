@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Menu.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 using TheSocialCebu_Capstone.Context;
@@ -7,6 +8,7 @@ using TheSocialCebu_Capstone.Services;
 
 namespace TheSocialCebu_Capstone.Controllers
 {
+    [Auth("Manager")]
     public class MarketingController : Controller
     {
 

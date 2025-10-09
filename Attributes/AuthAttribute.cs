@@ -18,10 +18,10 @@ namespace Menu.Attributes
             {
             var httpContext = context.HttpContext;
             //Get Session
-            //var user = httpContext.Session.GetString("_Id");
-            //var role = httpContext.Session.GetString("_Role");
-            var user = "user";
-            var role = "Manager";
+            var user = httpContext.Session.GetString("_Id");
+            var role = httpContext.Session.GetString("_Role");
+            //var user = "user";
+            //var role = "Manager";
             if (string.IsNullOrEmpty(user) || role.Length == 0 || role == null || !Role.Contains(role))
             {
                 context.Result = new RedirectToActionResult("Login", "User", null);

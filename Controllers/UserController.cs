@@ -147,7 +147,7 @@ namespace Menu.Controllers
             return RedirectToAction("Account", new { id = account.AccountId });
         }
 
-
+        [Auth("Manager")]
         public IActionResult HomePage()
         {
             List<Person> people = _context.People.Include(p => p.Account).Include(x => x.Role).ToList();
@@ -156,6 +156,7 @@ namespace Menu.Controllers
 
         //CreateProcess
         [HttpGet]
+        [Auth("Manager")]
         public IActionResult Create()
         {
             var vm = new PersonVM
@@ -296,6 +297,7 @@ namespace Menu.Controllers
             return Json(new { success = true, message = "Success!" });
         }
 
+        [Auth("Manager")]
         public JsonResult ResetPassword(string id, string npass)
         {
             var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);

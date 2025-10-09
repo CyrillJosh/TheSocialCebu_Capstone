@@ -219,6 +219,10 @@
 		$(document).ready(function () {
 			window.connection.on("NewBill", function(bill) {
 				console.log("New bill received:", bill);
+				if ($(`#table-${bill.table.tableId}`).length > 0 || $(`#Details${bill.table.tableId}`).length > 0) {
+					console.log(`Bill for table ${bill.table.tableId} already exists, skipping append.`);
+					return;
+				}
 
 				// Determine color based on location
 				const colorClass =
@@ -437,7 +441,7 @@
 								<div style="width:80mm; font-family:monospace; font-size:12px; text-align:center">
 									<h3 class="text-antonio">THE SOCIAL CEBU</h3>
 									<p>Official Reciept</p>
-									<p>Table: ${m.tablenumber</p>
+									<p>Table: ${m.tablenumber}</p>
 									<hr />
 									<table style="width:100%; font-size:12px; text-align:left">
 										<thead>
@@ -462,14 +466,14 @@
 						`;
 						if(m.discount != null){
 							content += `<p>${m.discount.discountName} discount ${m.discount.percentage*100}%: - ${m.discount.amount.toFixed(2)}</p>
-								<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
+								<h5><strong>Total: ${m.total.toFixed(2)}</strong></h5>
 								</div>
 								<hr />
 								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
 								<p>Thank you for dining with us!</p>
 							</div>`
 						}else{
-							content += `									<p><strong>Total: ${m.total.toFixed(2)}</strong></p>
+							content += `<h5><strong>Total: ${m.total.toFixed(2)}</strong></h5>
 								</div>
 								<hr />
 								<p style="font-size:11px">Generated: ${new Date().toLocaleString()}</p>
@@ -484,7 +488,7 @@
 						$("#recadd").append(`
 							<hr />
 							<p>Amount Received: ₱${m.payment.amountPaid.toFixed(2)}</p>
-							<p><strong>Change: ₱${m.change.toFixed(2)}</strong></p>`
+							<h6><strong>Change: ₱${m.change.toFixed(2)}</strong></h6>`
 						)
 					}
 					else{

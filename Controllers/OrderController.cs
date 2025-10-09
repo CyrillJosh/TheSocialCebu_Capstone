@@ -292,6 +292,7 @@ namespace TheSocialCebu_Capstone.Controllers
                 order.CreatedAt,
                 Table = new
                 {
+                    TableId = tableId,
                     TableNumber = (await _context.Tables.FindAsync(tableId))?.TableNumber ?? "Unknown",
                     LocationId = (await _context.Tables.FindAsync(tableId))?.LocationId ?? 0
                 },

@@ -31,7 +31,7 @@
     <div class="row h-100 p-4">
         <!-- LEFT: List of Bills -->
         <div class="col-7 h-100">
-            <h1 class="fw-bold text-antonio">Bills</h1>
+            <h1 class="fw-bold text-antonio text-dark">Bills</h1>
             <div class="d-flex gap-2 overflow-y-auto h-auto pt-4 ps-2 flex-wrap">
                 @foreach (var b in Model)
                 {
@@ -53,7 +53,7 @@
         <!-- RIGHT: Printable Bill Section -->
         <div class="col-5 h-100 border-start d-flex flex-column">
             <div class="d-flex justify-content-between mb-3">
-                <h1 class="fw-bold text-antonio">Receipt</h1>
+                <h1 class="fw-bold text-antonio text-dark">Receipt</h1>
                 <button class="btn btn-primary no-print px-5 py-1 rounded-pill visually-hidden" onclick="window.print()">Print</button>
             </div>
             <div class="h-100 overflow-y-auto flex-grow-1 print-section">

@@ -159,6 +159,10 @@
 
 			window.connection.on("NewOrder", function(order) {
 				console.log("Received order:", order);
+				if ($(`#${order.orderId}`).length > 0 || $(`#OrderDetails > #${order.orderId}`).length > 0) {
+					console.log(`Order ${order.orderId} already exists, skipping append.`);
+					return;
+				}
 				appendOrder(order);
 				appendDetails(order);
 			});

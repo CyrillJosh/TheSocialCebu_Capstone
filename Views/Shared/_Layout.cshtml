@@ -176,15 +176,22 @@
 
 	<div class="modal fade" id="AlertModal" aria-labeledby="AlertModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content bg-light">
-				<div class="modal-header">
-					<h6 class="modal-title text-dark" id="AlertTitle"></h6>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content @(currentController == "Home" || currentController == "Order" ? "bg-dark" : "bg-light") d-flex flex-column p-3">
+				<div class="position-relative text-center">
+					<h3 class="modal-title text-arbutus @(currentController == "Home" || currentController == "Order" ? "text-light" : "text-dark")" id="AlertTitle">Error</h3>
+					@* <button type="button" class="btn position-absolute end-0 top-0 @(currentController == "Home" || currentController == "Order" ? "text-light" : "text-dark")" data-bs-dismiss="modal" aria-label="Close">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+						</svg>
+					</button> *@
 				</div>
-				<div class="modal-body text-dark" id="Alertmessage">
+				<hr class="@(currentController == "Home" || currentController == "Order" ? "text-light" : "text-dark")" />
+				<div class="@(currentController == "Home" || currentController == "Order" ? "text-light" : "text-dark") text-amarath text-center" id="Alertmessage">
+					Message
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+				<hr class="@(currentController == "Home" || currentController == "Order" ? "text-light" : "text-dark")" />
+				<div class="text-center pt-2">
+					<button type="button" class="btn bg-primary rounded-pill px-5 py-1 text-amarath text-black" data-bs-dismiss="modal">OK</button>
 				</div>
 			</div>
 		</div>
