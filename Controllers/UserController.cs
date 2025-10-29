@@ -76,7 +76,7 @@ namespace Menu.Controllers
             switch (userRole)
             {
                 case "Manager":
-                    return RedirectToAction("Index", "Menu");
+                    return RedirectToAction("Status", "Kitchen");
                 case "Kitchen":
                     return RedirectToAction("Index", "Kitchen");
                 case "Cashier":

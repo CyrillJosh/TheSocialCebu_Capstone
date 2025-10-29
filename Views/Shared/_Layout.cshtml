@@ -53,6 +53,8 @@
 				<h2 class="m-0 text-antonio fw-bold" style="letter-spacing: 2px">THE SOCIAL</h2>
 			</div>
 			<div class="offcanvas-body flex-grow-1 d-flex flex-column gap-1 mt-1" id="navigation">
+				<div class="flex-grow-1 d-flex flex-column gap-1 mt-1 overflow-y-auto" style="scrollbar-width:thin">
+
 				@if (userRole == "Manager")
 				{
 					<a class="btn @(currentController == "Menu" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
@@ -75,12 +77,23 @@
 							 style="filter: invert(@(currentController == "Cashier" ? 1 : 0)); transition: filter 0.3s ease;" />
 						<h6 class="text-poppins fw-semibold text-nowrap">BILLING MANAGEMENT</h6>
 					</a>
-
-					<a class="btn @(currentController == "Kitchen" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					@* <a class="btn @(currentController == "Cashier" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Cashier" asp-action="Status">
+						<img src="~/Images/bill.png" alt="Billing Management" height="50" width="50"
+							 style="filter: invert(@(currentController == "Cashier" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">BILLING MANAGEMENT</h6>
+					</a> *@
+					<a class="btn @(currentController == "Kitchen" && currentAction == "Index" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
 					   asp-controller="Kitchen" asp-action="Index">
 						<img src="~/Images/order manage.png" alt="Order Management" height="50" width="50"
-							 style="filter: invert(@(currentController == "Kitchen" ? 1 : 0)); transition: filter 0.3s ease;" />
+								 style="filter: invert(@(currentController == "Kitchen" && currentAction == "Index" ? 1 : 0)); transition: filter 0.3s ease;" />
 						<h6 class="text-poppins fw-semibold text-nowrap">ORDER MANAGEMENT</h6>
+					</a>
+						<a class="btn @(currentController == "Kitchen" && currentAction == "Status" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
+					   asp-controller="Kitchen" asp-action="Status">
+						<img src="~/Images/ordering.png" alt="Order Management" height="50" width="50"
+								 style="filter: invert(@(currentController == "Kitchen" && currentAction == "Status" ? 1 : 0)); transition: filter 0.3s ease;" />
+						<h6 class="text-poppins fw-semibold text-nowrap">ORDER STATUS</h6>
 					</a>
 
 					<a class="btn @(currentController == "User" ? "btn-primary" : "btn-dark") pt-1 w-100 text-center d-flex flex-column align-items-center"
@@ -138,6 +151,7 @@
 				}
 
 
+				</div>
 
 				@* <a href="http://localhost:5021/Order/Table/cd69e8bc-ee35-4132-9768-8d4e198f9b8f">Order shortcut</a>
 			<a href="http://localhost:5021/Kitchen">Kitchen shortcut</a>

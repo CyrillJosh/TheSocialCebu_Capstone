@@ -116,12 +116,12 @@
 				const tableid = $(this).data("id");
 				const tablename = $(this).data("name");
 				const tablestat = $(this).data("status");
-				if(tablestat != 1) {
-					AlertModal("Error", "This table is currently in use and cannot be deleted right now.")
+				if (tablestat == 5){
+					AlertModal("Error", "This table is already unavailable")
 					return;
 				}
-				else if (tablestat == 5){
-					AlertModal("Error", "This table is already unavailable")
+				else if(tablestat != 1) {
+					AlertModal("Error", "This table is currently in use and cannot be deleted right now.")
 					return;
 				}
 				$('#DeleteModal').modal('show');
