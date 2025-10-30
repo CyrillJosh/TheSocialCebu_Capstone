@@ -300,8 +300,10 @@ namespace Menu.Controllers
         [Auth("Manager")]
         public JsonResult ResetPassword(string id, string npass)
         {
-            var acc = _context.Accounts.FirstOrDefault(x => x.PersonId == id);
+            var accid = HttpContext.Session.GetString("_Id");
+            var acc = _context.Accounts.Include(x => x.Person).ThenInclude(x => x.Role).FirstOrDefault(x => x.PersonId == id);
             if (acc == null) return Json(new { success = false, message = "User not found" });
+            if (acc.Person.Role.RoleName == "Manager" && acc.AccountId != accid) return Json(new { success = false, message = "Cannot alter other manager accounts" });
 
             string salt = BCrypt.Net.BCrypt.GenerateSalt();
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(npass, salt);
@@ -311,7 +313,7 @@ namespace Menu.Controllers
 
             _context.Accounts.Update(acc);
             _context.SaveChanges();
-            return Json(new {success = true, message="Success"});
+            return Json(new {success = true, message="Account password has been successfully changed"});
         }
 
         public IActionResult Logout()

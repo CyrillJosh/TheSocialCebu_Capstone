@@ -155,9 +155,9 @@ namespace TheSocialCebu_Capstone.Controllers
         public JsonResult GenerateQRCode(string value)
         {
             var qrcode = new QRCodeGenerator();
-            //var qr = qrcode.CreateQrCode("http://192.168.254.177/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY home wifi
+            var qr = qrcode.CreateQrCode("http://10.134.34.47/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY home wifi
             //var qr = qrcode.CreateQrCode("http://thesocial.cebu/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); //testing domain
-            var qr = qrcode.CreateQrCode("http://10.41.43.47/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY hotspot
+            //var qr = qrcode.CreateQrCode("http://10.41.43.47/Order/Table/" + value, QRCodeGenerator.ECCLevel.M); // CY hotspot
 
 
             Base64QRCode qrimage = new Base64QRCode(qr);
